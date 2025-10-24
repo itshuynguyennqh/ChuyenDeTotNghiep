@@ -1,0 +1,1 @@
+django-admin startproject ecommerce_backend
