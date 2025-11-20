@@ -35,7 +35,8 @@ function ProductDetail() {
     : `https://via.placeholder.com/500?text=${product.name.replace(/\s/g, '+')}`;
 
   return (
-    <Box sx={{ flexGrow: 1, p: { xs: 2, md: 4 } }}>
+    <Box sx={{ flexGrow: 1, p: { xs: 2, md: 4 }, background: "F4E9DB"}} >
+
       <Grid container spacing={{ xs: 2, md: 4 }}>
         {/* CỘT BÊN TRÁI: HÌNH ẢNH SẢN PHẨM */}
         <Grid item xs={12} md={6}>

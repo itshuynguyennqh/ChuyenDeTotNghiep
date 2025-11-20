@@ -1,36 +1,54 @@
 import React from 'react';
-import { Box, Typography, Container } from '@mui/material';
+import {Box, Container, Typography} from '@mui/material';
+import logo from '../../assets/BikeGo-logo-whitebike.png';
+
 
 function Footer() {
-  return (
-    <Box 
-      component="footer" 
-      sx={{ 
-        py: 3, 
-        px: 2, 
-        mt: 'auto', // Đẩy footer xuống cuối
-        backgroundColor: '#002B5B', // Cập nhật màu nền thành xanh biển
-        color: 'white', // Đổi màu chữ thành trắng để dễ đọc
-      }}
-    >
-      <Container maxWidth="lg">
+    return (
+        <Box
+            component="footer"
+            sx={{
+                py: 1,
+                px: 1,
+                mt: 'auto', // Đẩy footer xuống cuối
+                backgroundColor: '#002B5B', // Cập nhật màu nền thành xanh biển
+                color: 'white', // Đổi màu chữ thành trắng để dễ đọc
+            }}
+        >
+            <Container
+                maxWidth="lg"
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}
+            >
+                <Box
+                    component="img"
+                    src={logo}
+                    alt="BikeGo Logo"
+                    sx={{
+                        height: 40,
+                        width: 'auto'
+                    }}
+                />
 
-        <Typography variant="body1" align="center">
-          My E-Commerce Store
-        </Typography>
+                <Box>
+                    <Typography variant="body2" sx={{color: '#FE7E15', fontWeight: 'bold', fontSize: '1rem'}}>
+                        Contact
+                    </Typography>
+                    <Typography variant="body2" sx={{color: 'rgba(255, 255, 255, 0.7)', paddingLeft: '2rem'}}>
+                        +84 912 345 678
+                    </Typography>
+                    <Typography variant="body2" sx={{color: 'rgba(255, 255, 255, 0.7)', paddingLeft: '2rem'}}>
+                        support@bikego.com
+                    </Typography>
+                </Box>
 
-        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }} align="center">
-          {'Copyright © '}
-          {new Date().getFullYear()}
-          {'.'}
-        </Typography>
 
-      </Container>
-
-
-
-    </Box>
-  );
+            </Container>
+        </Box>
+    );
 }
 
 export default Footer;
