@@ -7,9 +7,11 @@ class ProductSubcategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
-    # Sử dụng ProductSubcategorySerializer để hiển thị chi tiết của subcategory
     product_subcategory = ProductSubcategorySerializer(read_only=True)
+    
+    # Thêm dòng này để đảm bảo trường image trả về URL đầy đủ
+    image = serializers.ImageField(use_url=True)
 
     class Meta:
         model = Product
-        fields = '__all__' # '__all__' để bao gồm tất cả các trường từ model Product
+        fields = '__all__'

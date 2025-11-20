@@ -8,3 +8,10 @@ class ProductList(generics.ListCreateAPIView):
     """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API view để lấy, cập nhật hoặc xóa một sản phẩm.
+    """
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer

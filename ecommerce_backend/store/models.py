@@ -11,6 +11,10 @@ class Product(models.Model):
     # ProductID sẽ được Django tự động tạo làm khóa chính (id)
     name = models.CharField(max_length=255)
     product_number = models.CharField(max_length=25, unique=True)
+    
+    # Thêm trường image ở đây
+    image = models.ImageField(upload_to='product_images/', null=True, blank=True)
+
     finished_goods_flag = models.BooleanField(default=True)
     color = models.CharField(max_length=15, blank=True, null=True)
     safety_stock_level = models.SmallIntegerField(default=0)
