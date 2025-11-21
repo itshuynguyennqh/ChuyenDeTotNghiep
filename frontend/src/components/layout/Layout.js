@@ -10,7 +10,7 @@ function Layout() {
       <Header />
       
       {/* Đây là nơi nội dung của các trang con sẽ được render */}
-      <Box component="main" sx={{ flexGrow: 1, py: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, py: 3, px: { xs: 2, md: 4 }, maxWidth: 'lg', mx: 'auto', width: '100%' }}>
         <Outlet />
       </Box>
 
