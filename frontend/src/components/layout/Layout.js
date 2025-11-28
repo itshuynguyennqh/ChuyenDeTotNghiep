@@ -6,11 +6,11 @@ import Footer from './Footer';
 
 function Layout() {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' , backgroundColor: 'F4E9DB'}}>
       <Header />
       
       {/* Đây là nơi nội dung của các trang con sẽ được render */}
-      <Box component="main" sx={{ flexGrow: 1, py: 3, px: { xs: 2, md: 4 }, maxWidth: 'lg', mx: 'auto', width: '100%' }}>
+      <Box component="main" sx={{ flexGrow: 1, py: 3, px: { xs: 2, md: 4 }, maxWidth: 'xl', mx: 'auto', width: '100%' }}>
         <Outlet />
       </Box>
 

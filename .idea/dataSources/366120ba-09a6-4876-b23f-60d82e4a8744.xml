@@ -16624,7 +16624,7 @@
 5|database||0|view any column master key definition|G</Grants>
       <ObjectId>5</ObjectId>
       <PermissionsCheckSum>4255254626</PermissionsCheckSum>
-      <RolesChecksum>2074740529718</RolesChecksum>
+      <RolesChecksum>2074892932490</RolesChecksum>
       <CollationName>SQL_Latin1_General_CP1_CI_AS</CollationName>
     </database>
     <database id="5511" parent="1" name="master">
@@ -16957,39 +16957,44 @@
     <schema id="5570" parent="5510" name="INFORMATION_SCHEMA">
       <ObjectId>3</ObjectId>
     </schema>
-    <schema id="5571" parent="5510" name="db_accessadmin">
+    <schema id="5571" parent="5510" name="admin">
+      <ObjectId>6</ObjectId>
+    </schema>
+    <schema id="5572" parent="5510" name="db_accessadmin">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
-      <IntrospectionTimestamp>2025-11-22.06:26:01</IntrospectionTimestamp>
+      <IntrospectionTimestamp>2025-11-26.05:53:43</IntrospectionTimestamp>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-21.16:26:02</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-25.15:53:56</LastIntrospectionLocalTimestamp>
       <ObjectId>16385</ObjectId>
     </schema>
-    <schema id="5572" parent="5510" name="db_backupoperator">
+    <schema id="5573" parent="5510" name="db_backupoperator">
       <ObjectId>16389</ObjectId>
     </schema>
-    <schema id="5573" parent="5510" name="db_datareader">
+    <schema id="5574" parent="5510" name="db_datareader">
       <ObjectId>16390</ObjectId>
     </schema>
-    <schema id="5574" parent="5510" name="db_datawriter">
+    <schema id="5575" parent="5510" name="db_datawriter">
       <ObjectId>16391</ObjectId>
     </schema>
-    <schema id="5575" parent="5510" name="db_ddladmin">
+    <schema id="5576" parent="5510" name="db_ddladmin">
       <ObjectId>16387</ObjectId>
     </schema>
-    <schema id="5576" parent="5510" name="db_denydatareader">
+    <schema id="5577" parent="5510" name="db_denydatareader">
       <ObjectId>16392</ObjectId>
     </schema>
-    <schema id="5577" parent="5510" name="db_denydatawriter">
+    <schema id="5578" parent="5510" name="db_denydatawriter">
       <ObjectId>16393</ObjectId>
     </schema>
-    <schema id="5578" parent="5510" name="db_owner">
+    <schema id="5579" parent="5510" name="db_owner">
       <ObjectId>16384</ObjectId>
     </schema>
-    <schema id="5579" parent="5510" name="db_securityadmin">
+    <schema id="5580" parent="5510" name="db_securityadmin">
       <ObjectId>16386</ObjectId>
     </schema>
-    <schema id="5580" parent="5510" name="dbo">
+    <schema id="5581" parent="5510" name="dbo">
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
+      <Current>1</Current>
+      <DescriptionsCheckSum>5047417777</DescriptionsCheckSum>
       <Grants>722101613|||0|execute|G
 722101613|||2|execute|D
 738101670|||0|execute|G
@@ -17004,16 +17009,2322 @@
 802101898|||2|execute|D
 818101955|||0|execute|G
 818101955|||2|execute|D</Grants>
+      <IntrospectionTimestamp>2025-11-26.05:53:43</IntrospectionTimestamp>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-20.09:18:48</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-25.15:53:56</LastIntrospectionLocalTimestamp>
       <ObjectId>1</ObjectId>
       <PermissionsCheckSum>16036089281</PermissionsCheckSum>
     </schema>
-    <schema id="5581" parent="5510" name="guest">
+    <schema id="5582" parent="5510" name="guest">
       <ObjectId>2</ObjectId>
     </schema>
-    <schema id="5582" parent="5510" name="sys">
+    <schema id="5583" parent="5510" name="sys">
       <ObjectId>4</ObjectId>
     </schema>
+    <routine id="5584" parent="5581" name="fn_diagramobjects">
+      <CreatedTimestamp>2025-10-18.14:34:59.043</CreatedTimestamp>
+      <DetailsLevel>3</DetailsLevel>
+      <ExtendedProperties>microsoft_database_tools_support
+1
+int</ExtendedProperties>
+      <ModifiedTimestamp>2025-10-18.14:34:59.043</ModifiedTimestamp>
+      <ObjectId>818101955</ObjectId>
+      <RoutineType>scalar-fun</RoutineType>
+      <SourceTextLength>1647</SourceTextLength>
+    </routine>
+    <routine id="5585" parent="5581" name="sp_alterdiagram">
+      <CreatedTimestamp>2025-10-18.14:34:59.040</CreatedTimestamp>
+      <DetailsLevel>3</DetailsLevel>
+      <ExtendedProperties>microsoft_database_tools_support
+1
+int</ExtendedProperties>
+      <ModifiedTimestamp>2025-10-18.14:34:59.040</ModifiedTimestamp>
+      <ObjectId>786101841</ObjectId>
+      <RoutineType>proc</RoutineType>
+      <SourceTextLength>1501</SourceTextLength>
+    </routine>
+    <routine id="5586" parent="5581" name="sp_creatediagram">
+      <CreatedTimestamp>2025-10-18.14:34:59.037</CreatedTimestamp>
+      <DetailsLevel>3</DetailsLevel>
+      <ExtendedProperties>microsoft_database_tools_support
+1
+int</ExtendedProperties>
+      <ModifiedTimestamp>2025-10-18.14:34:59.037</ModifiedTimestamp>
+      <ObjectId>754101727</ObjectId>
+      <RoutineType>proc</RoutineType>
+      <SourceTextLength>1223</SourceTextLength>
+    </routine>
+    <routine id="5587" parent="5581" name="sp_dropdiagram">
+      <CreatedTimestamp>2025-10-18.14:34:59.040</CreatedTimestamp>
+      <DetailsLevel>3</DetailsLevel>
+      <ExtendedProperties>microsoft_database_tools_support
+1
+int</ExtendedProperties>
+      <ModifiedTimestamp>2025-10-18.14:34:59.040</ModifiedTimestamp>
+      <ObjectId>802101898</ObjectId>
+      <RoutineType>proc</RoutineType>
+      <SourceTextLength>896</SourceTextLength>
+    </routine>
+    <routine id="5588" parent="5581" name="sp_helpdiagramdefinition">
+      <CreatedTimestamp>2025-10-18.14:34:59.037</CreatedTimestamp>
+      <DetailsLevel>3</DetailsLevel>
+      <ExtendedProperties>microsoft_database_tools_support
+1
+int</ExtendedProperties>
+      <ModifiedTimestamp>2025-10-18.14:34:59.037</ModifiedTimestamp>
+      <ObjectId>738101670</ObjectId>
+      <RoutineType>proc</RoutineType>
+      <SourceTextLength>921</SourceTextLength>
+    </routine>
+    <routine id="5589" parent="5581" name="sp_helpdiagrams">
+      <CreatedTimestamp>2025-10-18.14:34:59.037</CreatedTimestamp>
+      <DetailsLevel>3</DetailsLevel>
+      <ExtendedProperties>microsoft_database_tools_support
+1
+int</ExtendedProperties>
+      <ModifiedTimestamp>2025-10-18.14:34:59.037</ModifiedTimestamp>
+      <ObjectId>722101613</ObjectId>
+      <RoutineType>proc</RoutineType>
+      <SourceTextLength>658</SourceTextLength>
+    </routine>
+    <routine id="5590" parent="5581" name="sp_renamediagram">
+      <CreatedTimestamp>2025-10-18.14:34:59.040</CreatedTimestamp>
+      <DetailsLevel>3</DetailsLevel>
+      <ExtendedProperties>microsoft_database_tools_support
+1
+int</ExtendedProperties>
+      <ModifiedTimestamp>2025-10-18.14:34:59.040</ModifiedTimestamp>
+      <ObjectId>770101784</ObjectId>
+      <RoutineType>proc</RoutineType>
+      <SourceTextLength>1721</SourceTextLength>
+    </routine>
+    <routine id="5591" parent="5581" name="sp_upgraddiagrams">
+      <CreatedTimestamp>2025-10-18.14:34:59.033</CreatedTimestamp>
+      <DetailsLevel>3</DetailsLevel>
+      <ExtendedProperties>microsoft_database_tools_support
+1
+int</ExtendedProperties>
+      <ModifiedTimestamp>2025-10-18.14:34:59.033</ModifiedTimestamp>
+      <ObjectId>658101385</ObjectId>
+      <RoutineType>proc</RoutineType>
+      <SourceTextLength>1463</SourceTextLength>
+    </routine>
+    <table id="5592" parent="5581" name="Cart">
+      <CreatedTimestamp>2025-10-28.16:23:09.380</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-28.16:23:52.863</ModifiedTimestamp>
+      <ObjectId>510624862</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5593" parent="5581" name="CartItem">
+      <CreatedTimestamp>2025-10-28.16:23:52.860</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-28.16:23:52.860</ModifiedTimestamp>
+      <ObjectId>606625204</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5594" parent="5581" name="Customer">
+      <CreatedTimestamp>2025-10-18.07:43:41.797</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-28.16:23:09.400</ModifiedTimestamp>
+      <ObjectId>1541580530</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5595" parent="5581" name="CustomerAdress">
+      <CreatedTimestamp>2025-10-18.08:59:22.177</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-18.09:19:01.133</ModifiedTimestamp>
+      <ObjectId>1941581955</ObjectId>
+      <LobDataSpaceId>1</LobDataSpaceId>
+    </table>
+    <table id="5596" parent="5581" name="CustomerEmailAddress">
+      <CreatedTimestamp>2025-10-18.07:58:04.870</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-18.09:20:51.540</ModifiedTimestamp>
+      <ObjectId>1621580815</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5597" parent="5581" name="CustomerPassWord">
+      <CreatedTimestamp>2025-10-18.07:56:01.850</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-18.09:25:13.027</ModifiedTimestamp>
+      <ObjectId>1589580701</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5598" parent="5581" name="CustomerPhone">
+      <CreatedTimestamp>2025-10-18.09:46:50.063</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-18.09:47:55.950</ModifiedTimestamp>
+      <ObjectId>82099333</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5599" parent="5581" name="Location">
+      <CreatedTimestamp>2025-10-28.16:07:36.027</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-31.18:58:19.513</ModifiedTimestamp>
+      <ObjectId>462624691</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5600" parent="5581" name="ProductCategory">
+      <CreatedTimestamp>2025-10-17.17:07:43.740</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-18.10:01:46.133</ModifiedTimestamp>
+      <ObjectId>917578307</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5601" parent="5581" name="ProductCostHistory">
+      <CreatedTimestamp>2025-10-17.17:15:59.367</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-18.14:42:07.280</ModifiedTimestamp>
+      <ObjectId>949578421</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5602" parent="5581" name="ProductDescription">
+      <CreatedTimestamp>2025-10-17.17:17:04.620</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-31.18:53:27.020</ModifiedTimestamp>
+      <ObjectId>965578478</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5603" parent="5581" name="ProductInventory">
+      <CreatedTimestamp>2025-10-17.17:54:42.403</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-31.18:53:23.207</ModifiedTimestamp>
+      <ObjectId>1029578706</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5604" parent="5581" name="ProductReview">
+      <CreatedTimestamp>2025-10-17.17:24:26.433</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-18.14:37:37.693</ModifiedTimestamp>
+      <ObjectId>981578535</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5605" parent="5581" name="ProductSubcategory">
+      <CreatedTimestamp>2025-10-18.09:53:20.983</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-31.18:53:57.177</ModifiedTimestamp>
+      <ObjectId>146099561</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5606" parent="5581" name="RankCustomer">
+      <CreatedTimestamp>2025-10-24.00:10:44.923</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-24.17:52:23.953</ModifiedTimestamp>
+      <ObjectId>1698105090</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5607" parent="5581" name="SalesOrderDetail">
+      <CreatedTimestamp>2025-10-22.18:05:03.970</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-31.18:54:05.080</ModifiedTimestamp>
+      <ObjectId>1202103323</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5608" parent="5581" name="SalesOrderHeader">
+      <CreatedTimestamp>2025-10-22.17:57:11.490</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-31.18:54:09.970</ModifiedTimestamp>
+      <ObjectId>1170103209</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5609" parent="5581" name="auth_group">
+      <CreatedTimestamp>2025-11-22.07:06:20.620</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:22.150</ModifiedTimestamp>
+      <ObjectId>1502628396</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5610" parent="5581" name="auth_group_permissions">
+      <CreatedTimestamp>2025-11-22.07:06:20.620</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:20.643</ModifiedTimestamp>
+      <ObjectId>1550628567</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5611" parent="5581" name="auth_permission">
+      <CreatedTimestamp>2025-11-22.07:06:20.617</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:21.170</ModifiedTimestamp>
+      <ObjectId>1470628282</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5612" parent="5581" name="auth_user">
+      <CreatedTimestamp>2025-11-22.07:06:20.627</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:22.157</ModifiedTimestamp>
+      <ObjectId>1582628681</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5613" parent="5581" name="auth_user_groups">
+      <CreatedTimestamp>2025-11-22.07:06:20.627</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:20.650</ModifiedTimestamp>
+      <ObjectId>1630628852</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5614" parent="5581" name="auth_user_user_permissions">
+      <CreatedTimestamp>2025-11-22.07:06:20.630</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:20.647</ModifiedTimestamp>
+      <ObjectId>1662628966</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5615" parent="5581" name="django_admin_log">
+      <CreatedTimestamp>2025-11-22.07:06:20.653</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:20.667</ModifiedTimestamp>
+      <ObjectId>1806629479</ObjectId>
+      <LobDataSpaceId>1</LobDataSpaceId>
+    </table>
+    <table id="5616" parent="5581" name="django_content_type">
+      <CreatedTimestamp>2025-11-22.07:06:20.600</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:21.160</ModifiedTimestamp>
+      <ObjectId>1438628168</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5617" parent="5581" name="django_migrations">
+      <CreatedTimestamp>2025-11-22.07:06:20.597</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:20.597</ModifiedTimestamp>
+      <ObjectId>1406628054</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5618" parent="5581" name="django_session">
+      <CreatedTimestamp>2025-11-22.07:06:22.160</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:22.163</ModifiedTimestamp>
+      <ObjectId>1918629878</ObjectId>
+      <LobDataSpaceId>1</LobDataSpaceId>
+    </table>
+    <table id="5619" parent="5581" name="employees">
+      <CreatedTimestamp>2025-10-28.15:59:27.563</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-28.16:02:09.233</ModifiedTimestamp>
+      <ObjectId>430624577</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5620" parent="5581" name="product">
+      <CreatedTimestamp>2025-10-17.17:05:44.600</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-10-31.18:45:34.040</ModifiedTimestamp>
+      <ObjectId>901578250</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5621" parent="5581" name="store_product">
+      <CreatedTimestamp>2025-11-22.07:06:22.177</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:22.187</ModifiedTimestamp>
+      <ObjectId>1982630106</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5622" parent="5581" name="store_productsubcategory">
+      <CreatedTimestamp>2025-11-22.07:06:22.167</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ModifiedTimestamp>2025-11-22.07:06:22.177</ModifiedTimestamp>
+      <ObjectId>1950629992</ObjectId>
+      <LobDataSpaceId>0</LobDataSpaceId>
+    </table>
+    <table id="5623" parent="5581" name="sysdiagrams">
+      <CreatedTimestamp>2025-10-18.14:34:59.033</CreatedTimestamp>
+      <DataRetentionPeriod>-1</DataRetentionPeriod>
+      <DetailsLevel>3</DetailsLevel>
+      <ExtendedProperties>microsoft_database_tools_support
+1
+int</ExtendedProperties>
+      <ModifiedTimestamp>2025-10-18.14:34:59.033</ModifiedTimestamp>
+      <ObjectId>674101442</ObjectId>
+      <LobDataSpaceId>1</LobDataSpaceId>
+    </table>
+    <argument id="5624" parent="5584">
+      <ArgumentDirection>R</ArgumentDirection>
+      <StoredType>int|0s</StoredType>
+    </argument>
+    <argument id="5625" parent="5585" name="@diagramname">
+      <Position>1</Position>
+      <StoredType>sysname|0s</StoredType>
+    </argument>
+    <argument id="5626" parent="5585" name="@owner_id">
+      <DefaultExpression>null</DefaultExpression>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </argument>
+    <argument id="5627" parent="5585" name="@version">
+      <Position>3</Position>
+      <StoredType>int|0s</StoredType>
+    </argument>
+    <argument id="5628" parent="5585" name="@definition">
+      <Position>4</Position>
+      <StoredType>varbinary(max)|0s</StoredType>
+    </argument>
+    <argument id="5629" parent="5586" name="@diagramname">
+      <Position>1</Position>
+      <StoredType>sysname|0s</StoredType>
+    </argument>
+    <argument id="5630" parent="5586" name="@owner_id">
+      <DefaultExpression>null</DefaultExpression>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </argument>
+    <argument id="5631" parent="5586" name="@version">
+      <Position>3</Position>
+      <StoredType>int|0s</StoredType>
+    </argument>
+    <argument id="5632" parent="5586" name="@definition">
+      <Position>4</Position>
+      <StoredType>varbinary(max)|0s</StoredType>
+    </argument>
+    <argument id="5633" parent="5587" name="@diagramname">
+      <Position>1</Position>
+      <StoredType>sysname|0s</StoredType>
+    </argument>
+    <argument id="5634" parent="5587" name="@owner_id">
+      <DefaultExpression>null</DefaultExpression>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </argument>
+    <argument id="5635" parent="5588" name="@diagramname">
+      <Position>1</Position>
+      <StoredType>sysname|0s</StoredType>
+    </argument>
+    <argument id="5636" parent="5588" name="@owner_id">
+      <DefaultExpression>null</DefaultExpression>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </argument>
+    <argument id="5637" parent="5589" name="@diagramname">
+      <DefaultExpression>NULL</DefaultExpression>
+      <Position>1</Position>
+      <StoredType>sysname|0s</StoredType>
+    </argument>
+    <argument id="5638" parent="5589" name="@owner_id">
+      <DefaultExpression>NULL</DefaultExpression>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </argument>
+    <argument id="5639" parent="5590" name="@diagramname">
+      <Position>1</Position>
+      <StoredType>sysname|0s</StoredType>
+    </argument>
+    <argument id="5640" parent="5590" name="@owner_id">
+      <DefaultExpression>null</DefaultExpression>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </argument>
+    <argument id="5641" parent="5590" name="@new_diagramname">
+      <Position>3</Position>
+      <StoredType>sysname|0s</StoredType>
+    </argument>
+    <column id="5642" parent="5592" name="CartID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5643" parent="5592" name="CustomerID">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5644" parent="5592" name="CreatedDate">
+      <Position>3</Position>
+      <StoredType>datetime|0s</StoredType>
+      <DefaultConstraintId>542624976</DefaultConstraintId>
+      <DefaultConstraintName>DF__Cart__CreatedDat__2057CCD0</DefaultConstraintName>
+    </column>
+    <column id="5645" parent="5592" name="ModifiedDate">
+      <Position>4</Position>
+      <StoredType>datetime|0s</StoredType>
+      <DefaultConstraintId>558625033</DefaultConstraintId>
+      <DefaultConstraintName>DF__Cart__ModifiedDa__214BF109</DefaultConstraintName>
+    </column>
+    <column id="5646" parent="5592" name="Status">
+      <Position>5</Position>
+      <StoredType>nvarchar(20 char)|0s</StoredType>
+      <DefaultConstraintId>574625090</DefaultConstraintId>
+      <DefaultConstraintName>DF__Cart__Status__22401542</DefaultConstraintName>
+    </column>
+    <default id="5647" parent="5592" name="DF__Cart__CreatedDat__2057CCD0">
+      <ColNames>CreatedDate</ColNames>
+      <DefaultExpression>getdate()</DefaultExpression>
+      <ModifiedTimestamp>2025-10-28.16:23:09.380</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>542624976</ObjectId>
+    </default>
+    <default id="5648" parent="5592" name="DF__Cart__ModifiedDa__214BF109">
+      <ColNames>ModifiedDate</ColNames>
+      <DefaultExpression>getdate()</DefaultExpression>
+      <ModifiedTimestamp>2025-10-28.16:23:09.380</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>558625033</ObjectId>
+    </default>
+    <default id="5649" parent="5592" name="DF__Cart__Status__22401542">
+      <ColNames>Status</ColNames>
+      <DefaultExpression>&apos;Active&apos;</DefaultExpression>
+      <ModifiedTimestamp>2025-10-28.16:23:09.380</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>574625090</ObjectId>
+    </default>
+    <foreign-key id="5650" parent="5592" name="FK_Cart_Customer">
+      <ColNames>CustomerID</ColNames>
+      <CreatedTimestamp>2025-10-28.16:23:09.380</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-28.16:23:09.380</ModifiedTimestamp>
+      <ObjectId>590625147</ObjectId>
+      <RefColNames>CustomerID</RefColNames>
+      <RefTableId>1541580530</RefTableId>
+      <RefTableName>Customer</RefTableName>
+    </foreign-key>
+    <index id="5651" parent="5592" name="PK__Cart__51BCD797EAD67006">
+      <Clustering>1</Clustering>
+      <ColNames>CartID</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5652" parent="5592" name="PK__Cart__51BCD797EAD67006">
+      <CreatedTimestamp>2025-10-28.16:23:09.380</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-28.16:23:09.380</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>526624919</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__Cart__51BCD797EAD67006</UnderlyingIndexName>
+    </key>
+    <column id="5653" parent="5593" name="CartItemID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5654" parent="5593" name="CartID">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5655" parent="5593" name="ProductID">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5656" parent="5593" name="Quantity">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>int|0s</StoredType>
+      <DefaultConstraintId>638625318</DefaultConstraintId>
+      <DefaultConstraintName>DF__CartItem__Quanti__2610A626</DefaultConstraintName>
+    </column>
+    <column id="5657" parent="5593" name="UnitPrice">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>decimal(10,2)|0s</StoredType>
+    </column>
+    <column id="5658" parent="5593" name="Subtotal">
+      <Computed>1</Computed>
+      <Position>6</Position>
+      <StoredType>decimal(21,2)|0s</StoredType>
+      <DefaultConstraintInline>1</DefaultConstraintInline>
+      <DefaultConstraintDefaultExpression>[Quantity]*[UnitPrice]</DefaultConstraintDefaultExpression>
+    </column>
+    <column id="5659" parent="5593" name="DateAdded">
+      <Position>7</Position>
+      <StoredType>datetime|0s</StoredType>
+      <DefaultConstraintId>654625375</DefaultConstraintId>
+      <DefaultConstraintName>DF__CartItem__DateAd__2704CA5F</DefaultConstraintName>
+    </column>
+    <column id="5660" parent="5593" name="DateUpdated">
+      <Position>8</Position>
+      <StoredType>datetime|0s</StoredType>
+      <DefaultConstraintId>670625432</DefaultConstraintId>
+      <DefaultConstraintName>DF__CartItem__DateUp__27F8EE98</DefaultConstraintName>
+    </column>
+    <default id="5661" parent="5593" name="DF__CartItem__Quanti__2610A626">
+      <ColNames>Quantity</ColNames>
+      <DefaultExpression>1</DefaultExpression>
+      <ModifiedTimestamp>2025-10-28.16:23:52.863</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>638625318</ObjectId>
+    </default>
+    <default id="5662" parent="5593" name="DF__CartItem__DateAd__2704CA5F">
+      <ColNames>DateAdded</ColNames>
+      <DefaultExpression>getdate()</DefaultExpression>
+      <ModifiedTimestamp>2025-10-28.16:23:52.863</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>654625375</ObjectId>
+    </default>
+    <default id="5663" parent="5593" name="DF__CartItem__DateUp__27F8EE98">
+      <ColNames>DateUpdated</ColNames>
+      <DefaultExpression>getdate()</DefaultExpression>
+      <ModifiedTimestamp>2025-10-28.16:23:52.863</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>670625432</ObjectId>
+    </default>
+    <foreign-key id="5664" parent="5593" name="FK_CartItem_Cart">
+      <ColNames>CartID</ColNames>
+      <CreatedTimestamp>2025-10-28.16:23:52.863</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-28.16:23:52.863</ModifiedTimestamp>
+      <ObjectId>686625489</ObjectId>
+      <RefColNames>CartID</RefColNames>
+      <RefTableId>510624862</RefTableId>
+      <RefTableName>Cart</RefTableName>
+    </foreign-key>
+    <foreign-key id="5665" parent="5593" name="FK_CartItem_Product">
+      <ColNames>ProductID</ColNames>
+      <CreatedTimestamp>2025-10-28.16:23:52.863</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-28.16:23:52.863</ModifiedTimestamp>
+      <ObjectId>702625546</ObjectId>
+      <RefColNames>ProductID</RefColNames>
+      <RefTableId>901578250</RefTableId>
+      <RefTableName>product</RefTableName>
+    </foreign-key>
+    <index id="5666" parent="5593" name="PK__CartItem__488B0B2ABC4F0B64">
+      <Clustering>1</Clustering>
+      <ColNames>CartItemID</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5667" parent="5593" name="PK__CartItem__488B0B2ABC4F0B64">
+      <CreatedTimestamp>2025-10-28.16:23:52.863</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-28.16:23:52.863</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>622625261</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__CartItem__488B0B2ABC4F0B64</UnderlyingIndexName>
+    </key>
+    <column id="5668" parent="5594" name="CustomerID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5669" parent="5594" name="FirstName">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5670" parent="5594" name="MiddleName">
+      <Position>3</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5671" parent="5594" name="LastName">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <index id="5672" parent="5594" name="PK_Customer">
+      <Clustering>1</Clustering>
+      <ColNames>CustomerID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5673" parent="5594" name="PK_Customer">
+      <CreatedTimestamp>2025-10-18.08:34:57.447</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.08:34:57.447</ModifiedTimestamp>
+      <ObjectId>1893581784</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_Customer</UnderlyingIndexName>
+    </key>
+    <column id="5674" parent="5595" name="CustomerID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5675" parent="5595" name="AddressID">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5676" parent="5595" name="AddressLine1">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>nvarchar(60 char)|0s</StoredType>
+    </column>
+    <column id="5677" parent="5595" name="City">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>nvarchar(30 char)|0s</StoredType>
+    </column>
+    <column id="5678" parent="5595" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <column id="5679" parent="5595" name="PostalCode">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>nvarchar(15 char)|0s</StoredType>
+    </column>
+    <column id="5680" parent="5595" name="SpatialLocation">
+      <Position>7</Position>
+      <StoredType>geography|0s</StoredType>
+    </column>
+    <foreign-key id="5681" parent="5595" name="PK_Customer_CustomerAdress">
+      <ColNames>CustomerID</ColNames>
+      <CreatedTimestamp>2025-10-18.09:19:01.133</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:19:01.133</ModifiedTimestamp>
+      <ObjectId>2101582525</ObjectId>
+      <RefColNames>CustomerID</RefColNames>
+      <RefTableId>1541580530</RefTableId>
+      <RefTableName>Customer</RefTableName>
+    </foreign-key>
+    <index id="5682" parent="5595" name="PK_CustomerAdress">
+      <Clustering>1</Clustering>
+      <ColNames>AddressID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5683" parent="5595" name="PK_CustomerAdress">
+      <CreatedTimestamp>2025-10-18.09:00:51.553</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:00:51.553</ModifiedTimestamp>
+      <ObjectId>1957582012</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_CustomerAdress</UnderlyingIndexName>
+    </key>
+    <column id="5684" parent="5596" name="CustomerID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5685" parent="5596" name="EmailAddress">
+      <Position>2</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5686" parent="5596" name="EmailAddressID">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5687" parent="5596" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="5688" parent="5596" name="PK_Customer_CustomerEmailAddress">
+      <ColNames>CustomerID</ColNames>
+      <CreatedTimestamp>2025-10-18.09:20:51.540</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:20:51.540</ModifiedTimestamp>
+      <ObjectId>2133582639</ObjectId>
+      <RefColNames>CustomerID</RefColNames>
+      <RefTableId>1541580530</RefTableId>
+      <RefTableName>Customer</RefTableName>
+    </foreign-key>
+    <index id="5689" parent="5596" name="PK_CustomerEmailAddress">
+      <Clustering>1</Clustering>
+      <ColNames>EmailAddressID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5690" parent="5596" name="PK_CustomerEmailAddress">
+      <CreatedTimestamp>2025-10-18.09:20:28.460</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:20:28.460</ModifiedTimestamp>
+      <ObjectId>2117582582</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_CustomerEmailAddress</UnderlyingIndexName>
+    </key>
+    <column id="5691" parent="5597" name="CustomerID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5692" parent="5597" name="PasswordSalt">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>varchar(10 char)|0s</StoredType>
+    </column>
+    <column id="5693" parent="5597" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="5694" parent="5597" name="PK_Customer_CustomerPassWord">
+      <ColNames>CustomerID</ColNames>
+      <CreatedTimestamp>2025-10-18.09:25:13.027</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:25:13.027</ModifiedTimestamp>
+      <ObjectId>34099162</ObjectId>
+      <RefColNames>CustomerID</RefColNames>
+      <RefTableId>1541580530</RefTableId>
+      <RefTableName>Customer</RefTableName>
+    </foreign-key>
+    <index id="5695" parent="5597" name="PK_CustomerPassWord">
+      <Clustering>1</Clustering>
+      <ColNames>PasswordSalt</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5696" parent="5597" name="PK_CustomerPassWord">
+      <CreatedTimestamp>2025-10-18.09:24:48.120</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:24:48.120</ModifiedTimestamp>
+      <ObjectId>18099105</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_CustomerPassWord</UnderlyingIndexName>
+    </key>
+    <column id="5697" parent="5598" name="CustomerID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5698" parent="5598" name="PhoneNumber">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(25 char)|0s</StoredType>
+    </column>
+    <column id="5699" parent="5598" name="PhoneNumberTypeID">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5700" parent="5598" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="5701" parent="5598" name="PK_Customer_CustomerPhone">
+      <ColNames>CustomerID</ColNames>
+      <CreatedTimestamp>2025-10-18.09:47:55.950</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:47:55.950</ModifiedTimestamp>
+      <ObjectId>114099447</ObjectId>
+      <RefColNames>CustomerID</RefColNames>
+      <RefTableId>1541580530</RefTableId>
+      <RefTableName>Customer</RefTableName>
+    </foreign-key>
+    <index id="5702" parent="5598" name="PK_CustomerPhone">
+      <Clustering>1</Clustering>
+      <ColNames>CustomerID
+PhoneNumber
+PhoneNumberTypeID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5703" parent="5598" name="PK_CustomerPhone">
+      <CreatedTimestamp>2025-10-18.09:47:25.013</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:47:25.013</ModifiedTimestamp>
+      <ObjectId>98099390</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_CustomerPhone</UnderlyingIndexName>
+    </key>
+    <column id="5704" parent="5599" name="LocationID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1(61)</SequenceIdentity>
+      <StoredType>smallint|0s</StoredType>
+    </column>
+    <column id="5705" parent="5599" name="Name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5706" parent="5599" name="Availability">
+      <Position>3</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5707" parent="5599" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <index id="5708" parent="5599" name="PK_Localtion">
+      <Clustering>1</Clustering>
+      <ColNames>LocationID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5709" parent="5599" name="PK_Localtion">
+      <CreatedTimestamp>2025-10-28.16:08:58.943</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-28.16:08:58.943</ModifiedTimestamp>
+      <ObjectId>478624748</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_Localtion</UnderlyingIndexName>
+    </key>
+    <column id="5710" parent="5600" name="ProductCategoryID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1(6)</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5711" parent="5600" name="Name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5712" parent="5600" name="rowguid">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>uniqueidentifier|0s</StoredType>
+    </column>
+    <column id="5713" parent="5600" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <index id="5714" parent="5600" name="PK_ProductCategory">
+      <Clustering>1</Clustering>
+      <ColNames>ProductCategoryID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5715" parent="5600" name="PK_ProductCategory">
+      <CreatedTimestamp>2025-10-18.10:01:43.180</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.10:01:43.180</ModifiedTimestamp>
+      <ObjectId>226099846</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_ProductCategory</UnderlyingIndexName>
+    </key>
+    <column id="5716" parent="5601" name="ProductID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5717" parent="5601" name="StartDate">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <column id="5718" parent="5601" name="EndDate">
+      <Position>3</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <column id="5719" parent="5601" name="StandardCost">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>money|0s</StoredType>
+    </column>
+    <column id="5720" parent="5601" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="5721" parent="5601" name="FK_Product_ProductCostHistory">
+      <ColNames>ProductID</ColNames>
+      <CreatedTimestamp>2025-10-18.14:42:07.280</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.14:42:07.280</ModifiedTimestamp>
+      <ObjectId>882102183</ObjectId>
+      <RefColNames>ProductID</RefColNames>
+      <RefTableId>901578250</RefTableId>
+      <RefTableName>product</RefTableName>
+    </foreign-key>
+    <index id="5722" parent="5601" name="PK_ProductCostHistory">
+      <Clustering>1</Clustering>
+      <ColNames>ProductID
+StartDate</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5723" parent="5601" name="PK_ProductCostHistory">
+      <CreatedTimestamp>2025-10-18.14:41:51.660</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.14:41:51.660</ModifiedTimestamp>
+      <ObjectId>866102126</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_ProductCostHistory</UnderlyingIndexName>
+    </key>
+    <column id="5724" parent="5602" name="ProductDescriptionID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1(2011)</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5725" parent="5602" name="Description">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(400 char)|0s</StoredType>
+    </column>
+    <column id="5726" parent="5602" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <index id="5727" parent="5602" name="PK_ProductDescription">
+      <Clustering>1</Clustering>
+      <ColNames>ProductDescriptionID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5728" parent="5602" name="PK_ProductDescription">
+      <CreatedTimestamp>2025-10-18.14:49:54.970</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.14:49:54.970</ModifiedTimestamp>
+      <ObjectId>898102240</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_ProductDescription</UnderlyingIndexName>
+    </key>
+    <column id="5729" parent="5603" name="ProductID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5730" parent="5603" name="LocationID">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>smallint|0s</StoredType>
+    </column>
+    <column id="5731" parent="5603" name="Shelf">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>nvarchar(10 char)|0s</StoredType>
+    </column>
+    <column id="5732" parent="5603" name="Bin">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>tinyint|0s</StoredType>
+    </column>
+    <column id="5733" parent="5603" name="Quantity">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>smallint|0s</StoredType>
+    </column>
+    <column id="5734" parent="5603" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="5735" parent="5603" name="PK_Product_ProductInventory">
+      <ColNames>ProductID</ColNames>
+      <CreatedTimestamp>2025-10-18.10:06:34.343</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.10:06:34.343</ModifiedTimestamp>
+      <ObjectId>306100131</ObjectId>
+      <RefColNames>ProductID</RefColNames>
+      <RefTableId>901578250</RefTableId>
+      <RefTableName>product</RefTableName>
+    </foreign-key>
+    <foreign-key id="5736" parent="5603" name="FK_Location_ProductInventory">
+      <ColNames>LocationID</ColNames>
+      <CreatedTimestamp>2025-10-28.16:10:41.163</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-28.16:10:41.163</ModifiedTimestamp>
+      <ObjectId>494624805</ObjectId>
+      <RefColNames>LocationID</RefColNames>
+      <RefTableId>462624691</RefTableId>
+      <RefTableName>Location</RefTableName>
+    </foreign-key>
+    <index id="5737" parent="5603" name="PK_ProductInventory">
+      <Clustering>1</Clustering>
+      <ColNames>ProductID
+LocationID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5738" parent="5603" name="PK_ProductInventory">
+      <CreatedTimestamp>2025-10-18.10:05:38.873</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.10:05:38.873</ModifiedTimestamp>
+      <ObjectId>290100074</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_ProductInventory</UnderlyingIndexName>
+    </key>
+    <column id="5739" parent="5604" name="ProductReviewID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1(5)</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5740" parent="5604" name="ProductID">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5741" parent="5604" name="ReviewerName">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5742" parent="5604" name="ReviewDate">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <column id="5743" parent="5604" name="EmailAddress">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5744" parent="5604" name="Rating">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5745" parent="5604" name="Comments">
+      <Position>7</Position>
+      <StoredType>nvarchar(3850 char)|0s</StoredType>
+    </column>
+    <column id="5746" parent="5604" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="5747" parent="5604" name="FK_Product_ProductReview">
+      <ColNames>ProductID</ColNames>
+      <CreatedTimestamp>2025-10-18.14:37:37.693</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.14:37:37.693</ModifiedTimestamp>
+      <ObjectId>850102069</ObjectId>
+      <RefColNames>ProductID</RefColNames>
+      <RefTableId>901578250</RefTableId>
+      <RefTableName>product</RefTableName>
+    </foreign-key>
+    <index id="5748" parent="5604" name="PK_ProductReview">
+      <Clustering>1</Clustering>
+      <ColNames>ProductReviewID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5749" parent="5604" name="PK_ProductReview">
+      <CreatedTimestamp>2025-10-18.10:02:49.500</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.10:02:49.500</ModifiedTimestamp>
+      <ObjectId>258099960</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_ProductReview</UnderlyingIndexName>
+    </key>
+    <column id="5750" parent="5605" name="ProductSubcategoryID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1(38)</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5751" parent="5605" name="ProductCategoryID">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5752" parent="5605" name="Name">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5753" parent="5605" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="5754" parent="5605" name="PK_ProductSubcategory_ProductCategory">
+      <ColNames>ProductCategoryID</ColNames>
+      <CreatedTimestamp>2025-10-18.10:01:46.133</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.10:01:46.133</ModifiedTimestamp>
+      <ObjectId>242099903</ObjectId>
+      <RefColNames>ProductCategoryID</RefColNames>
+      <RefTableId>917578307</RefTableId>
+      <RefTableName>ProductCategory</RefTableName>
+    </foreign-key>
+    <index id="5755" parent="5605" name="PK_ProductSubcategory">
+      <Clustering>1</Clustering>
+      <ColNames>ProductSubcategoryID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5756" parent="5605" name="PK_ProductSubcategory">
+      <CreatedTimestamp>2025-10-18.09:56:11.893</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:56:11.893</ModifiedTimestamp>
+      <ObjectId>162099618</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_ProductSubcategory</UnderlyingIndexName>
+    </key>
+    <column id="5757" parent="5606" name="CustomerID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5758" parent="5606" name="R">
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5759" parent="5606" name="F">
+      <Position>3</Position>
+      <StoredType>decimal(5,3)|0s</StoredType>
+    </column>
+    <column id="5760" parent="5606" name="M">
+      <Position>4</Position>
+      <StoredType>money|0s</StoredType>
+    </column>
+    <column id="5761" parent="5606" name="Final_score">
+      <Position>5</Position>
+      <StoredType>numeric(15,2)|0s</StoredType>
+    </column>
+    <column id="5762" parent="5606" name="rank_cus">
+      <Position>9</Position>
+      <StoredType>nvarchar(20 char)|0s</StoredType>
+    </column>
+    <column id="5763" parent="5606" name="discount">
+      <Position>10</Position>
+      <StoredType>float|0s</StoredType>
+    </column>
+    <foreign-key id="5764" parent="5606" name="FK_RankCustomer_Customer">
+      <ColNames>CustomerID</ColNames>
+      <CreatedTimestamp>2025-10-24.17:49:11.583</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-24.17:49:11.583</ModifiedTimestamp>
+      <ObjectId>1938105945</ObjectId>
+      <RefColNames>CustomerID</RefColNames>
+      <RefTableId>1541580530</RefTableId>
+      <RefTableName>Customer</RefTableName>
+    </foreign-key>
+    <index id="5765" parent="5606" name="FK_RankCustomer">
+      <Clustering>1</Clustering>
+      <ColNames>CustomerID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5766" parent="5606" name="FK_RankCustomer">
+      <CreatedTimestamp>2025-10-24.17:52:23.950</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-24.17:52:23.950</ModifiedTimestamp>
+      <ObjectId>1954106002</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>FK_RankCustomer</UnderlyingIndexName>
+    </key>
+    <column id="5767" parent="5607" name="SalesOrderID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5768" parent="5607" name="SalesOrderDetailID">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5769" parent="5607" name="OrderQty">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>smallint|0s</StoredType>
+    </column>
+    <column id="5770" parent="5607" name="ProductID">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5771" parent="5607" name="UnitPrice">
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>money|0s</StoredType>
+    </column>
+    <column id="5772" parent="5607" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>11</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="5773" parent="5607" name="FK_SalesOrderHeader_SalesOrderDetail">
+      <ColNames>SalesOrderID</ColNames>
+      <CreatedTimestamp>2025-10-22.18:09:02.390</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-22.18:09:02.390</ModifiedTimestamp>
+      <ObjectId>1298103665</ObjectId>
+      <RefColNames>SalesOrderID</RefColNames>
+      <RefTableId>1170103209</RefTableId>
+      <RefTableName>SalesOrderHeader</RefTableName>
+    </foreign-key>
+    <index id="5774" parent="5607" name="PK_SalesOrderDetail">
+      <Clustering>1</Clustering>
+      <ColNames>SalesOrderID
+SalesOrderDetailID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5775" parent="5607" name="PK_SalesOrderDetail">
+      <CreatedTimestamp>2025-10-22.18:08:56.897</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-22.18:08:56.897</ModifiedTimestamp>
+      <ObjectId>1282103608</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_SalesOrderDetail</UnderlyingIndexName>
+    </key>
+    <column id="5776" parent="5608" name="CustomerID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5777" parent="5608" name="SalesOrderID">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5778" parent="5608" name="OrderDate">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <column id="5779" parent="5608" name="DueDate">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <column id="5780" parent="5608" name="ShipDate">
+      <Position>5</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <column id="5781" parent="5608" name="Freight">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>money|0s</StoredType>
+    </column>
+    <column id="5782" parent="5608" name="SalesOrderNumber">
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>nvarchar(25 char)|0s</StoredType>
+    </column>
+    <column id="5783" parent="5608" name="TotalDue">
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>money|0s</StoredType>
+    </column>
+    <column id="5784" parent="5608" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>10</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="5785" parent="5608" name="FK_Customer_SalesOrderDetail">
+      <ColNames>CustomerID</ColNames>
+      <CreatedTimestamp>2025-10-22.17:57:32.277</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-22.17:57:32.277</ModifiedTimestamp>
+      <ObjectId>1186103266</ObjectId>
+      <RefColNames>CustomerID</RefColNames>
+      <RefTableId>1541580530</RefTableId>
+      <RefTableName>Customer</RefTableName>
+    </foreign-key>
+    <index id="5786" parent="5608" name="PK_SalesOrderHeader">
+      <Clustering>1</Clustering>
+      <ColNames>SalesOrderID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5787" parent="5608" name="PK_SalesOrderHeader">
+      <CreatedTimestamp>2025-10-22.18:08:23.367</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-22.18:08:23.367</ModifiedTimestamp>
+      <ObjectId>1266103551</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_SalesOrderHeader</UnderlyingIndexName>
+    </key>
+    <column id="5788" parent="5609" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5789" parent="5609" name="name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(150 char)|0s</StoredType>
+    </column>
+    <index id="5790" parent="5609" name="PK__auth_gro__3213E83F73EB0754">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5791" parent="5609" name="auth_group_name_a6ea08ec_uniq">
+      <ColNames>name</ColNames>
+      <Position>2</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5792" parent="5609" name="PK__auth_gro__3213E83F73EB0754">
+      <CreatedTimestamp>2025-11-22.07:06:20.620</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.620</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1518628453</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__auth_gro__3213E83F73EB0754</UnderlyingIndexName>
+    </key>
+    <key id="5793" parent="5609" name="auth_group_name_a6ea08ec_uniq">
+      <CreatedTimestamp>2025-11-22.07:06:22.140</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:22.140</ModifiedTimestamp>
+      <ObjectId>1902629821</ObjectId>
+      <UnderlyingIndexName>auth_group_name_a6ea08ec_uniq</UnderlyingIndexName>
+    </key>
+    <column id="5794" parent="5610" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StoredType>bigint|0s</StoredType>
+    </column>
+    <column id="5795" parent="5610" name="group_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5796" parent="5610" name="permission_id">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <foreign-key id="5797" parent="5610" name="auth_group_permissions_group_id_b120cbf9_fk_auth_group_id">
+      <ColNames>group_id</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:20.640</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.640</ModifiedTimestamp>
+      <ObjectId>1742629251</ObjectId>
+      <RefColNames>id</RefColNames>
+      <RefTableId>1502628396</RefTableId>
+      <RefTableName>auth_group</RefTableName>
+    </foreign-key>
+    <foreign-key id="5798" parent="5610" name="auth_group_permissions_permission_id_84c5c92e_fk_auth_permission_id">
+      <ColNames>permission_id</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:20.633</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.633</ModifiedTimestamp>
+      <ObjectId>1694629080</ObjectId>
+      <RefColNames>id</RefColNames>
+      <RefTableId>1470628282</RefTableId>
+      <RefTableName>auth_permission</RefTableName>
+    </foreign-key>
+    <index id="5799" parent="5610" name="PK__auth_gro__3213E83FD6130466">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5800" parent="5610" name="auth_group_permissions_group_id_b120cbf9">
+      <ColNames>group_id</ColNames>
+      <Position>2</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5801" parent="5610" name="auth_group_permissions_group_id_permission_id_0cd325b0_uniq">
+      <ColNames>group_id
+permission_id</ColNames>
+      <Condition>[group_id] IS NOT NULL AND [permission_id] IS NOT NULL</Condition>
+      <Position>3</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5802" parent="5610" name="auth_group_permissions_permission_id_84c5c92e">
+      <ColNames>permission_id</ColNames>
+      <Position>4</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5803" parent="5610" name="PK__auth_gro__3213E83FD6130466">
+      <CreatedTimestamp>2025-11-22.07:06:20.620</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.620</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1566628624</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__auth_gro__3213E83FD6130466</UnderlyingIndexName>
+    </key>
+    <column id="5804" parent="5611" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1(1002)</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5805" parent="5611" name="name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(255 char)|0s</StoredType>
+    </column>
+    <column id="5806" parent="5611" name="content_type_id">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5807" parent="5611" name="codename">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>nvarchar(100 char)|0s</StoredType>
+    </column>
+    <foreign-key id="5808" parent="5611" name="auth_permission_content_type_id_2f476e4b_fk_django_content_type_id">
+      <ColNames>content_type_id</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:20.637</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.637</ModifiedTimestamp>
+      <ObjectId>1710629137</ObjectId>
+      <RefColNames>id</RefColNames>
+      <RefTableId>1438628168</RefTableId>
+      <RefTableName>django_content_type</RefTableName>
+    </foreign-key>
+    <index id="5809" parent="5611" name="PK__auth_per__3213E83F417208FA">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5810" parent="5611" name="auth_permission_content_type_id_2f476e4b">
+      <ColNames>content_type_id</ColNames>
+      <Position>2</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5811" parent="5611" name="auth_permission_content_type_id_codename_01ab375a_uniq">
+      <ColNames>content_type_id
+codename</ColNames>
+      <Condition>[content_type_id] IS NOT NULL AND [codename] IS NOT NULL</Condition>
+      <Position>3</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5812" parent="5611" name="PK__auth_per__3213E83F417208FA">
+      <CreatedTimestamp>2025-11-22.07:06:20.617</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.617</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1486628339</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__auth_per__3213E83F417208FA</UnderlyingIndexName>
+    </key>
+    <column id="5813" parent="5612" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1(2)</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5814" parent="5612" name="password">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(128 char)|0s</StoredType>
+    </column>
+    <column id="5815" parent="5612" name="last_login">
+      <Position>3</Position>
+      <StoredType>datetimeoffset|0s</StoredType>
+    </column>
+    <column id="5816" parent="5612" name="is_superuser">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>bit|0s</StoredType>
+    </column>
+    <column id="5817" parent="5612" name="username">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>nvarchar(150 char)|0s</StoredType>
+    </column>
+    <column id="5818" parent="5612" name="first_name">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>nvarchar(150 char)|0s</StoredType>
+    </column>
+    <column id="5819" parent="5612" name="last_name">
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>nvarchar(150 char)|0s</StoredType>
+    </column>
+    <column id="5820" parent="5612" name="email">
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>nvarchar(254 char)|0s</StoredType>
+    </column>
+    <column id="5821" parent="5612" name="is_staff">
+      <NotNull>1</NotNull>
+      <Position>9</Position>
+      <StoredType>bit|0s</StoredType>
+    </column>
+    <column id="5822" parent="5612" name="is_active">
+      <NotNull>1</NotNull>
+      <Position>10</Position>
+      <StoredType>bit|0s</StoredType>
+    </column>
+    <column id="5823" parent="5612" name="date_joined">
+      <NotNull>1</NotNull>
+      <Position>11</Position>
+      <StoredType>datetimeoffset|0s</StoredType>
+    </column>
+    <index id="5824" parent="5612" name="PK__auth_use__3213E83FFD0784B1">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5825" parent="5612" name="auth_user_username_6821ab7c_uniq">
+      <ColNames>username</ColNames>
+      <Position>2</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5826" parent="5612" name="PK__auth_use__3213E83FFD0784B1">
+      <CreatedTimestamp>2025-11-22.07:06:20.627</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.627</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1598628738</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__auth_use__3213E83FFD0784B1</UnderlyingIndexName>
+    </key>
+    <key id="5827" parent="5612" name="auth_user_username_6821ab7c_uniq">
+      <CreatedTimestamp>2025-11-22.07:06:21.677</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:21.677</ModifiedTimestamp>
+      <ObjectId>1886629764</ObjectId>
+      <UnderlyingIndexName>auth_user_username_6821ab7c_uniq</UnderlyingIndexName>
+    </key>
+    <column id="5828" parent="5613" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StoredType>bigint|0s</StoredType>
+    </column>
+    <column id="5829" parent="5613" name="user_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5830" parent="5613" name="group_id">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <foreign-key id="5831" parent="5613" name="auth_user_groups_user_id_6a12ed8b_fk_auth_user_id">
+      <ColNames>user_id</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:20.647</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.647</ModifiedTimestamp>
+      <ObjectId>1790629422</ObjectId>
+      <RefColNames>id</RefColNames>
+      <RefTableId>1582628681</RefTableId>
+      <RefTableName>auth_user</RefTableName>
+    </foreign-key>
+    <foreign-key id="5832" parent="5613" name="auth_user_groups_group_id_97559544_fk_auth_group_id">
+      <ColNames>group_id</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:20.640</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.640</ModifiedTimestamp>
+      <ObjectId>1726629194</ObjectId>
+      <RefColNames>id</RefColNames>
+      <RefTableId>1502628396</RefTableId>
+      <RefTableName>auth_group</RefTableName>
+    </foreign-key>
+    <index id="5833" parent="5613" name="PK__auth_use__3213E83FF936A3E9">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5834" parent="5613" name="auth_user_groups_user_id_6a12ed8b">
+      <ColNames>user_id</ColNames>
+      <Position>2</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5835" parent="5613" name="auth_user_groups_group_id_97559544">
+      <ColNames>group_id</ColNames>
+      <Position>3</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5836" parent="5613" name="auth_user_groups_user_id_group_id_94350c0c_uniq">
+      <ColNames>user_id
+group_id</ColNames>
+      <Condition>[user_id] IS NOT NULL AND [group_id] IS NOT NULL</Condition>
+      <Position>4</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5837" parent="5613" name="PK__auth_use__3213E83FF936A3E9">
+      <CreatedTimestamp>2025-11-22.07:06:20.627</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.627</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1646628909</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__auth_use__3213E83FF936A3E9</UnderlyingIndexName>
+    </key>
+    <column id="5838" parent="5614" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StoredType>bigint|0s</StoredType>
+    </column>
+    <column id="5839" parent="5614" name="user_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5840" parent="5614" name="permission_id">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <foreign-key id="5841" parent="5614" name="auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id">
+      <ColNames>user_id</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:20.640</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.640</ModifiedTimestamp>
+      <ObjectId>1758629308</ObjectId>
+      <RefColNames>id</RefColNames>
+      <RefTableId>1582628681</RefTableId>
+      <RefTableName>auth_user</RefTableName>
+    </foreign-key>
+    <foreign-key id="5842" parent="5614" name="auth_user_user_permissions_permission_id_1fbb5f2c_fk_auth_permission_id">
+      <ColNames>permission_id</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:20.640</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.640</ModifiedTimestamp>
+      <ObjectId>1774629365</ObjectId>
+      <RefColNames>id</RefColNames>
+      <RefTableId>1470628282</RefTableId>
+      <RefTableName>auth_permission</RefTableName>
+    </foreign-key>
+    <index id="5843" parent="5614" name="PK__auth_use__3213E83F8A831F10">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5844" parent="5614" name="auth_user_user_permissions_user_id_permission_id_14a6b632_uniq">
+      <ColNames>user_id
+permission_id</ColNames>
+      <Condition>[user_id] IS NOT NULL AND [permission_id] IS NOT NULL</Condition>
+      <Position>2</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5845" parent="5614" name="auth_user_user_permissions_permission_id_1fbb5f2c">
+      <ColNames>permission_id</ColNames>
+      <Position>3</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5846" parent="5614" name="auth_user_user_permissions_user_id_a95ead1b">
+      <ColNames>user_id</ColNames>
+      <Position>4</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5847" parent="5614" name="PK__auth_use__3213E83F8A831F10">
+      <CreatedTimestamp>2025-11-22.07:06:20.630</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.630</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1678629023</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__auth_use__3213E83F8A831F10</UnderlyingIndexName>
+    </key>
+    <check id="5848" parent="5615" name="django_admin_log_action_flag_a8637d59_check">
+      <ColNames>action_flag</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:20.653</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.653</ModifiedTimestamp>
+      <ObjectId>1838629593</ObjectId>
+      <Predicate>[action_flag]&gt;=0</Predicate>
+    </check>
+    <column id="5849" parent="5615" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5850" parent="5615" name="action_time">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>datetimeoffset|0s</StoredType>
+    </column>
+    <column id="5851" parent="5615" name="object_id">
+      <Position>3</Position>
+      <StoredType>nvarchar(max)|0s</StoredType>
+    </column>
+    <column id="5852" parent="5615" name="object_repr">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>nvarchar(200 char)|0s</StoredType>
+    </column>
+    <column id="5853" parent="5615" name="action_flag">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>smallint|0s</StoredType>
+    </column>
+    <column id="5854" parent="5615" name="change_message">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>nvarchar(max)|0s</StoredType>
+    </column>
+    <column id="5855" parent="5615" name="content_type_id">
+      <Position>7</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5856" parent="5615" name="user_id">
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <foreign-key id="5857" parent="5615" name="django_admin_log_content_type_id_c4bce8eb_fk_django_content_type_id">
+      <ColNames>content_type_id</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:20.657</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.657</ModifiedTimestamp>
+      <ObjectId>1870629707</ObjectId>
+      <RefColNames>id</RefColNames>
+      <RefTableId>1438628168</RefTableId>
+      <RefTableName>django_content_type</RefTableName>
+    </foreign-key>
+    <foreign-key id="5858" parent="5615" name="django_admin_log_user_id_c564eba6_fk_auth_user_id">
+      <ColNames>user_id</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:20.657</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.657</ModifiedTimestamp>
+      <ObjectId>1854629650</ObjectId>
+      <RefColNames>id</RefColNames>
+      <RefTableId>1582628681</RefTableId>
+      <RefTableName>auth_user</RefTableName>
+    </foreign-key>
+    <index id="5859" parent="5615" name="PK__django_a__3213E83FB3C1F271">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5860" parent="5615" name="django_admin_log_user_id_c564eba6">
+      <ColNames>user_id</ColNames>
+      <Position>2</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5861" parent="5615" name="django_admin_log_content_type_id_c4bce8eb">
+      <ColNames>content_type_id</ColNames>
+      <Position>3</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5862" parent="5615" name="PK__django_a__3213E83FB3C1F271">
+      <CreatedTimestamp>2025-11-22.07:06:20.653</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.653</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1822629536</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__django_a__3213E83FB3C1F271</UnderlyingIndexName>
+    </key>
+    <column id="5863" parent="5616" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1(1002)</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5864" parent="5616" name="app_label">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>nvarchar(100 char)|0s</StoredType>
+    </column>
+    <column id="5865" parent="5616" name="model">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>nvarchar(100 char)|0s</StoredType>
+    </column>
+    <index id="5866" parent="5616" name="PK__django_c__3213E83F982555B4">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5867" parent="5616" name="django_content_type_app_label_model_76bd3d3b_uniq">
+      <ColNames>app_label
+model</ColNames>
+      <Condition>[app_label] IS NOT NULL AND [model] IS NOT NULL</Condition>
+      <Position>2</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5868" parent="5616" name="PK__django_c__3213E83F982555B4">
+      <CreatedTimestamp>2025-11-22.07:06:20.600</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.600</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1454628225</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__django_c__3213E83F982555B4</UnderlyingIndexName>
+    </key>
+    <column id="5869" parent="5617" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1(10002)</SequenceIdentity>
+      <StoredType>bigint|0s</StoredType>
+    </column>
+    <column id="5870" parent="5617" name="app">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(255 char)|0s</StoredType>
+    </column>
+    <column id="5871" parent="5617" name="name">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>nvarchar(255 char)|0s</StoredType>
+    </column>
+    <column id="5872" parent="5617" name="applied">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>datetimeoffset|0s</StoredType>
+    </column>
+    <index id="5873" parent="5617" name="PK__django_m__3213E83F711E92A1">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5874" parent="5617" name="PK__django_m__3213E83F711E92A1">
+      <CreatedTimestamp>2025-11-22.07:06:20.597</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:20.597</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1422628111</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__django_m__3213E83F711E92A1</UnderlyingIndexName>
+    </key>
+    <column id="5875" parent="5618" name="session_key">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>nvarchar(40 char)|0s</StoredType>
+    </column>
+    <column id="5876" parent="5618" name="session_data">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(max)|0s</StoredType>
+    </column>
+    <column id="5877" parent="5618" name="expire_date">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>datetimeoffset|0s</StoredType>
+    </column>
+    <index id="5878" parent="5618" name="PK__django_s__B3BA0F1F1AE3A559">
+      <Clustering>1</Clustering>
+      <ColNames>session_key</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5879" parent="5618" name="django_session_expire_date_a5c62663">
+      <ColNames>expire_date</ColNames>
+      <Position>2</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5880" parent="5618" name="PK__django_s__B3BA0F1F1AE3A559">
+      <CreatedTimestamp>2025-11-22.07:06:22.160</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:22.160</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1934629935</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__django_s__B3BA0F1F1AE3A559</UnderlyingIndexName>
+    </key>
+    <column id="5881" parent="5619" name="BusinessEntityID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5882" parent="5619" name="FullName">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(101 char)|0s</StoredType>
+    </column>
+    <column id="5883" parent="5619" name="BirthDate">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>date|0s</StoredType>
+    </column>
+    <column id="5884" parent="5619" name="GroupName">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5885" parent="5619" name="DepartmentName">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5886" parent="5619" name="StartDate">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>date|0s</StoredType>
+    </column>
+    <column id="5887" parent="5619" name="EndDate">
+      <Position>7</Position>
+      <StoredType>date|0s</StoredType>
+    </column>
+    <column id="5888" parent="5619" name="PasswordSalt">
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>varchar(10 char)|0s</StoredType>
+    </column>
+    <column id="5889" parent="5619" name="PhoneNumber">
+      <NotNull>1</NotNull>
+      <Position>9</Position>
+      <StoredType>nvarchar(25 char)|0s</StoredType>
+    </column>
+    <column id="5890" parent="5619" name="EmailAddress">
+      <Position>10</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <index id="5891" parent="5619" name="PK_employees">
+      <Clustering>1</Clustering>
+      <ColNames>BusinessEntityID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5892" parent="5619" name="PK_employees">
+      <CreatedTimestamp>2025-10-28.16:02:09.230</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-28.16:02:09.230</ModifiedTimestamp>
+      <ObjectId>446624634</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_employees</UnderlyingIndexName>
+    </key>
+    <column id="5893" parent="5620" name="ProductID">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1(1000)</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5894" parent="5620" name="Name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5895" parent="5620" name="ProductNumber">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>nvarchar(25 char)|0s</StoredType>
+    </column>
+    <column id="5896" parent="5620" name="FinishedGoodsFlag">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>bit|0s</StoredType>
+    </column>
+    <column id="5897" parent="5620" name="Color">
+      <Position>6</Position>
+      <StoredType>nvarchar(15 char)|0s</StoredType>
+    </column>
+    <column id="5898" parent="5620" name="ReorderPoint">
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>smallint|0s</StoredType>
+    </column>
+    <column id="5899" parent="5620" name="SafetyStockLevel">
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>smallint|0s</StoredType>
+    </column>
+    <column id="5900" parent="5620" name="StandardCost">
+      <NotNull>1</NotNull>
+      <Position>9</Position>
+      <StoredType>money|0s</StoredType>
+    </column>
+    <column id="5901" parent="5620" name="ListPrice">
+      <NotNull>1</NotNull>
+      <Position>10</Position>
+      <StoredType>money|0s</StoredType>
+    </column>
+    <column id="5902" parent="5620" name="Size">
+      <Position>11</Position>
+      <StoredType>nvarchar(5 char)|0s</StoredType>
+    </column>
+    <column id="5903" parent="5620" name="DaysToManufacture">
+      <NotNull>1</NotNull>
+      <Position>15</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5904" parent="5620" name="ProductLine">
+      <Position>16</Position>
+      <StoredType>nchar(2 char)|0s</StoredType>
+    </column>
+    <column id="5905" parent="5620" name="Class">
+      <Position>17</Position>
+      <StoredType>nchar(2 char)|0s</StoredType>
+    </column>
+    <column id="5906" parent="5620" name="Style">
+      <Position>18</Position>
+      <StoredType>nchar(2 char)|0s</StoredType>
+    </column>
+    <column id="5907" parent="5620" name="ProductSubcategoryID">
+      <Position>19</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5908" parent="5620" name="SellStartDate">
+      <NotNull>1</NotNull>
+      <Position>21</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <column id="5909" parent="5620" name="SellEndDate">
+      <Position>22</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <column id="5910" parent="5620" name="rowguid">
+      <NotNull>1</NotNull>
+      <Position>24</Position>
+      <StoredType>uniqueidentifier|0s</StoredType>
+    </column>
+    <column id="5911" parent="5620" name="ModifiedDate">
+      <NotNull>1</NotNull>
+      <Position>25</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <foreign-key id="5912" parent="5620" name="PK_Product_ProductSubcategory">
+      <ColNames>ProductSubcategoryID</ColNames>
+      <CreatedTimestamp>2025-10-18.09:58:47.767</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:58:47.767</ModifiedTimestamp>
+      <ObjectId>194099732</ObjectId>
+      <RefColNames>ProductSubcategoryID</RefColNames>
+      <RefTableId>146099561</RefTableId>
+      <RefTableName>ProductSubcategory</RefTableName>
+    </foreign-key>
+    <index id="5913" parent="5620" name="PK_product">
+      <Clustering>1</Clustering>
+      <ColNames>ProductID</ColNames>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5914" parent="5620" name="PK_product">
+      <CreatedTimestamp>2025-10-18.09:49:35.150</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.09:49:35.150</ModifiedTimestamp>
+      <ObjectId>130099504</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK_product</UnderlyingIndexName>
+    </key>
+    <column id="5915" parent="5621" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StoredType>bigint|0s</StoredType>
+    </column>
+    <column id="5916" parent="5621" name="name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(255 char)|0s</StoredType>
+    </column>
+    <column id="5917" parent="5621" name="product_number">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>nvarchar(25 char)|0s</StoredType>
+    </column>
+    <column id="5918" parent="5621" name="finished_goods_flag">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>bit|0s</StoredType>
+    </column>
+    <column id="5919" parent="5621" name="color">
+      <Position>5</Position>
+      <StoredType>nvarchar(15 char)|0s</StoredType>
+    </column>
+    <column id="5920" parent="5621" name="safety_stock_level">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>smallint|0s</StoredType>
+    </column>
+    <column id="5921" parent="5621" name="reorder_point">
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>smallint|0s</StoredType>
+    </column>
+    <column id="5922" parent="5621" name="standard_cost">
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>numeric(10,2)|0s</StoredType>
+    </column>
+    <column id="5923" parent="5621" name="list_price">
+      <NotNull>1</NotNull>
+      <Position>9</Position>
+      <StoredType>numeric(10,2)|0s</StoredType>
+    </column>
+    <column id="5924" parent="5621" name="size">
+      <Position>10</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5925" parent="5621" name="weight">
+      <Position>11</Position>
+      <StoredType>numeric(10,2)|0s</StoredType>
+    </column>
+    <column id="5926" parent="5621" name="days_to_manufacture">
+      <NotNull>1</NotNull>
+      <Position>12</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5927" parent="5621" name="product_line">
+      <Position>13</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5928" parent="5621" name="product_class">
+      <Position>14</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5929" parent="5621" name="style">
+      <Position>15</Position>
+      <StoredType>nvarchar(50 char)|0s</StoredType>
+    </column>
+    <column id="5930" parent="5621" name="sell_start_date">
+      <NotNull>1</NotNull>
+      <Position>16</Position>
+      <StoredType>datetimeoffset|0s</StoredType>
+    </column>
+    <column id="5931" parent="5621" name="sell_end_date">
+      <Position>17</Position>
+      <StoredType>datetimeoffset|0s</StoredType>
+    </column>
+    <column id="5932" parent="5621" name="rowguid">
+      <NotNull>1</NotNull>
+      <Position>18</Position>
+      <StoredType>char(32 char)|0s</StoredType>
+    </column>
+    <column id="5933" parent="5621" name="modified_date">
+      <NotNull>1</NotNull>
+      <Position>19</Position>
+      <StoredType>datetimeoffset|0s</StoredType>
+    </column>
+    <column id="5934" parent="5621" name="product_subcategory_id">
+      <Position>20</Position>
+      <StoredType>bigint|0s</StoredType>
+    </column>
+    <column id="5935" parent="5621" name="image">
+      <Position>21</Position>
+      <StoredType>nvarchar(100 char)|0s</StoredType>
+    </column>
+    <foreign-key id="5936" parent="5621" name="store_product_product_subcategory_id_51af00be_fk_store_productsubcategory_id">
+      <ColNames>product_subcategory_id</ColNames>
+      <CreatedTimestamp>2025-11-22.07:06:22.177</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:22.177</ModifiedTimestamp>
+      <ObjectId>2046630334</ObjectId>
+      <RefColNames>id</RefColNames>
+      <RefTableId>1950629992</RefTableId>
+      <RefTableName>store_productsubcategory</RefTableName>
+    </foreign-key>
+    <index id="5937" parent="5621" name="PK__store_pr__3213E83F2B1F06F5">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5938" parent="5621" name="UQ__store_pr__F73921F77B6F1D8D">
+      <ColNames>rowguid</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>2</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5939" parent="5621" name="UQ__store_pr__27546DE9F5BD1843">
+      <ColNames>product_number</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>3</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5940" parent="5621" name="store_product_product_subcategory_id_51af00be">
+      <ColNames>product_subcategory_id</ColNames>
+      <Position>4</Position>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5941" parent="5621" name="PK__store_pr__3213E83F2B1F06F5">
+      <CreatedTimestamp>2025-11-22.07:06:22.177</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:22.177</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1998630163</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__store_pr__3213E83F2B1F06F5</UnderlyingIndexName>
+    </key>
+    <key id="5942" parent="5621" name="UQ__store_pr__27546DE9F5BD1843">
+      <CreatedTimestamp>2025-11-22.07:06:22.177</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:22.177</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>2030630277</ObjectId>
+      <UnderlyingIndexName>UQ__store_pr__27546DE9F5BD1843</UnderlyingIndexName>
+    </key>
+    <key id="5943" parent="5621" name="UQ__store_pr__F73921F77B6F1D8D">
+      <CreatedTimestamp>2025-11-22.07:06:22.177</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:22.177</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>2014630220</ObjectId>
+      <UnderlyingIndexName>UQ__store_pr__F73921F77B6F1D8D</UnderlyingIndexName>
+    </key>
+    <column id="5944" parent="5622" name="id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StoredType>bigint|0s</StoredType>
+    </column>
+    <column id="5945" parent="5622" name="name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>nvarchar(255 char)|0s</StoredType>
+    </column>
+    <index id="5946" parent="5622" name="PK__store_pr__3213E83F5F501BF1">
+      <Clustering>1</Clustering>
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5947" parent="5622" name="PK__store_pr__3213E83F5F501BF1">
+      <CreatedTimestamp>2025-11-22.07:06:22.167</CreatedTimestamp>
+      <ModifiedTimestamp>2025-11-22.07:06:22.167</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>1966630049</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__store_pr__3213E83F5F501BF1</UnderlyingIndexName>
+    </key>
+    <column id="5948" parent="5623" name="name">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>sysname|0s</StoredType>
+    </column>
+    <column id="5949" parent="5623" name="principal_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5950" parent="5623" name="diagram_id">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5951" parent="5623" name="version">
+      <Position>4</Position>
+      <StoredType>int|0s</StoredType>
+    </column>
+    <column id="5952" parent="5623" name="definition">
+      <Position>5</Position>
+      <StoredType>varbinary(max)|0s</StoredType>
+    </column>
+    <index id="5953" parent="5623" name="PK__sysdiagr__C2B05B616CCBA6F7">
+      <Clustering>1</Clustering>
+      <ColNames>diagram_id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Position>1</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <index id="5954" parent="5623" name="UK_principal_name">
+      <ColNames>principal_id
+name</ColNames>
+      <Position>2</Position>
+      <Unique>1</Unique>
+      <PartitionDataSpaceId>1</PartitionDataSpaceId>
+    </index>
+    <key id="5955" parent="5623" name="PK__sysdiagr__C2B05B616CCBA6F7">
+      <CreatedTimestamp>2025-10-18.14:34:59.033</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.14:34:59.033</ModifiedTimestamp>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>690101499</ObjectId>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PK__sysdiagr__C2B05B616CCBA6F7</UnderlyingIndexName>
+    </key>
+    <key id="5956" parent="5623" name="UK_principal_name">
+      <CreatedTimestamp>2025-10-18.14:34:59.033</CreatedTimestamp>
+      <ModifiedTimestamp>2025-10-18.14:34:59.033</ModifiedTimestamp>
+      <ObjectId>706101556</ObjectId>
+      <UnderlyingIndexName>UK_principal_name</UnderlyingIndexName>
+    </key>
   </database-model>
 </dataSource>

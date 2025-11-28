@@ -2,9 +2,10 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Container } from '@mui/material';
+// Container sẽ được quản lý bởi từng trang con thay vì ở đây
+// import { Container } from '@mui/material'; 
 
-import Layout from './components/layout/Layout'; // Import Layout mới
+import Layout from './components/layout/Layout';
 import ProductList from './ProductList';
 import ProductDetail from './ProductDetail';
 import theme from './theme';
@@ -16,28 +17,16 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
-          {/* 
-            Bây giờ Layout là route cha. 
-            Tất cả các route con sẽ được render bên trong <Outlet /> của Layout.
-          */}
           <Route path="/" element={<Layout />}>
-            {/* Trang chủ (danh sách sản phẩm) */}
-            <Route index element={
-              <Container maxWidth="lg">
-                <ProductList />
-              </Container>
-            } />
-            
-            {/* Trang chi tiết sản phẩm */}
-            <Route path="products/:id" element={
-              <Container maxWidth="lg">
-                <ProductDetail />
-              </Container>
-            } />
+            {/* 
+              Xóa Container ở đây. 
+              ProductList và ProductDetail sẽ tự quản lý container của chúng.
+            */}
+            <Route index element={<ProductList />} />
+            <Route path="products/:id" element={<ProductDetail />} />
 
-            {/* Bạn có thể thêm các trang khác ở đây, ví dụ: */}
+            {/* Bạn có thể thêm các trang khác ở đây */}
             {/* <Route path="cart" element={<CartPage />} /> */}
-            {/* <Route path="login" element={<LoginPage />} /> */}
           </Route>
         </Routes>
       </Router>

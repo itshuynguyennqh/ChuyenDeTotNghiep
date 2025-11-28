@@ -1,6 +1,6 @@
 from rest_framework import generics
-from .models import Product
-from .serializers import ProductSerializer
+from .models import Product, ProductCategory
+from .serializers import ProductSerializer, ProductCategorySerializer
 
 class ProductList(generics.ListCreateAPIView):
     """
@@ -15,3 +15,10 @@ class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+class CategoryList(generics.ListAPIView):
+    """
+    API view để lấy danh sách tất cả các Category, bao gồm cả Subcategory của chúng.
+    """
+    queryset = ProductCategory.objects.prefetch_related('productsubcategory_set').all()
+    serializer_class = ProductCategorySerializer
