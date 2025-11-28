@@ -30,7 +30,7 @@ import './ProductList.css';
 function ProductList() {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-    
+
     const [page, setPage] = useState(1);
     const itemsPerPage = 10;
 
@@ -198,26 +198,26 @@ function ProductList() {
                                         {/*nội dung card*/}
                                         <CardContent sx={{ pb: '16px !important', textAlign: 'left' }}>
 
-                                                {/*tên sản phẩm*/}
-                                                <Typography gutterBottom variant="body2" component="div" fontWeight="bold" className="product-name">
-                                                    {product.name}
+                                            {/*tên sản phẩm*/}
+                                            <Typography gutterBottom variant="body2" component="div" fontWeight="bold" className="product-name">
+                                                {product.name}
+                                            </Typography>
+                                            {/*sao đánh giá*/}
+                                            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
+                                                <Rating value={4.5} precision={0.5} readOnly size="small" sx={{ color: '#ffc107' }} />
+                                                <Typography variant="caption" color="text.secondary">(175)</Typography>
+                                            </Stack>
+                                            {/*giá và số lượng đã bán*/}
+                                            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                                {/*giá*/}
+                                                <Typography variant="subtitle1" fontWeight="bold" color="text.primary">
+                                                    ${parseFloat(product.listprice).toFixed(2)}
                                                 </Typography>
-                                                {/*sao đánh giá*/}
-                                                <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
-                                                    <Rating value={4.5} precision={0.5} readOnly size="small" sx={{ color: '#ffc107' }} />
-                                                    <Typography variant="caption" color="text.secondary">(175)</Typography>
-                                                </Stack>
-                                                {/*giá và số lượng đã bán*/}
-                                                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                                    {/*giá*/}
-                                                    <Typography variant="subtitle1" fontWeight="bold" color="text.primary">
-                                                        ${parseFloat(product.listprice).toFixed(2)}
-                                                    </Typography>
-                                                    {/*số lượng đã bán*/}
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        149 sold
-                                                    </Typography>
-                                                </Stack>
+                                                {/*số lượng đã bán*/}
+                                                <Typography variant="caption" color="text.secondary">
+                                                    149 sold
+                                                </Typography>
+                                            </Stack>
                                         </CardContent>
                                     </Link>
                                 </Card>
@@ -238,7 +238,7 @@ function ProductList() {
                 </Grid>
 
 
-                </Grid>
+            </Grid>
 
         </Container>
     );
