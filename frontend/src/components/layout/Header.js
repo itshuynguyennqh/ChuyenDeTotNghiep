@@ -76,17 +76,19 @@ function Header() {
 
         {/* --- ICONS SECTION (Right Side) --- */}
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <IconButton color="inherit">
+          <IconButton color="inherit" component={RouterLink} to="/login">
             {/* SỬA: Dùng thẻ img cho icon User */}
-            <Box
-                component="img"
-                src={userIcon}
-                alt="User"
-                sx={{ width: 30, height: 30 }}
-            />
-          </IconButton>
+                <Box
+                    component="img"
+                    src={userIcon}
+                    alt="User"
+                    sx={{ width: 30, height: 30 }}
+                />
+            </IconButton>
 
-          <IconButton color="inherit">
+
+
+          <IconButton color="inherit" component={RouterLink} to="/cart">
             <Badge badgeContent={2} color="primary">
                {/* SỬA: Dùng thẻ img cho icon Cart */}
               <Box
