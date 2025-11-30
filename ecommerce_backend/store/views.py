@@ -1,6 +1,7 @@
 from rest_framework import generics
-from .models import Product, ProductCategory
-from .serializers import ProductSerializer, ProductCategorySerializer
+from .models import Product, ProductCategory, Cart
+from .serializers import ProductSerializer, ProductCategorySerializer, CartItemSerializer
+
 
 class ProductList(generics.ListCreateAPIView):
     """
@@ -22,3 +23,15 @@ class CategoryList(generics.ListAPIView):
     """
     queryset = ProductCategory.objects.prefetch_related('productsubcategory_set').all()
     serializer_class = ProductCategorySerializer
+
+
+
+class CartDetailView(generics.RetrieveAPIView):
+    #     dùng tạm 1 rỏ hangf
+    serilizer_class = CartItemSerializer
+
+    def get_object(self):
+        # tạm thời lấy rỏ ID 1
+        # về sau thêm logic lấy rỏ của user ở đây
+        cart_obj, created =  Cart.objects.get(pk=1)
+        return cart_obj

@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Product, ProductSubcategory, ProductCategory
+from .models import Product, ProductSubcategory, ProductCategory, CartItem
+
 
 # Serializer cho Subcategory
 class ProductSubcategorySerializer(serializers.ModelSerializer):
@@ -49,3 +50,19 @@ class ProductSerializer(serializers.ModelSerializer):
         if obj.productsubcategoryid and obj.productsubcategoryid.productcategoryid:
             return obj.productsubcategoryid.productcategoryid.name
         return None
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    productid = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = CartItem
+        fields = [
+            'cartitemid',
+            'cartid',
+            'productid',
+            'quantity',
+            'unitprice',
+            'subtotal',
+            'dateadded',
+            'dateupdated']

@@ -7,6 +7,7 @@ import Layout from './components/layout/Layout';
 
 import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
+import CartPage from './pages/CartPage';
 import theme from './theme';
 import './App.css';
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<ProductList />} />
             <Route path="products/:id" element={<ProductDetail />} />
+            <Route path="cart" element={<CartPage />} />
           </Route>
         </Routes>
       </Router>
