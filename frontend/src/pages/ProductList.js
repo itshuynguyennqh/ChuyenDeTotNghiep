@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import {
@@ -26,6 +25,7 @@ import {
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import './ProductList.css';
+import { fetchProductsAPI, fetchCategoriesAPI } from '../api/productApi';
 
 function ProductList() {
     const [products, setProducts] = useState([]);
@@ -41,7 +41,7 @@ function ProductList() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/products/');
+                const response = await fetchProductsAPI();
                 setProducts(response.data);
             } catch (error) {
                 console.error("Có lỗi xảy ra khi lấy dữ liệu sản phẩm!", error);
@@ -53,7 +53,7 @@ function ProductList() {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/categories/');
+                const response = await fetchCategoriesAPI();
                 setCategories(response.data);
             } catch (error) {
                 console.error("Có lỗi xảy ra khi lấy dữ liệu danh mục!", error);
@@ -141,7 +141,7 @@ function ProductList() {
                 </Grid>
 
                 {/*produclist*/}
-                <Grid item xs={12} md={9.5} >
+                <Grid item xs={12} md={9.5} minWidth={"auto"} >
                     {/*đường link*/}
                     <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb" sx={{ mb: 2 }}>
                         <MuiLink underline="hover" color="inherit" component={Link} to="/">Home</MuiLink>

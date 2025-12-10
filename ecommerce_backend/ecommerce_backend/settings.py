@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-yv7v(ah$cc%i(5_4kc7fz#rk$%kk3_wasi_^nbz43t1#6p-ymd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Allow all hosts for development purposes
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -54,6 +55,10 @@ MIDDLEWARE = [
 ]
 
 # Cấu hình CORS
+# For development, allow all origins.
+# For production, you should restrict this to your frontend's domain.
+CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", # Địa chỉ của ứng dụng React
     "http://127.0.0.1:3000",
