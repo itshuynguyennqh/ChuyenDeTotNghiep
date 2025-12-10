@@ -91,9 +91,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': 'final_project_getout',
-        'USER': 'sa',
+        'USER': 'sa1',
         'PASSWORD': '2611',
-        'HOST': 'localhost',  # ví dụ: 'localhost' hoặc 'SERVER_NAME\\SQLEXPRESS'
+        'HOST': 'localhost\SQLEXPRESS',  # ví dụ: 'localhost' hoặc 'SERVER_NAME\\SQLEXPRESS'
         'PORT': '1433',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="dataSourceStorageLocal" created-in="IU-252.27397.103">
+  <component name="dataSourceStorageLocal" created-in="IU-252.28238.7">
     <data-source name="final_project_getout@localhost" uuid="366120ba-09a6-4876-b23f-60d82e4a8744">
       <database-info product="Microsoft SQL Server" version="16.00.1000" jdbc-version="4.3" driver-name="Microsoft JDBC Driver 13.2 for SQL Server" driver-version="13.2.1.0" dbms="MSSQL" exact-version="16.0.1000" exact-driver-version="13.2">
         <extra-name-characters>$#@</extra-name-characters>
@@ -8,7 +8,7 @@
       </database-info>
       <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
       <secret-storage>master_key</secret-storage>
-      <user-name>admin</user-name>
+      <user-name>sa1</user-name>
       <schema-mapping>
         <introspection-scope>
           <node negative="1">

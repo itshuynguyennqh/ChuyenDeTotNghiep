@@ -6,7 +6,6 @@ from .models import (
     Product,
     SalesOrderHeader,
     SalesOrderDetail,
-    # Thêm các model khác nếu cần
     Cart,
     CartItem,
     ProductReview,

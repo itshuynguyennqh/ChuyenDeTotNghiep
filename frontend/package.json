@@ -26,7 +26,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "dev": "concurrently \"npm start\" \"..\\ecommerce_backend\\venv\\Scripts\\python.exe ../ecommerce_backend/manage.py runserver\""
+    "dev": "concurrently \"npm start\" \"../ecommerce_backend/manage.py runserver\""
   },
   "eslintConfig": {
     "extends": [

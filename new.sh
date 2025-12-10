@@ -1,1 +1,1 @@
-django-admin startproject ecommerce_backend
+npm run dev
