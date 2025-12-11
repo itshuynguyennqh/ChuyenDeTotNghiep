@@ -28,10 +28,10 @@ class CategoryList(generics.ListAPIView):
 
 class CartDetailView(generics.RetrieveAPIView):
     #     dùng tạm 1 rỏ hangf
-    serilizer_class = CartItemSerializer
+    serializer_class = CartItemSerializer
 
     def get_object(self):
         # tạm thời lấy rỏ ID 1
         # về sau thêm logic lấy rỏ của user ở đây
-        cart_obj, created =  Cart.objects.get(pk=1)
+        cart_obj, created =  Cart.objects.get_or_create(pk=1)
         return cart_obj
