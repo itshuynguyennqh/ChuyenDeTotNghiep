@@ -18,3 +18,12 @@ export const fetchProductsAPI = (params = {}) => {
 export const fetchCategoriesAPI = () => {
     return axios.get(`${API_BASE_URL}/categories/`);
 };
+
+/**
+ * Gửi yêu cầu đăng nhập.
+ * @param {object} credentials - { username, password }
+ * @returns {Promise}
+ */
+export const loginAPI = (credentials) => {
+    return axios.post(`${API_BASE_URL}/token/`, credentials);
+};

@@ -8,6 +8,7 @@ import Layout from './components/layout/Layout';
 import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
 import CartPage from './pages/CartPage';
+import LoginPage from './pages/LoginPage'; // Import LoginPage
 import theme from './theme';
 import './App.css';
 
@@ -22,6 +23,8 @@ function App() {
             <Route path="products/:id" element={<ProductDetail />} />
             <Route path="cart" element={<CartPage />} />
           </Route>
+          {/* Thêm route cho trang đăng nhập */}
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </Router>
     </ThemeProvider>
