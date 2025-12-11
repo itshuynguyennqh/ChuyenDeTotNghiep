@@ -3,3 +3,4 @@ djangorestframework
 django-cors-headers
 mssql-django
 djangorestframework-simplejwt
+drf_yasg

@@ -22,12 +22,26 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from drf_yasg import openapi
+from drf_yasg.views import  get_schema_view as swagger_get_schema_view
+
+
+schema_view = swagger_get_schema_view(
+    openapi.Info(
+        title="Store API",
+        default_version =  '1.0.0',
+        description = "API documentation for Store API",
+    ),
+    public=True,
+)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('store.urls')), # Bao gồm các URL từ app 'store'
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api-docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui')
 ]
 
 # Thêm dòng này để phục vụ file media trong môi trường development
