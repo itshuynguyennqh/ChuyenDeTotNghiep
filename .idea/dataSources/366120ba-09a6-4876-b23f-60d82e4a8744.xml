@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="final_project_getout@localhost">
   <database-model serializer="dbm" dbms="MSSQL" family-id="MSSQL" format-version="4.53">
-    <root id="1"/>
+    <root id="1">
+      <ServerVersion>17.0.1000</ServerVersion>
+    </root>
     <collation id="2" parent="1" name="Albanian_BIN">
       <Description>Albanian, binary sort</Description>
     </collation>
@@ -17053,6 +17055,7 @@ int</ExtendedProperties>
       <DetailsLevel>3</DetailsLevel>
       <ModifiedTimestamp>2025-10-18.09:19:01.133</ModifiedTimestamp>
       <ObjectId>1941581955</ObjectId>
+      <Outdated>1</Outdated>
       <LobDataSpaceId>1</LobDataSpaceId>
     </table>
     <table id="5596" parent="5581" name="CustomerEmailAddress">
