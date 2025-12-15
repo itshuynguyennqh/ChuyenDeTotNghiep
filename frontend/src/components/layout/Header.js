@@ -6,14 +6,16 @@ import { Link as RouterLink } from 'react-router-dom';
 import shoppingCartIcon from '../../assets/ShoppingCart-icon.png';
 import searchIcon from '../../assets/Search-icon.png';
 import userIcon from '../../assets/User-icon.png';
-import logo from '../../assets/BikeGo-logo-orange.png';
+import logo from '../../assets/BikeGo-logo-white.png';
+
+const isLoggedIn = !!localStorage.getItem('access_token');
 
 function Header() {
   return (
     <AppBar
       position="static"
       sx={{
-        backgroundColor: '#F4E9DB',
+        backgroundColor: '#F8862C',
         boxShadow: '0px 2px 4px rgba(0,0,0,0.2)'
       }}
     >

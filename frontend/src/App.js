@@ -8,9 +8,11 @@ import Layout from './components/layout/Layout';
 import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
 import CartPage from './pages/CartPage';
-import LoginPage from './pages/LoginPage'; // Import LoginPage
+import LoginPage from './pages/LoginPage';
+import SignUp from "./pages/SignUp";
 import theme from './theme';
 import './App.css';
+import AccountInfoPage from "./pages/AccountInfoPage";
 
 function App() {
   return (
@@ -24,7 +26,11 @@ function App() {
             <Route path="cart" element={<CartPage />} />
           </Route>
           {/* Thêm route cho trang đăng nhập */}
-          <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/account" element={<AccountInfoPage />} />
+
+
         </Routes>
       </Router>
     </ThemeProvider>
