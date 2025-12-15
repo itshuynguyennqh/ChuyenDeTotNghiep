@@ -27,3 +27,13 @@ export const fetchCategoriesAPI = () => {
 export const loginAPI = (credentials) => {
     return axios.post(`${API_BASE_URL}/token/`, credentials);
 };
+
+
+
+export const fetchOrderHistoryAPI = (customerId) => {
+    return axios.get(`${API_BASE_URL}/proc/view-orders/`,{params: {customerid: customerId}});
+};
+
+export const updateAccountAPI = (data) => {
+  return axios.post(`${API_BASE_URL}/proc/manage-account/`, data)
+};
