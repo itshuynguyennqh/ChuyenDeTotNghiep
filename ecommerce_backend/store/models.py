@@ -54,7 +54,7 @@ class CustomerAdress(models.Model):
     city = models.CharField(db_column='City', max_length=30, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     modifieddate = models.DateTimeField(db_column='ModifiedDate')  # Field name made lowercase.
     postalcode = models.CharField(db_column='PostalCode', max_length=15, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    spatiallocation = models.TextField(db_column='SpatialLocation', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    # spatiallocation = models.TextField(db_column='SpatialLocation', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
 
     class Meta:
         managed = False

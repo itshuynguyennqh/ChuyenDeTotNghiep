@@ -1,16 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Box, InputBase, IconButton, Badge } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
+import { fetchCartAPI } from '../../api/productApi';
 
-// Import các file ảnh (Đây là đường dẫn string, không phải Component)
+// Import các file ảnh
 import shoppingCartIcon from '../../assets/ShoppingCart-icon.png';
 import searchIcon from '../../assets/Search-icon.png';
 import userIcon from '../../assets/User-icon.png';
 import logo from '../../assets/BikeGo-logo-white.png';
 
-const isLoggedIn = !!localStorage.getItem('access_token');
-
 function Header() {
+  const [cartItemCount, setCartItemCount] = useState(0);
+  const isLoggedIn = !!localStorage.getItem('access_token');
+
+  const updateCartCount = async () => {
+    if (isLoggedIn) {
+      try {
+        const response = await fetchCartAPI();
+        // Đếm tổng số lượng sản phẩm trong giỏ hàng
+        const count = response.data.items.reduce((total, item) => total + item.quantity, 0);
+        setCartItemCount(count);
+      } catch (error) {
+        console.error("Failed to fetch cart:", error);
+        setCartItemCount(0);
+      }
+    }
+  };
+
+  useEffect(() => {
+    updateCartCount();
+
+    // Lắng nghe sự kiện 'cartUpdated'
+    window.addEventListener('cartUpdated', updateCartCount);
+
+    // Dọn dẹp listener khi component unmount
+    return () => {
+      window.removeEventListener('cartUpdated', updateCartCount);
+    };
+  }, [isLoggedIn]);
+
   return (
     <AppBar
       position="static"
@@ -19,9 +47,7 @@ function Header() {
         boxShadow: '0px 2px 4px rgba(0,0,0,0.2)'
       }}
     >
-
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', paddingY: 1 }}>
-
         {/* --- LOGO SECTION --- */}
         <Box
           component={RouterLink}
@@ -57,7 +83,6 @@ function Header() {
             boxShadow: 'inset 0px 1px 3px rgba(0,0,0,0.1)'
           }}
         >
-          {/* SỬA: Dùng thẻ img thay vì component */}
           <Box
             component="img"
             src={searchIcon}
@@ -66,8 +91,6 @@ function Header() {
               width: 24,
               height: 24,
               marginRight: 1,
-              // Lưu ý: sx={{ color }} không tác dụng với PNG.
-              // Nếu icon chưa có màu cam, bạn cần sửa file ảnh gốc hoặc dùng filter CSS.
             }}
           />
           <InputBase
@@ -78,21 +101,17 @@ function Header() {
 
         {/* --- ICONS SECTION (Right Side) --- */}
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <IconButton color="inherit" component={RouterLink} to="/login">
-            {/* SỬA: Dùng thẻ img cho icon User */}
-                <Box
-                    component="img"
-                    src={userIcon}
-                    alt="User"
-                    sx={{ width: 30, height: 30 }}
-                />
-            </IconButton>
-
-
+          <IconButton color="inherit" component={RouterLink} to={isLoggedIn ? "/account" : "/login"}>
+            <Box
+                component="img"
+                src={userIcon}
+                alt="User"
+                sx={{ width: 30, height: 30 }}
+            />
+          </IconButton>
 
           <IconButton color="inherit" component={RouterLink} to="/cart">
-            <Badge badgeContent={2} color="primary">
-               {/* SỬA: Dùng thẻ img cho icon Cart */}
+            <Badge badgeContent={cartItemCount} color="primary">
               <Box
                 component="img"
                 src={shoppingCartIcon}
@@ -102,7 +121,6 @@ function Header() {
             </Badge>
           </IconButton>
         </Box>
-
       </Toolbar>
     </AppBar>
   );

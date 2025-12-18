@@ -1,7 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, serializers
+from rest_framework.permissions import IsAuthenticated
 from .utils import execute_procedure
+from .models import Customer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -15,20 +17,16 @@ class BaseProcedureView(APIView):
     """
     View cơ sở để gọi procedure. Các view khác sẽ kế thừa từ đây.
     """
-    proc_name = "" # Tên procedure sẽ được định nghĩa ở lớp con
-    param_keys = [] # Danh sách các key tham số mong đợi từ request
+    proc_name = ""
+    param_keys = []
 
     def post(self, request, *args, **kwargs):
-        # Lấy tham số từ request body theo đúng thứ tự
         params = [request.data.get(key) for key in self.param_keys]
-
-        # Kiểm tra nếu thiếu tham số
         if any(p is None for p in params):
             return Response(
                 {"error": f"Missing one of required parameters: {self.param_keys}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
         try:
             result = execute_procedure(self.proc_name, params)
             return Response(result, status=status.HTTP_200_OK)
@@ -46,6 +44,38 @@ class DangKyTaiKhoanView(BaseProcedureView):
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
+class TaoGioVaThemSanPhamView(BaseProcedureView):
+    proc_name = "dbo.Tao_Gio_Va_Them_San_Pham"
+    param_keys = ['productid', 'quantity'] # Bỏ 'customerid' khỏi đây
+    serializer_class = create_proc_serializer('TaoGioVaThemSanPhamSerializer', param_keys)
+    permission_classes = [IsAuthenticated] # Yêu cầu đăng nhập
+
+    @swagger_auto_schema(request_body=serializer_class)
+    def post(self, request, *args, **kwargs):
+        try:
+            # Tự động lấy customerid từ user đã đăng nhập
+            customer = Customer.objects.get(customeremailaddress__emailaddress=request.user.username)
+            customer_id = customer.customerid
+        except Customer.DoesNotExist:
+            return Response({"error": "Customer profile not found for this user."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Lấy các tham số còn lại từ request
+        product_id = request.data.get('productid')
+        quantity = request.data.get('quantity')
+
+        if not all([product_id, quantity]):
+            return Response({"error": "Missing productid or quantity."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Gọi procedure với customerid đã được xác thực
+        params = [customer_id, product_id, quantity]
+        try:
+            result = execute_procedure(self.proc_name, params)
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# ... (Các View khác giữ nguyên) ...
 class DatHangView(BaseProcedureView):
     proc_name = "dbo.Dat_Hang"
     param_keys = ['customerid', 'cartid', 'address', 'payment_method']
@@ -118,15 +148,6 @@ class SuaSanPhamView(BaseProcedureView):
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
-class TaoGioVaThemSanPhamView(BaseProcedureView):
-    proc_name = "dbo.Tao_Gio_Va_Them_San_Pham"
-    param_keys = ['customerid', 'productid', 'quantity']
-    serializer_class = create_proc_serializer('TaoGioVaThemSanPhamSerializer', param_keys)
-
-    @swagger_auto_schema(request_body=serializer_class)
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
-
 class ThemSanPhamView(BaseProcedureView):
     proc_name = "dbo.Them_San_Pham"
     param_keys = ['name', 'price', 'description', 'categoryid']
@@ -143,7 +164,6 @@ class XemDanhSachDonView(APIView): # Dùng GET cho việc xem
         ]
     )
     def get(self, request, *args, **kwargs):
-        # Giả sử xem tất cả đơn hoặc theo customerid
         customer_id = request.query_params.get('customerid')
         params = [customer_id] if customer_id else []
         try:

@@ -13,6 +13,7 @@ import SignUp from "./pages/SignUp";
 import theme from './theme';
 import './App.css';
 import AccountInfoPage from "./pages/AccountInfoPage";
+import PaymentPage from "./pages/PaymentPage";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route path="/account" element={<AccountInfoPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
 
 
         </Routes>
