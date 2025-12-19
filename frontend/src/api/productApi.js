@@ -4,6 +4,7 @@ const API_BASE_URL = `http://${window.location.hostname}:8000/api`;
 
 const api = axios.create({
     baseURL: API_BASE_URL,
+    withCredentials: true, // Thêm dòng này
 });
 
 // Thêm interceptor để tự động gắn token vào header
@@ -42,6 +43,10 @@ export const fetchCartAPI = () => {
 
 export const addToCartAPI = (data) => {
     return api.post('/cart/items/', data);
+};
+
+export const placeOrderAPI = (data) => {
+    return api.post('/checkout/', data);
 };
 
 export const deleteCartItemAPI = (itemId) => {
