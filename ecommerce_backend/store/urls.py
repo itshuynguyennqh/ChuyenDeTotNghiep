@@ -4,7 +4,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     ProductList, ProductDetail, CategoryList, CartDetailView, CurrentUserView,
     ProductSearchView, CartItemUpdateDeleteView, CategoryManageView,
-    AdminUserListView, VoucherManageView, RevenueReportView, AddressViewSet
+    AdminUserListView, VoucherManageView, RevenueReportView, AddressViewSet,
+    AddCartItemView, CheckoutView
 )
 from . import procedure_views as proc_views
 
@@ -36,8 +37,9 @@ urlpatterns = [
 
     # --- 3. CART ---
     path('cart/', CartDetailView.as_view(), name='cart-detail'),
-    path('cart/items/', proc_views.TaoGioVaThemSanPhamView.as_view(), name='cart-add-item'),
+    path('cart/items/', AddCartItemView.as_view(), name='cart-add-item'), # THAY THẾ VIEW CŨ
     path('cart/items/<int:pk>/', CartItemUpdateDeleteView.as_view(), name='cart-item-update-delete'),
+    path('checkout/', CheckoutView.as_view(), name='checkout'),
 
     # --- 4. ORDERS ---
     path('orders/', proc_views.XemDanhSachDonView.as_view(), name='order-list'),

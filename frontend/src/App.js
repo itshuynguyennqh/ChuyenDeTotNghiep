@@ -12,8 +12,9 @@ import LoginPage from './pages/LoginPage';
 import SignUp from "./pages/SignUp";
 import theme from './theme';
 import './App.css';
-import AccountInfoPage from "./pages/AccountInfoPage";
+import AccountPage from "./pages/AccountPage";
 import PaymentPage from "./pages/PaymentPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
 
 function App() {
   return (
@@ -29,8 +30,9 @@ function App() {
           {/* Thêm route cho trang đăng nhập */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/account" element={<AccountInfoPage />} />
+            <Route path="/account" element={<AccountPage />} />
             <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/order-success" element={<OrderSuccessPage />} />
 
 
         </Routes>

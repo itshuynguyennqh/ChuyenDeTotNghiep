@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box, Container, Grid, Typography, Radio, RadioGroup, FormControlLabel,
     Button, Divider, Stack, CardMedia, Paper, IconButton, InputAdornment, TextField
@@ -10,13 +11,27 @@ import {
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import AddressManager from '../components/AddressManager';
-import { fetchCartAPI, fetchAddressesAPI } from '../api/productApi';
+import { fetchCartAPI, fetchAddressesAPI, placeOrderAPI } from '../api/productApi';
 
 function PaymentPage() {
+    const navigate = useNavigate();
     const [cart, setCart] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [isAddressModalOpen, setAddressModalOpen] = useState(false);
+    const [processing, setProcessing] = useState(false);
+    
+    // State cho khách vãng lai
+    const isLoggedIn = !!localStorage.getItem('access_token');
+    const [guestInfo, setGuestInfo] = useState({
+        firstname: '',
+        lastname: '',
+        email: '',
+        phone: '',
+        addressline1: '',
+        city: '',
+        postalcode: ''
+    });
 
     useEffect(() => {
         const loadData = async () => {
@@ -24,9 +39,11 @@ function PaymentPage() {
                 const cartResponse = await fetchCartAPI();
                 setCart(cartResponse.data);
 
-                const addressesResponse = await fetchAddressesAPI();
-                if (addressesResponse.data && addressesResponse.data.length > 0) {
-                    setSelectedAddress(addressesResponse.data[0]); // Select the first address by default
+                if (isLoggedIn) {
+                    const addressesResponse = await fetchAddressesAPI();
+                    if (addressesResponse.data && addressesResponse.data.length > 0) {
+                        setSelectedAddress(addressesResponse.data[0]);
+                    }
                 }
             } catch (error) {
                 console.error("Lỗi khi tải dữ liệu trang thanh toán", error);
@@ -40,6 +57,42 @@ function PaymentPage() {
     const handleSelectAddress = (address) => {
         setSelectedAddress(address);
         setAddressModalOpen(false);
+    };
+
+    const handleOrder = async () => {
+        let orderData = {};
+
+        if (isLoggedIn) {
+            if (!selectedAddress) {
+                alert("Vui lòng chọn địa chỉ giao hàng!");
+                return;
+            }
+            orderData = { address_id: selectedAddress.addressid };
+        } else {
+            // Validate guest info
+            if (!guestInfo.firstname || !guestInfo.email || !guestInfo.phone || !guestInfo.addressline1 || !guestInfo.city) {
+                alert("Vui lòng điền đầy đủ thông tin giao hàng!");
+                return;
+            }
+            orderData = { guest_info: guestInfo };
+        }
+
+        setProcessing(true);
+        try {
+            await placeOrderAPI(orderData);
+            
+            // Bắn sự kiện để Header cập nhật lại số lượng giỏ hàng (về 0)
+            window.dispatchEvent(new CustomEvent('cartUpdated'));
+            navigate('/order-success');
+        } catch (error) {
+            console.error("Đặt hàng thất bại:", error);
+            alert("Đặt hàng thất bại. Vui lòng thử lại.");
+            setProcessing(false);
+        }
+    };
+
+    const handleGuestInfoChange = (e) => {
+        setGuestInfo({ ...guestInfo, [e.target.name]: e.target.value });
     };
 
     if (loading) {
@@ -66,30 +119,61 @@ function PaymentPage() {
 
                 <Grid container spacing={0} sx={{ backgroundColor: '#fcf6f0', borderRadius: 2, overflow: 'hidden' }}>
                     <Grid item xs={12} md={7} sx={{ pr: { md: 4 } }}>
-                        <Paper elevation={0} sx={{ p: 2, backgroundColor: 'transparent', display: 'flex', alignItems: 'center', cursor: 'pointer', mb: 2 }} onClick={() => setAddressModalOpen(true)}>
-                            <LocationIcon sx={{ color: '#d32f2f', mr: 2 }} />
-                            <Box sx={{ flexGrow: 1 }}>
-                                {selectedAddress ? (
-                                    <>
+                        {isLoggedIn ? (
+                            // --- GIAO DIỆN CHO USER ĐÃ ĐĂNG NHẬP ---
+                            <Paper elevation={0} sx={{ p: 2, backgroundColor: 'transparent', display: 'flex', alignItems: 'center', cursor: 'pointer', mb: 2 }} onClick={() => setAddressModalOpen(true)}>
+                                <LocationIcon sx={{ color: '#d32f2f', mr: 2 }} />
+                                <Box sx={{ flexGrow: 1 }}>
+                                    {selectedAddress ? (
+                                        <>
+                                            <Typography variant="subtitle1" fontWeight="bold">
+                                                {selectedAddress.addressline1}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {selectedAddress.city}, {selectedAddress.postalcode}
+                                            </Typography>
+                                        </>
+                                    ) : (
                                         <Typography variant="subtitle1" fontWeight="bold">
-                                            {selectedAddress.addressline1}
+                                            No address selected. Click to add one.
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {selectedAddress.city}, {selectedAddress.postalcode}
-                                        </Typography>
-                                    </>
-                                ) : (
-                                    <Typography variant="subtitle1" fontWeight="bold">
-                                        No address selected. Click to add one.
-                                    </Typography>
-                                )}
+                                    )}
+                                </Box>
+                                <ChevronRightIcon sx={{ color: '#ccc' }} />
+                            </Paper>
+                        ) : (
+                            // --- GIAO DIỆN CHO KHÁCH VÃNG LAI (GUEST FORM) ---
+                            <Box sx={{ mb: 4, p: 2, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#fff' }}>
+                                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Thông tin giao hàng</Typography>
+                                <Grid container spacing={2} sx={{ m: 2 }}>
+                                    <Grid item xs={6}>
+                                        <TextField label="Họ (Last Name)" name="lastname" fullWidth size="small" required value={guestInfo.lastname} onChange={handleGuestInfoChange} />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <TextField label="Tên (First Name)" name="firstname" fullWidth size="small" required value={guestInfo.firstname} onChange={handleGuestInfoChange} />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField label="Email" name="email" type="email" fullWidth size="small" required value={guestInfo.email} onChange={handleGuestInfoChange} />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField label="Số điện thoại" name="phone" fullWidth size="small" required value={guestInfo.phone} onChange={handleGuestInfoChange} />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField label="Địa chỉ (Số nhà, đường)" name="addressline1" fullWidth size="small" required value={guestInfo.addressline1} onChange={handleGuestInfoChange} />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <TextField label="Thành phố" name="city" fullWidth size="small" required value={guestInfo.city} onChange={handleGuestInfoChange} />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <TextField label="Mã bưu điện" name="postalcode" fullWidth size="small" value={guestInfo.postalcode} onChange={handleGuestInfoChange} />
+                                    </Grid>
+                                </Grid>
                             </Box>
-                            <ChevronRightIcon sx={{ color: '#ccc' }} />
-                        </Paper>
+                        )}
 
                         <Divider sx={{ mb: 3 }} />
 
-                        <Stack spacing={3}>
+                        <Stack spacing={3} >
                             {cart.items.map((item) => (
                                 <Box key={item.cartitemid} sx={{ display: 'flex', alignItems: 'center' }}>
                                     <Box sx={{ width: 80, height: 80, backgroundColor: '#fff', borderRadius: 2, p: 1, border: '1px solid #eee' }}>
@@ -175,6 +259,8 @@ function PaymentPage() {
                         </Typography>
                         <Button
                             variant="contained"
+                            onClick={handleOrder}
+                            disabled={processing}
                             sx={{
                                 backgroundColor: '#ff8c00',
                                 color: '#fff',
@@ -185,7 +271,7 @@ function PaymentPage() {
                                 '&:hover': { backgroundColor: '#e67e00' }
                             }}
                         >
-                            ORDER
+                            {processing ? 'PROCESSING...' : 'ORDER'}
                         </Button>
                     </Box>
                 </Container>
@@ -193,11 +279,13 @@ function PaymentPage() {
 
             <Footer />
 
-            <AddressManager
-                open={isAddressModalOpen}
-                onClose={() => setAddressModalOpen(false)}
-                onSelectAddress={handleSelectAddress}
-            />
+            {isLoggedIn && (
+                <AddressManager
+                    open={isAddressModalOpen}
+                    onClose={() => setAddressModalOpen(false)}
+                    onSelectAddress={handleSelectAddress}
+                />
+            )}
         </Box>
     );
 }

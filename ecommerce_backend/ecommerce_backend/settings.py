@@ -60,14 +60,8 @@ MIDDLEWARE = [
 
 # Cấu hình CORS
 # For development, allow all origins.
-# For production, you should restrict this to your frontend's domain.
 CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000", # Địa chỉ của ứng dụng React
-    "http://127.0.0.1:3000",
-]
-
+CORS_ALLOW_CREDENTIALS = True # Quan trọng cho Session Authentication qua CORS
 
 ROOT_URLCONF = 'ecommerce_backend.urls'
 
@@ -162,7 +156,10 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    )
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
 }
 
 SIMPLE_JWT = {
