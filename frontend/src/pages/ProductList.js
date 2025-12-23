@@ -26,7 +26,6 @@ import {
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import './ProductList.css';
-import { fetchProductsAPI, fetchCategoriesAPI } from '../api/productApi';
 
 function ProductList() {
     const [products, setProducts] = useState([]);
@@ -42,8 +41,9 @@ function ProductList() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await fetchProductsAPI();
-                setProducts(response.data);
+                const response = await fetch('http://localhost:8000/api/product');
+                const data = await response.json();
+                setProducts(Array.isArray(data) ? data : []);
             } catch (error) {
                 console.error("Có lỗi xảy ra khi lấy dữ liệu sản phẩm!", error);
             }
@@ -54,8 +54,9 @@ function ProductList() {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await fetchCategoriesAPI();
-                setCategories(response.data);
+                const response = await fetch('http://localhost:8000/api/ProductCategory');
+                const data = await response.json();
+                setCategories(Array.isArray(data) ? data : []);
             } catch (error) {
                 console.error("Có lỗi xảy ra khi lấy dữ liệu danh mục!", error);
             }
@@ -71,7 +72,7 @@ function ProductList() {
     };
 
 
-    const productsToShow = products.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+    const productsToShow = Array.isArray(products) ? products.slice((page - 1) * itemsPerPage, page * itemsPerPage) : [];
 
     return (
         <Container maxWidth="xl" sx={{ backgroundColor: '#fcf6f0', minHeight: '100vh', py: 4 }} >
@@ -79,9 +80,9 @@ function ProductList() {
             <Grid container spacing={2} wrap="nowrap">
                 <Grid item xs={12} md={2.5} minWidth={"auto"} >
                     <Box sx={{ pr: 2 }}>
-                        <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>Categories</Typography>
+                        <Typography     variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>Categories</Typography>
                         <List component="nav">
-                            {categories.map((category) => {
+                                {categories.map((category) => {
                                 const isExpanded = openCategoryId === category.productcategoryid;
 
                                 return (

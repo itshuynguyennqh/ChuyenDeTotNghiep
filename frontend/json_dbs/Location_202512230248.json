@@ -1,0 +1,87 @@
+{
+"Location": [
+	{
+		"LocationID" : 1,
+		"Name" : "Tool Crib",
+		"Availability" : 0,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 2,
+		"Name" : "Sheet Metal Racks",
+		"Availability" : 0,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 3,
+		"Name" : "Paint Shop",
+		"Availability" : 0,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 4,
+		"Name" : "Paint Storage",
+		"Availability" : 0,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 5,
+		"Name" : "Metal Storage",
+		"Availability" : 0,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 6,
+		"Name" : "Miscellaneous Storage",
+		"Availability" : 0,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 7,
+		"Name" : "Finished Goods Storage",
+		"Availability" : 0,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 10,
+		"Name" : "Frame Forming",
+		"Availability" : 96,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 20,
+		"Name" : "Frame Welding",
+		"Availability" : 108,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 30,
+		"Name" : "Debur and Polish",
+		"Availability" : 120,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 40,
+		"Name" : "Paint",
+		"Availability" : 120,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 45,
+		"Name" : "Specialized Paint",
+		"Availability" : 80,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 50,
+		"Name" : "Subassembly",
+		"Availability" : 120,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"LocationID" : 60,
+		"Name" : "Final Assembly",
+		"Availability" : 120,
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	}
+]}

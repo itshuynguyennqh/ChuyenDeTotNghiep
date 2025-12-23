@@ -1,0 +1,75 @@
+{
+"Cart": [
+	{
+		"CartID" : 1002,
+		"CustomerID" : 21784,
+		"CreatedDate" : "2025-11-03T10:59:48.793Z",
+		"ModifiedDate" : "2025-11-03T11:08:37.987Z",
+		"Status" : "Active",
+		"IsCheckedOut" : 1
+	},
+	{
+		"CartID" : 1003,
+		"CustomerID" : 21784,
+		"CreatedDate" : "2025-11-03T11:10:53.183Z",
+		"ModifiedDate" : "2025-11-03T11:11:14.470Z",
+		"Status" : "Active",
+		"IsCheckedOut" : 1
+	},
+	{
+		"CartID" : 1004,
+		"CustomerID" : 21784,
+		"CreatedDate" : "2025-11-03T11:25:14.493Z",
+		"ModifiedDate" : "2025-11-03T11:33:23.770Z",
+		"Status" : "Active",
+		"IsCheckedOut" : 1
+	},
+	{
+		"CartID" : 1005,
+		"CustomerID" : 21784,
+		"CreatedDate" : "2025-11-03T11:35:46.037Z",
+		"ModifiedDate" : "2025-11-04T23:24:40.230Z",
+		"Status" : "Active",
+		"IsCheckedOut" : 1
+	},
+	{
+		"CartID" : 1006,
+		"CustomerID" : 20783,
+		"CreatedDate" : "2025-11-03T23:54:58.983Z",
+		"ModifiedDate" : "2025-11-04T00:02:15.913Z",
+		"Status" : "Active",
+		"IsCheckedOut" : 1
+	},
+	{
+		"CartID" : 1007,
+		"CustomerID" : 21786,
+		"CreatedDate" : "2025-11-04T22:36:50.700Z",
+		"ModifiedDate" : "2025-11-04T23:02:54.807Z",
+		"Status" : "Active",
+		"IsCheckedOut" : 1
+	},
+	{
+		"CartID" : 1008,
+		"CustomerID" : 21786,
+		"CreatedDate" : "2025-11-04T23:29:31.330Z",
+		"ModifiedDate" : "2025-11-04T23:29:40.687Z",
+		"Status" : "Active",
+		"IsCheckedOut" : 1
+	},
+	{
+		"CartID" : 1011,
+		"CustomerID" : 21788,
+		"CreatedDate" : "2025-11-18T08:05:20.960Z",
+		"ModifiedDate" : "2025-11-18T08:10:27.473Z",
+		"Status" : "Active",
+		"IsCheckedOut" : 1
+	},
+	{
+		"CartID" : 1012,
+		"CustomerID" : 21784,
+		"CreatedDate" : "2025-11-21T12:44:04.133Z",
+		"ModifiedDate" : "2025-11-21T12:50:59.963Z",
+		"Status" : "Active",
+		"IsCheckedOut" : 1
+	}
+]}

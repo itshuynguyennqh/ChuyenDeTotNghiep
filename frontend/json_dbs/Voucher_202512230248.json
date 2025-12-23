@@ -1,0 +1,25 @@
+{
+"Voucher": [
+	{
+		"VoucherID" : 1,
+		"Code" : "SALE15",
+		"DiscountPercent" : 15,
+		"DiscountAmount" : null,
+		"StartDate" : "2025-11-03T11:24:53.900Z",
+		"EndDate" : "2025-11-10T11:24:53.900Z",
+		"MinOrderAmount" : 200000.00,
+		"Quantity" : 99,
+		"Status" : 1
+	},
+	{
+		"VoucherID" : 2,
+		"Code" : "SALE16",
+		"DiscountPercent" : 15,
+		"DiscountAmount" : null,
+		"StartDate" : "2025-11-03T11:33:06.940Z",
+		"EndDate" : "2025-11-10T11:33:06.940Z",
+		"MinOrderAmount" : 200000.00,
+		"Quantity" : 99,
+		"Status" : 1
+	}
+]}

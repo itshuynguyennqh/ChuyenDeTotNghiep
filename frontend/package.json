@@ -12,6 +12,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.13.2",
+    "express": "^5.2.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.6",
@@ -19,7 +20,8 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "json-server": "^0.17.4"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,0 +1,27 @@
+{
+"employees": [
+	{
+		"BusinessEntityID" : 250,
+		"FullName" : "Sheela Word",
+		"BirthDate" : "1978-02-10",
+		"GroupName" : "Inventory Management",
+		"DepartmentName" : "Purchasing",
+		"StartDate" : "2012-07-15",
+		"EndDate" : "2099-12-31",
+		"PasswordSalt" : "bPAWZHI=",
+		"PhoneNumber" : "210-555-0193",
+		"EmailAddress" : "sheela0@adventure-works.com"
+	},
+	{
+		"BusinessEntityID" : 274,
+		"FullName" : "Stephen Jiang",
+		"BirthDate" : "1951-10-17",
+		"GroupName" : "Sales and Marketing",
+		"DepartmentName" : "Sales",
+		"StartDate" : "2011-01-04",
+		"EndDate" : "2099-12-31",
+		"PasswordSalt" : "papVOlo=",
+		"PhoneNumber" : "238-555-0197",
+		"EmailAddress" : "stephen0@adventure-works.com"
+	}
+]}

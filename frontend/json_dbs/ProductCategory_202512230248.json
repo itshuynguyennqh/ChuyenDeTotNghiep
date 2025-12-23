@@ -1,0 +1,28 @@
+{
+"ProductCategory": [
+	{
+		"ProductCategoryID" : 1,
+		"Name" : "Bikes",
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"ProductCategoryID" : 2,
+		"Name" : "Components",
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"ProductCategoryID" : 3,
+		"Name" : "Clothing",
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"ProductCategoryID" : 4,
+		"Name" : "Accessories",
+		"ModifiedDate" : "2008-04-29T17:00:00.000Z"
+	},
+	{
+		"ProductCategoryID" : 5,
+		"Name" : "orther module",
+		"ModifiedDate" : "2025-10-23T09:04:08.287Z"
+	}
+]}

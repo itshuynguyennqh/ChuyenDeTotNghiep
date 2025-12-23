@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Container, Grid, Box, Typography, TextField, Button, List, ListItem,
-    ListItemButton, ListItemIcon, ListItemText, Divider, Paper, IconButton, InputAdornment, Chip
+    Container, Grid, Box, Typography, TextField, List, ListItem,
+    ListItemButton, ListItemIcon, ListItemText, Divider, Paper, IconButton, InputAdornment
 } from '@mui/material';
 import {
     Person as PersonIcon,
@@ -12,11 +12,13 @@ import {
     Search as SearchIcon,
     PersonOutline as PersonOutlineIcon,
     ShoppingCartOutlined as CartIcon,
-    Menu as MenuIcon,
-    AddCircleOutline as AddIcon,
-    ChevronRight as ChevronRightIcon
+    Menu as MenuIcon
 } from '@mui/icons-material';
 import { fetchOrderHistoryAPI, updateAccountAPI } from '../api/productApi';
+import AccountInfo from '../components/account/AccountInfo';
+import AddressList from '../components/account/AddressList';
+import PaymentSettings from '../components/account/PaymentSettings';
+import OrderHistory from '../components/account/OrderHistory';
 
 function AccountPage() {
     const navigate = useNavigate();
@@ -43,78 +45,13 @@ function AccountPage() {
     const renderContent = () => {
         switch (activeTab) {
             case 'Account Information':
-                return (
-                    <Box sx={{ mt: 2 }}>
-                        <Typography variant="h6" color="primary" sx={{ mb: 3 }}>Login information</Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-                            <Box>
-                                <Typography variant="subtitle1" fontWeight="bold">Phone number</Typography>
-                                <Typography color="text.secondary">{userInfo.phone}</Typography>
-                            </Box>
-                            <Button sx={{ color: '#1976d2', textTransform: 'none' }}>Edit</Button>
-                        </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <Box>
-                                <Typography variant="subtitle1" fontWeight="bold">Pass word</Typography>
-                                <Typography color="text.secondary">***********************</Typography>
-                            </Box>
-                            <Button sx={{ color: '#1976d2', textTransform: 'none' }}>Edit</Button>
-                        </Box>
-                    </Box>
-                );
+                return <AccountInfo userInfo={userInfo} />;
             case 'Saved Address':
-                return (
-                    <Box sx={{ mt: 2 }}>
-                        <Typography variant="h6" color="primary" sx={{ mb: 2 }}>Saved Addresses</Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                            <Box>
-                                <Typography fontWeight="bold">Thanh Trúc <span style={{ fontWeight: 'normal', color: '#666' }}>(+84) 865358650</span></Typography>
-                                <Typography variant="body2" color="text.secondary">Số 2, ngõ 18 Định Công Thượng, phường Định Công, quận Hoàng Mai, Hà Nội</Typography>
-                                <Chip label="Default" size="small" variant="outlined" color="error" sx={{ mt: 1, borderRadius: 1 }} />
-                            </Box>
-                            <Button sx={{ color: '#000', textTransform: 'none' }}>Edit</Button>
-                        </Box>
-                        <Button startIcon={<AddIcon />} sx={{ mt: 4, color: '#000', textTransform: 'none' }}>Add new address</Button>
-                    </Box>
-                );
+                return <AddressList />;
             case 'Payment Setting':
-                return (
-                    <Box sx={{ mt: 2 }}>
-                        <Typography variant="h6" color="primary" sx={{ mb: 2 }}>Payment Settings</Typography>
-                        <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>Card</Typography>
-                        <Button fullWidth startIcon={<AddIcon />} sx={{ justifyContent: 'flex-start', backgroundColor: '#fcf6f0', color: '#000', mb: 2, py: 1.5 }}>Add new card</Button>
-
-                        <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>E-wallet</Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                            <Typography variant="body2">🔵 PayPal</Typography>
-                            <Button sx={{ color: '#000', textTransform: 'none' }}>Edit</Button>
-                        </Box>
-                        <Button fullWidth startIcon={<AddIcon />} sx={{ justifyContent: 'flex-start', backgroundColor: '#fcf6f0', color: '#000', py: 1.5 }}>Add e-wallet</Button>
-                    </Box>
-                );
+                return <PaymentSettings />;
             case 'My order':
-                return (
-                    <Box sx={{ mt: 2 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography variant="h6">My Order</Typography>
-                            <Button endIcon={<ChevronRightIcon />} sx={{ color: '#000', border: '1px solid #ddd', borderRadius: 5, px: 2 }}>Completed</Button>
-                        </Box>
-                        {/* Mock Order Item */}
-                        <Paper variant="outlined" sx={{ p: 2, mb: 2, backgroundColor: '#fcf6f0' }}>
-                            <Box sx={{ display: 'flex', gap: 2 }}>
-                                <Box component="img" src="https://via.placeholder.com/80" sx={{ width: 80, height: 80, borderRadius: 1 }} />
-                                <Box sx={{ flexGrow: 1 }}>
-                                    <Typography variant="subtitle2" fontWeight="bold">Touring-1000 Blue, 46</Typography>
-                                    <Typography variant="caption" display="block" color="text.secondary">Type: Blue</Typography>
-                                    <Typography variant="caption" display="block" color="text.secondary">x1</Typography>
-                                    <Typography variant="subtitle2" color="error" textAlign="right">$2,384.07</Typography>
-                                </Box>
-                                <IconButton size="small"><ChevronRightIcon /></IconButton>
-                            </Box>
-                            <Button fullWidth variant="contained" disabled sx={{ mt: 1, backgroundColor: '#ddd', color: '#777', textTransform: 'none' }}>Rate this product</Button>
-                        </Paper>
-                    </Box>
-                );
+                return <OrderHistory orders={orders} />;
             default:
                 return null;
         }

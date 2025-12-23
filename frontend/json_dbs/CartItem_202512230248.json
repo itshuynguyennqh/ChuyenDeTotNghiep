@@ -1,0 +1,103 @@
+{
+"CartItem": [
+	{
+		"CartItemID" : 1002,
+		"CartID" : 1002,
+		"ProductID" : 1,
+		"Quantity" : 2,
+		"UnitPrice" : 699.00,
+		"Subtotal" : 1398.00,
+		"DateAdded" : "2025-11-03T10:59:48.793Z",
+		"DateUpdated" : "2025-11-03T10:59:48.793Z"
+	},
+	{
+		"CartItemID" : 1003,
+		"CartID" : 1003,
+		"ProductID" : 3,
+		"Quantity" : 4,
+		"UnitPrice" : 1009.00,
+		"Subtotal" : 4036.00,
+		"DateAdded" : "2025-11-03T11:10:53.187Z",
+		"DateUpdated" : "2025-11-03T11:10:53.187Z"
+	},
+	{
+		"CartItemID" : 1004,
+		"CartID" : 1004,
+		"ProductID" : 4,
+		"Quantity" : 5,
+		"UnitPrice" : 620.00,
+		"Subtotal" : 3100.00,
+		"DateAdded" : "2025-11-03T11:25:14.497Z",
+		"DateUpdated" : "2025-11-03T11:25:14.497Z"
+	},
+	{
+		"CartItemID" : 1010,
+		"CartID" : 1005,
+		"ProductID" : 316,
+		"Quantity" : 6,
+		"UnitPrice" : 1025.00,
+		"Subtotal" : 6150.00,
+		"DateAdded" : "2025-11-03T11:48:18.190Z",
+		"DateUpdated" : "2025-11-03T11:48:18.190Z"
+	},
+	{
+		"CartItemID" : 1011,
+		"CartID" : 1006,
+		"ProductID" : 1,
+		"Quantity" : 2,
+		"UnitPrice" : 699.00,
+		"Subtotal" : 1398.00,
+		"DateAdded" : "2025-11-03T23:54:58.983Z",
+		"DateUpdated" : "2025-11-03T23:54:58.983Z"
+	},
+	{
+		"CartItemID" : 1012,
+		"CartID" : 1007,
+		"ProductID" : 1,
+		"Quantity" : 5,
+		"UnitPrice" : 699.00,
+		"Subtotal" : 3495.00,
+		"DateAdded" : "2025-11-04T22:36:50.700Z",
+		"DateUpdated" : "2025-11-04T22:36:50.700Z"
+	},
+	{
+		"CartItemID" : 1013,
+		"CartID" : 1008,
+		"ProductID" : 1,
+		"Quantity" : 5,
+		"UnitPrice" : 699.00,
+		"Subtotal" : 3495.00,
+		"DateAdded" : "2025-11-04T23:29:31.333Z",
+		"DateUpdated" : "2025-11-04T23:29:31.333Z"
+	},
+	{
+		"CartItemID" : 1016,
+		"CartID" : 1011,
+		"ProductID" : 4,
+		"Quantity" : 6,
+		"UnitPrice" : 620.00,
+		"Subtotal" : 3720.00,
+		"DateAdded" : "2025-11-18T08:05:20.963Z",
+		"DateUpdated" : "2025-11-18T08:08:34.370Z"
+	},
+	{
+		"CartItemID" : 1017,
+		"CartID" : 1011,
+		"ProductID" : 3,
+		"Quantity" : 4,
+		"UnitPrice" : 1009.00,
+		"Subtotal" : 4036.00,
+		"DateAdded" : "2025-11-18T08:09:26.030Z",
+		"DateUpdated" : "2025-11-18T08:09:26.030Z"
+	},
+	{
+		"CartItemID" : 1018,
+		"CartID" : 1012,
+		"ProductID" : 1,
+		"Quantity" : 4,
+		"UnitPrice" : 699.00,
+		"Subtotal" : 2796.00,
+		"DateAdded" : "2025-11-21T12:44:04.133Z",
+		"DateUpdated" : "2025-11-21T12:44:04.133Z"
+	}
+]}

@@ -1,0 +1,15 @@
+{
+"VoucherUsage": [
+	{
+		"VoucherID" : 1,
+		"CustomerID" : 21784,
+		"OrderID" : null,
+		"UsedDate" : "2025-11-03T11:27:16.777Z"
+	},
+	{
+		"VoucherID" : 2,
+		"CustomerID" : 21784,
+		"OrderID" : 76130,
+		"UsedDate" : "2025-11-03T11:33:23.770Z"
+	}
+]}
