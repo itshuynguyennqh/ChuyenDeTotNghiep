@@ -18,6 +18,8 @@ import ProductFilters from '../components/ProductFilters';
 function ProductList() {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
+    const [sortOrder, setSortOrder] = useState(''); // 'asc' | 'desc' | ''
 
     const [page, setPage] = useState(1);
     const itemsPerPage = 10;
@@ -81,8 +83,32 @@ function ProductList() {
         setOpenCategoryId(openCategoryId === id ? null : id);
     };
 
+    const handleSelectSubCategory = (id) => {
+        setSelectedSubCategoryId(id);
+        setPage(1); // Reset về trang 1 khi filter
+    };
 
-    const productsToShow = Array.isArray(products) ? products.slice((page - 1) * itemsPerPage, page * itemsPerPage) : [];
+    const handleSortChange = (type) => {
+        setSortOrder(type);
+        setPage(1);
+    };
+
+    // Logic lọc và sắp xếp sản phẩm
+    const getFilteredProducts = () => {
+        let result = Array.isArray(products) ? [...products] : [];
+
+        if (selectedSubCategoryId) {
+            result = result.filter(p => String(p.ProductSubcategoryID) === String(selectedSubCategoryId));
+        }
+
+        if (sortOrder === 'asc') result.sort((a, b) => (a.ListPrice || 0) - (b.ListPrice || 0));
+        if (sortOrder === 'desc') result.sort((a, b) => (b.ListPrice || 0) - (a.ListPrice || 0));
+
+        return result;
+    };
+
+    const filteredProducts = getFilteredProducts();
+    const productsToShow = filteredProducts.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
     return (
         <Container maxWidth="xl" sx={{ backgroundColor: '#fcf6f0', minHeight: '100vh', py: 4 }} >
@@ -93,6 +119,8 @@ function ProductList() {
                         categories={categories} 
                         openCategoryId={openCategoryId} 
                         handleToggle={handleToggle} 
+                        onSelectSubCategory={handleSelectSubCategory}
+                        selectedSubCategoryId={selectedSubCategoryId}
                     />
                 </Grid>
 
@@ -102,7 +130,10 @@ function ProductList() {
                         <Typography color="primary">Products</Typography>
                     </Breadcrumbs>
                     
-                    <ProductFilters />
+                    <ProductFilters 
+                        onSortChange={handleSortChange}
+                        currentSort={sortOrder}
+                    />
 
                     <Grid container spacing={2}>
                         {productsToShow.map((product) => (
@@ -114,7 +145,7 @@ function ProductList() {
 
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
                         <Pagination
-                            count={Math.ceil(products.length / itemsPerPage)}
+                            count={Math.ceil(filteredProducts.length / itemsPerPage)}
                             page={page}
                             onChange={handlePageChange}
                             color="primary"

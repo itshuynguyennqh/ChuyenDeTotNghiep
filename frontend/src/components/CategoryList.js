@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 
-function CategoryList({ categories, openCategoryId, handleToggle }) {
+function CategoryList({ categories, openCategoryId, handleToggle, onSelectSubCategory, selectedSubCategoryId }) {
     return (
         <Box sx={{ pr: 2 }}>
             <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>Categories</Typography>
@@ -42,9 +42,14 @@ function CategoryList({ categories, openCategoryId, handleToggle }) {
                                 <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                                     <List component="div" disablePadding sx={{ pl: 2, borderLeft: '2px solid #ddd', ml: 1.5 }}>
                                         {category.subcategories.map((subcat) => (
-                                            <ListItemButton key={subcat.ProductSubcategoryID || subcat.id} sx={{ py: 0.5 }}>
+                                            <ListItemButton 
+                                                key={subcat.ProductSubcategoryID || subcat.id} 
+                                                sx={{ py: 0.5 }}
+                                                selected={selectedSubCategoryId === (subcat.ProductSubcategoryID || subcat.id)}
+                                                onClick={() => onSelectSubCategory(subcat.ProductSubcategoryID || subcat.id)}
+                                            >
                                                 <ListItemText primary={
-                                                    <Typography variant="body2" color="text.secondary">
+                                                    <Typography variant="body2" color={selectedSubCategoryId === (subcat.ProductSubcategoryID || subcat.id) ? "primary" : "text.secondary"} fontWeight={selectedSubCategoryId === (subcat.ProductSubcategoryID || subcat.id) ? "bold" : "normal"}>
                                                         {subcat.Name}
                                                     </Typography>
                                                 } />
