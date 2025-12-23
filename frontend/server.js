@@ -6,6 +6,11 @@ const middlewares = jsonServer.defaults();
 // Use default middlewares (logger, static, cors, etc.)
 server.use(middlewares);
 
+// To prevent json-server from lowercasing keys
+router.render = (req, res) => {
+  res.jsonp(res.locals.data);
+};
+
 // Add a URL prefix by mounting the router under a specific path
 server.use('/api', router); // All json-server routes will now start with /api
 
