@@ -42,10 +42,10 @@ function CategoryList({ categories, openCategoryId, handleToggle }) {
                                 <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                                     <List component="div" disablePadding sx={{ pl: 2, borderLeft: '2px solid #ddd', ml: 1.5 }}>
                                         {category.subcategories.map((subcat) => (
-                                            <ListItemButton key={subcat.id} sx={{ py: 0.5 }}>
+                                            <ListItemButton key={subcat.ProductSubcategoryID || subcat.id} sx={{ py: 0.5 }}>
                                                 <ListItemText primary={
                                                     <Typography variant="body2" color="text.secondary">
-                                                        {subcat.name}
+                                                        {subcat.Name}
                                                     </Typography>
                                                 } />
                                             </ListItemButton>

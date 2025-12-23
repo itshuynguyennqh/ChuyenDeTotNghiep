@@ -42,9 +42,31 @@ function ProductList() {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/ProductCategory');
-                const data = await response.json();
-                setCategories(Array.isArray(data) ? data : []);
+                // Gọi API lấy Category và Subcategory cùng lúc
+                const [catResponse, subCatResponse] = await Promise.all([
+                    fetch('http://localhost:8000/api/ProductCategory'),
+                    fetch('http://localhost:8000/api/ProductSubcategory')
+                ]);
+
+                const categoriesData = await catResponse.json();
+                const subCategoriesData = await subCatResponse.json();
+
+                const cats = Array.isArray(categoriesData) ? categoriesData : [];
+                const subs = Array.isArray(subCategoriesData) ? subCategoriesData : [];
+
+                // Ghép subcategories vào category cha tương ứng
+                const categoriesWithSubs = cats.map(category => {
+                    // Lấy ID của category cha (ưu tiên ProductCategoryID, nếu không có thì lấy id)
+                    const catId = category.ProductCategoryID || category.id;
+                    return {
+                        ...category,
+                        subcategories: subs.filter(sub => 
+                            sub.ProductCategoryID && catId && String(sub.ProductCategoryID) === String(catId)
+                        )
+                    };
+                });
+
+                setCategories(categoriesWithSubs);
             } catch (error) {
                 console.error("Có lỗi xảy ra khi lấy dữ liệu danh mục!", error);
             }
