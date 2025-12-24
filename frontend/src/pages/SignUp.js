@@ -6,12 +6,14 @@ import {
     TextField,
     Button,
     Link as MuiLink,
-    Container
+    Container,
+    Alert,
+    CircularProgress
 } from '@mui/material';
-import {Link as RouterLink} from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import logo from "../assets/BikeGo-logo-orange.png";
 import bike from "../assets/LogoBike.png";
-
+import { register } from '../api/authApi';
 
 // Component Icon Logo
 const BikeLogoOrange = () => (
@@ -40,6 +42,7 @@ const BikeLogoOrange = () => (
 
 
 function SignUp() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -48,6 +51,8 @@ function SignUp() {
         firstname: '',
         lastname: '',
     });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -57,15 +62,29 @@ function SignUp() {
         }));
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
+        setError('');
+
         if (formData.password !== formData.repeatPassword) {
-            alert("Passwords do not match!");
+            setError("Passwords do not match!");
             return;
         }
-        // Xử lý logic đăng ký ở đây
-        console.log('Form Data:', formData);
-        alert(`Đăng ký với username: ${formData.username}`);
+
+        setLoading(true);
+        try {
+            // Prepare data for API (exclude repeatPassword)
+            const { repeatPassword, ...userData } = formData;
+            
+            await register(userData);
+            
+            alert('Registration successful! Please log in.');
+            navigate('/login');
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -84,13 +103,12 @@ function SignUp() {
         >
             <Box
                 sx={{
-                    width: '80%',
-                    maxWidth: '1200px',
                     borderRadius: 4,
                     overflow: 'hidden',
                     boxShadow: 3,
                     height: '70vh', // Chiều cao cố định
-                    minHeight: '600px',
+                    minHeight: '900px',
+                    minWidth: '1800px',
                     display: 'flex',
                     justifyContent: 'space-between',
 
@@ -166,6 +184,8 @@ function SignUp() {
                             Please enter your information
                         </Typography>
 
+                        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
                         {/* Input Username */}
                         <TextField
                             fullWidth
@@ -180,13 +200,13 @@ function SignUp() {
                             required
                         />
                         {/* Input First Name and Last Name*/}
-                        <Grid container={12} spacing={2}
+                        <Grid container spacing={2}
                               sx={{
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
                                   alignItems: 'center',
                                   flexWrap: 'nowrap',
-
+                                  mb: 2
                               }}>
                             <Grid item xs={6}>
                                 <TextField
@@ -196,7 +216,7 @@ function SignUp() {
                                     name="firstname"
                                     value={formData.firstname}
                                     onChange={handleChange}
-                                    sx={{ mb: 2, borderRadius: 1, '& .MuiFilledInput-root': { backgroundColor: '#e9e9e9', borderRadius: 1, '&:hover': { backgroundColor: '#ddd' } }, '& label': { top: -8 } }}
+                                    sx={{ borderRadius: 1, '& .MuiFilledInput-root': { backgroundColor: '#e9e9e9', borderRadius: 1, '&:hover': { backgroundColor: '#ddd' } }, '& label': { top: -8 } }}
                                     InputProps={{ disableUnderline: true }}
                                     InputLabelProps={{ shrink: true }}
                                     required
@@ -210,7 +230,7 @@ function SignUp() {
                                     name="lastname"
                                     value={formData.lastname}
                                     onChange={handleChange}
-                                    sx={{ mb: 2, borderRadius: 1, '& .MuiFilledInput-root': { backgroundColor: '#e9e9e9', borderRadius: 1, '&:hover': { backgroundColor: '#ddd' } }, '& label': { top: -8 } }}
+                                    sx={{ borderRadius: 1, '& .MuiFilledInput-root': { backgroundColor: '#e9e9e9', borderRadius: 1, '&:hover': { backgroundColor: '#ddd' } }, '& label': { top: -8 } }}
                                     InputProps={{ disableUnderline: true }}
                                     InputLabelProps={{ shrink: true }}
                                     required
@@ -277,6 +297,7 @@ function SignUp() {
                             fullWidth
                             variant="contained"
                             size="large"
+                            disabled={loading}
                             sx={{
                                 py: 1.5,
                                 backgroundColor: '#FF8C00', // Màu cam
@@ -285,7 +306,7 @@ function SignUp() {
                                 borderRadius: 1
                             }}
                         >
-                            Sign up
+                            {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign up'}
                         </Button>
 
                     </Box>

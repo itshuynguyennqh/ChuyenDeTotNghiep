@@ -124,7 +124,7 @@ function ProductList() {
                     />
                 </Grid>
 
-                <Grid item xs={12} md={9.5} minWidth={"auto"} >
+                <Grid item xs={12} md={9.5} minWidth={"auto"} flexGrow={1} >
                     <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb" sx={{ mb: 2 }}>
                         <MuiLink underline="hover" color="inherit" component={Link} to="/">Home</MuiLink>
                         <Typography color="primary">Products</Typography>
