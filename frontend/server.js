@@ -14,103 +14,92 @@ server.use(jsonServer.bodyParser);
 // Login Endpoint
 server.post('/auth/login', (req, res) => {
     const { email, password } = req.body;
-    const db = router.db; // Access lowdb instance
-    const user = db.get('users').find({ email: email }).value();
+    const db = router.db;
 
-    if (!user) {
+    const emailRecord = db.get('CustomerEmailAddress').find({ EmailAddress: email }).value();
+    if (!emailRecord) {
         return res.status(400).json({ message: 'User not found' });
     }
 
-    if (user.password !== password) {
+    const customerId = emailRecord.CustomerID;
+    const passwordRecord = db.get('CustomerPassWord').find({ CustomerID: customerId }).value();
+
+    // NOTE: This is a plain text password comparison. 
+    // In a real application, you MUST hash passwords.
+    if (!passwordRecord || passwordRecord.PasswordSalt !== password) {
         return res.status(400).json({ message: 'Invalid password' });
     }
 
-    // In a real app, you would generate a JWT token here.
-    const token = `fake-jwt-token-${user.id}-${Date.now()}`;
+    const customer = db.get('Customer').find({ CustomerID: customerId }).value();
+
+    const token = `fake-jwt-token-for-${customerId}-${Date.now()}`;
     
-    // Return user info (excluding password) and token
-    const { password: _, ...userWithoutPassword } = user;
-    res.json({ token, user: userWithoutPassword });
+    res.json({ token, user: customer });
 });
 
-// Register Endpoint (Multi-table insert)
+// Register Endpoint
 server.post('/auth/register', (req, res) => {
-    const { username, password, email, firstname, lastname } = req.body;
+    const { password, email, firstname, lastname } = req.body;
+    console.log(req.body);
     const db = router.db;
 
-    // 1. Check if user exists
-    const existingUser = db.get('users').find({ email: email }).value();
-    if (existingUser) {
+    // 1. Check if email exists
+    const existingEmail = db.get('CustomerEmailAddress').find({ EmailAddress: email }).value();
+    if (existingEmail) {
         return res.status(400).json({ message: 'Email already exists' });
     }
 
-    // 2. Create User
-    // Generate a new ID (simple max + 1 logic)
-    const users = db.get('users').value();
-    const newUserId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
-
-    const newUser = {
-        id: newUserId,
-        username,
-        password, // In a real app, hash this!
-        email,
-        firstname,
-        lastname,
-        role: 'customer', // Default role
-        createdAt: new Date().toISOString()
-    };
-    
-    db.get('users').push(newUser).write();
-
-    // 3. Create Customer Profile (linked to User)
-    // Assuming 'customers' table exists or we create it. 
-    // Often customer ID might be same as User ID or separate. Let's make a separate one.
-    const customers = db.get('customers').value() || [];
-    const newCustomerId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
-
+    // 2. Create Customer
+    const customers = db.get('Customer').value() || [];
+    const newCustomerId = customers.length > 0 ? Math.max(...customers.map(c => c.CustomerID)) + 1 : 1;
     const newCustomer = {
-        id: newCustomerId,
-        userId: newUserId,
-        firstName: firstname,
-        lastName: lastname,
-        email: email,
-        phone: "",
-        address: ""
+        CustomerID: newCustomerId,
+        FirstName: firstname,
+        LastName: lastname,
+        MiddleName: ""
     };
-    
-    // Ensure 'customers' collection exists
-    if (!db.has('customers').value()) {
-        db.set('customers', []).write();
-    }
-    db.get('customers').push(newCustomer).write();
+    db.get('Customer').push(newCustomer).write();
 
-    // 4. Create Shopping Cart for the new customer
-    const carts = db.get('carts').value() || [];
-    const newCartId = carts.length > 0 ? Math.max(...carts.map(c => c.id)) + 1 : 1;
+    // 3. Create CustomerEmailAddress
+    const emailAddresses = db.get('CustomerEmailAddress').value() || [];
+    const newEmailId = emailAddresses.length > 0 ? Math.max(...emailAddresses.map(e => e.EmailAddressID)) + 1 : 1;
+    const newEmail = {
+        CustomerID: newCustomerId,
+        EmailAddress: email,
+        EmailAddressID: newEmailId,
+        ModifiedDate: new Date().toISOString()
+    };
+    db.get('CustomerEmailAddress').push(newEmail).write();
 
+    // 4. Create CustomerPassWord
+    // NOTE: Storing plain text passwords is a major security risk.
+    // This is for simulation purposes only. Always hash passwords in a real app.
+    const newPassword = {
+        CustomerID: newCustomerId,
+        PasswordSalt: password, // Using PasswordSalt to store the plain password for this demo
+        ModifiedDate: new Date().toISOString()
+    };
+    db.get('CustomerPassWord').push(newPassword).write();
+
+    // 5. Create a Cart for the new customer
+    const carts = db.get('Cart').value() || [];
+    const newCartId = carts.length > 0 ? Math.max(...carts.map(c => c.CartID)) + 1 : 1;
     const newCart = {
-        id: newCartId,
-        customerId: newCustomerId,
-        items: [],
-        total: 0,
-        createdAt: new Date().toISOString()
+        CartID: newCartId,
+        CustomerID: newCustomerId,
+        CreatedDate: new Date().toISOString(),
+        ModifiedDate: new Date().toISOString(),
+        Status: "Active",
+        IsCheckedOut: 0
     };
+    db.get('Cart').push(newCart).write();
 
-    // Ensure 'carts' collection exists
-    if (!db.has('carts').value()) {
-        db.set('carts', []).write();
-    }
-    db.get('carts').push(newCart).write();
-
-    // Return success
-    const { password: _, ...userWithoutPassword } = newUser;
     res.status(201).json({ 
         message: 'Registration successful', 
-        user: userWithoutPassword,
-        customerId: newCustomerId,
-        cartId: newCartId
+        user: newCustomer
     });
 });
+
 
 // --- End Custom Auth Routes ---
 

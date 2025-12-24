@@ -21,14 +21,16 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "json-server": "^0.17.4"
+    "json-server": "^0.17.4",
+    "nodemon": "^3.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "dev": "concurrently \"npm start\" \"../ecommerce_backend/manage.py runserver\""
+    "dev:server": "nodemon server.js",
+    "dev": "concurrently \"npm start\" \"npm run dev:server\""
   },
   "eslintConfig": {
     "extends": [
