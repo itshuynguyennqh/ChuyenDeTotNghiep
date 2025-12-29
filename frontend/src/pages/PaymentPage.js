@@ -10,7 +10,7 @@ import {
 } from '@mui/icons-material';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import AddressManager from '../components/AddressManager';
+import AddressManager from '../components/common/AddressManager';
 import { fetchCartAPI, fetchAddressesAPI, placeOrderAPI } from '../api/productApi';
 
 function PaymentPage() {

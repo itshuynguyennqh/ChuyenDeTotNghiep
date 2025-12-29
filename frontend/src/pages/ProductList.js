@@ -11,9 +11,9 @@ import {
 } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import './ProductList.css';
-import ProductCard from '../components/ProductCard';
-import CategoryList from '../components/CategoryList';
-import ProductFilters from '../components/ProductFilters';
+import ProductCard from '../components/common/ProductCard';
+import CategoryList from '../components/common/CategoryList';
+import ProductFilters from '../components/common/ProductFilters';
 
 function ProductList() {
     const [products, setProducts] = useState([]);

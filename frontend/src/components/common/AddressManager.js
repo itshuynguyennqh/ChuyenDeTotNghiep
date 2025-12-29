@@ -6,7 +6,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { fetchAddressesAPI, addAddressAPI, updateAddressAPI, deleteAddressAPI } from '../api/productApi';
+import { fetchAddressesAPI, addAddressAPI, updateAddressAPI, deleteAddressAPI } from '../../api/productApi';
 
 function AddressManager({ open, onClose, onSelectAddress }) {
     const [addresses, setAddresses] = useState([]);

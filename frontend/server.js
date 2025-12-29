@@ -2,8 +2,6 @@ const jsonServer = require('json-server');
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
-const fs = require('fs');
-const path = require('path');
 
 // Use default middlewares (logger, static, cors, etc.)
 server.use(middlewares);
@@ -120,8 +118,7 @@ server.get('/account/:customerId', (req, res) => {
 
 // Custom route for documentation
 server.get('/api/docs', (req, res) => {
-  const dbPath = path.join(__dirname, 'db.json');
-  const db = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+  const db = router.db.getState();
   const resources = Object.keys(db);
   
   const html = `
