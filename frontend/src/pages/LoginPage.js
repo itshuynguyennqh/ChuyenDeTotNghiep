@@ -28,7 +28,12 @@ const LoginPage = () => {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
             
-            navigate('/');
+            // Kiểm tra Role để điều hướng
+            if (response.data.user.Role === 'Admin') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             setError(err.message || 'Login failed. Please check your credentials.');
         } finally {

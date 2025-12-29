@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
@@ -15,6 +15,11 @@ import './App.css';
 import AccountPage from "./pages/AccountPage";
 import PaymentPage from "./pages/PaymentPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
+
+// Admin Imports
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminProductList from './pages/admin/AdminProductList';
 
 function App() {
   return (
@@ -34,6 +39,13 @@ function App() {
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/order-success" element={<OrderSuccessPage />} />
 
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProductList />} />
+            {/* Thêm các route admin khác tại đây */}
+          </Route>
 
         </Routes>
       </Router>

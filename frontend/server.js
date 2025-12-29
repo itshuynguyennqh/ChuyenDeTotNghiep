@@ -28,9 +28,15 @@ server.post('/auth/login', (req, res) => {
 
     const customer = db.get('Customer').find({ CustomerID: customerId }).value();
 
+    // --- MOCK ADMIN LOGIC ---
+    // Giả lập: Nếu email là admin@bikego.com thì gán Role = 'Admin'
+    // Các user khác là 'Customer'
+    const userRole = email === 'admin@bikego.com' ? 'Admin' : 'Customer';
+    const userResponse = { ...customer, Role: userRole };
+
     const token = `fake-jwt-token-for-${customerId}-${Date.now()}`;
     
-    res.json({ token, user: customer });
+    res.json({ token, user: userResponse });
 });
 
 // Register Endpoint
