@@ -11,7 +11,8 @@ import logo from '../../assets/BikeGo-logo-white.png';
 
 function Header() {
   const [cartItemCount, setCartItemCount] = useState(0);
-  const isLoggedIn = !!localStorage.getItem('access_token');
+  // Check for 'token' instead of 'access_token' to match LoginPage.js
+  const isLoggedIn = !!localStorage.getItem('token');
 
   const updateCartCount = async () => {
     if (isLoggedIn) {

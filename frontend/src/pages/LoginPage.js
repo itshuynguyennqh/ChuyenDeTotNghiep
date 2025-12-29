@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Grid, Paper, Typography, TextField, Button, Link, Alert, CircularProgress } from '@mui/material';
+import { Box, Grid, Paper, Typography, TextField, Button, Link, Alert, CircularProgress, Dialog, DialogContent } from '@mui/material';
+import LockResetIcon from '@mui/icons-material/LockReset';
 import { useNavigate } from 'react-router-dom';
 import logo from "../assets/BikeGo-logo-white.png";
 import logo2 from "../assets/BikeGo-logo-orange.png";
@@ -12,6 +13,9 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [forgotStep, setForgotStep] = useState(1);
+    const [forgotEmail, setForgotEmail] = useState('');
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -90,7 +94,10 @@ const LoginPage = () => {
                                 <Link component={RouterLink} to="/signup" sx={{ color: '#FF8C00', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 'bold' }}>
                                     New here? Sign up!
                                 </Link>
-                                <Link sx={{ color: '#FF8C00', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 'bold' }}>
+                                <Link 
+                                    onClick={() => setOpenModal(true)}
+                                    sx={{ color: '#FF8C00', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 'bold' }}
+                                >
                                     Forgot password?
                                 </Link>
                             </Box>
@@ -136,6 +143,126 @@ const LoginPage = () => {
                     </Grid>
                 </Grid>
             </Paper>
+
+            {/* --- POPUP QUÊN MẬT KHẨU --- */}
+            <Dialog 
+                open={openModal} 
+                onClose={() => setOpenModal(false)}
+                PaperProps={{ sx: { borderRadius: '20px', padding: '20px', maxWidth: '450px' } }}
+            >
+                <DialogContent>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                        
+                        {/* Bước 1: Nhập Email (Frame 1611) */}
+                        {forgotStep === 1 && (
+                            <>
+                                <Box sx={{ bgcolor: '#FFF0E5', p: 2, borderRadius: '50%', mb: 2 }}>
+                                    <LockResetIcon sx={{ fontSize: 50, color: '#FF8C00' }} />
+                                </Box>
+                                <Typography variant="h5" fontWeight="bold" gutterBottom>Forgot Password?</Typography>
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                    Don't worry, it happens. Enter your email and we'll send you a verification code.
+                                </Typography>
+                                <TextField
+                                    fullWidth
+                                    placeholder="Email"
+                                    variant="outlined"
+                                    sx={{ mb: 2 }}
+                                    onChange={(e) => setForgotEmail(e.target.value)}
+                                />
+                                <Button 
+                                    fullWidth 
+                                    variant="contained" 
+                                    onClick={() => setForgotStep(2)}
+                                    sx={{ bgcolor: '#FF8C00', color: '#fff', borderRadius: '12px', py: 1.5, mb: 2, '&:hover': { bgcolor: '#e67e00' } }}
+                                >
+                                    Send OTP
+                                </Button>
+                            </>
+                        )}
+
+                        {/* Bước 2: Xác thực OTP (Frame 1610/1612) */}
+                        {forgotStep === 2 && (
+                            <>
+                                <Box sx={{ bgcolor: '#FFF0E5', p: 2, borderRadius: '50%', mb: 2 }}>
+                                    <LockResetIcon sx={{ fontSize: 50, color: '#FF8C00' }} />
+                                </Box>
+                                <Typography variant="h5" fontWeight="bold">Verify Identity</Typography>
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                    We send you a 4 digit code to <strong>{forgotEmail || 'user@email.com'}</strong>. Please enter it below
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                                    {[1, 2, 3, 4].map((i) => (
+                                        <TextField 
+                                            key={i}
+                                            sx={{ width: '60px', '& input': { textAlign: 'center', fontSize: '1.5rem' } }} 
+                                        />
+                                    ))}
+                                </Box>
+                                <Typography variant="body2" sx={{ mb: 2 }}>
+                                    Didn't receive the code? <Link sx={{ color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}>Resend Code</Link> (00:24)
+                                </Typography>
+                                <Button 
+                                    fullWidth 
+                                    variant="contained" 
+                                    onClick={() => setForgotStep(3)}
+                                    sx={{ bgcolor: '#FF8C00', color: '#fff', borderRadius: '12px', py: 1.5, mb: 2 }}
+                                >
+                                    Verify →
+                                </Button>
+                            </>
+                        )}
+
+                        {/* Bước 3: Đặt lại mật khẩu (Frame 1613) */}
+                        {forgotStep === 3 && (
+                            <>
+                                <Box sx={{ bgcolor: '#FFF0E5', p: 2, borderRadius: '50%', mb: 2 }}>
+                                    <LockResetIcon sx={{ fontSize: 50, color: '#FF8C00' }} />
+                                </Box>
+                                <Typography variant="h5" fontWeight="bold">Reset your password</Typography>
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                    Please enter a new password for your BikeGo account.
+                                </Typography>
+                                <TextField fullWidth placeholder="Enter new password" type="password" sx={{ mb: 2 }} />
+                                <TextField fullWidth placeholder="Re-enter new password" type="password" sx={{ mb: 3 }} />
+                                <Button 
+                                    fullWidth 
+                                    variant="contained" 
+                                    onClick={() => setForgotStep(4)}
+                                    sx={{ bgcolor: '#FF8C00', color: '#fff', borderRadius: '12px', py: 1.5, mb: 2 }}
+                                >
+                                    Reset Password
+                                </Button>
+                            </>
+                        )}
+
+                        {/* Bước 4: Thành công (Frame 1614) */}
+                        {forgotStep === 4 && (
+                            <>
+                                <Typography variant="h5" fontWeight="bold" sx={{ mt: 4, mb: 2 }}>
+                                    Password changed successfully!
+                                </Typography>
+                                <Button 
+                                    onClick={() => { setOpenModal(false); setForgotStep(1); }}
+                                    sx={{ color: '#FF8C00', fontWeight: 'bold' }}
+                                >
+                                    ← Back to Login
+                                </Button>
+                            </>
+                        )}
+
+                        {/* Link quay lại chung cho các bước */}
+                        {forgotStep !== 4 && (
+                            <Link 
+                                onClick={() => forgotStep === 1 ? setOpenModal(false) : setForgotStep(forgotStep - 1)}
+                                sx={{ color: '#666', cursor: 'pointer', textDecoration: 'none', fontSize: '0.9rem' }}
+                            >
+                                {forgotStep === 1 ? '← Back to Login' : '← Wrong email? Go back'}
+                            </Link>
+                        )}
+                    </Box>
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 };

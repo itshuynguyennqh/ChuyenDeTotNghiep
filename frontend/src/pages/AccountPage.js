@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Container, Grid, Box, Typography, TextField, List, ListItem,
-    ListItemButton, ListItemIcon, ListItemText, Divider, Paper, IconButton, InputAdornment
+    Container, Grid, Box, Typography, List, ListItem,
+    ListItemButton, ListItemIcon, ListItemText, Divider, Paper, Button,
+    CircularProgress, Alert
 } from '@mui/material';
 import {
     Person as PersonIcon,
     Home as HomeIcon,
     Payment as PaymentIcon,
     Assignment as OrderIcon,
-    Search as SearchIcon,
-    PersonOutline as PersonOutlineIcon,
-    ShoppingCartOutlined as CartIcon,
-    Menu as MenuIcon
 } from '@mui/icons-material';
-import { fetchOrderHistoryAPI, updateAccountAPI } from '../api/productApi';
+import { getAccountDetails } from '../api/authApi';
+import { fetchOrderHistoryAPI } from '../api/productApi';
 import AccountInfo from '../components/account/AccountInfo';
 import AddressList from '../components/account/AddressList';
 import PaymentSettings from '../components/account/PaymentSettings';
@@ -24,9 +22,10 @@ function AccountPage() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('Account Information');
     const [orders, setOrders] = useState([]);
-    const [userInfo, setUserInfo] = useState({ email: 'kumo@bikego.com', phone: '0396660067' });
+    const [account, setAccount] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    // Menu sidebar dựa trên thiết kế Figma
     const menuItems = [
         { text: 'Account Information', icon: <PersonIcon /> },
         { text: 'Saved Address', icon: <HomeIcon /> },
@@ -35,17 +34,51 @@ function AccountPage() {
     ];
 
     useEffect(() => {
-        const currentCustomerId = 1; // Giả định ID khách hàng
-        fetchOrderHistoryAPI(currentCustomerId)
-            .then(res => setOrders(res.data))
-            .catch(err => console.error(err));
-    }, []);
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || !user.CustomerID) {
+            navigate('/login');
+            return;
+        }
 
-    // Render nội dung bên phải dựa trên tab đang chọn
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const accountDetails = await getAccountDetails(user.CustomerID);
+                setAccount(accountDetails);
+
+                const orderHistory = await fetchOrderHistoryAPI(user.CustomerID);
+                setOrders(orderHistory.data);
+            } catch (err) {
+                setError('Failed to fetch account data. Please try again later.');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [navigate]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/');
+    };
+
     const renderContent = () => {
+        if (loading) {
+            return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
+        }
+        if (error) {
+            return <Alert severity="error">{error}</Alert>;
+        }
+        if (!account) {
+            return <Typography>No account information found.</Typography>;
+        }
+
         switch (activeTab) {
             case 'Account Information':
-                return <AccountInfo userInfo={userInfo} />;
+                return <AccountInfo userInfo={account} />;
             case 'Saved Address':
                 return <AddressList />;
             case 'Payment Setting':
@@ -59,60 +92,46 @@ function AccountPage() {
 
     return (
         <Box sx={{ backgroundColor: '#fcf6f0', minHeight: '100vh' }}>
-            {/* Header giả lập theo thiết kế */}
-            <Paper elevation={0} sx={{ borderBottom: '1px solid #eee', py: 1, backgroundColor: '#fcf6f0' }}>
-                <Container maxWidth="xl">
-                    <Grid container alignItems="center">
-                        <Grid item xs={3} sx={{ display: 'flex', alignItems: 'center' }}>
-                            <IconButton><MenuIcon /></IconButton>
-                            <Typography variant="h4" sx={{ color: '#ff8c00', fontWeight: 'bold', ml: 1 }}>BikeGo</Typography>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField fullWidth size="small" placeholder="Search" InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>, sx: { borderRadius: '20px', backgroundColor: '#fff' } }} />
-                        </Grid>
-                        <Grid item xs={3} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                            <IconButton><PersonOutlineIcon /></IconButton>
-                            <IconButton><CartIcon /></IconButton>
-                        </Grid>
-                    </Grid>
-                </Container>
-            </Paper>
-
             <Container maxWidth="xl" sx={{ py: 3 }}>
-                <Typography variant="body2" sx={{ mb: 3 }}>Home  /  Account</Typography>
+                <Typography variant="body2" sx={{ mb: 3 }}>Home / Account</Typography>
 
-                <Box sx={{ mb: 4 }}>
-                    <Typography variant="h5" fontWeight="bold" display="inline">Kumo's Account</Typography>
-                    <Typography variant="h6" display="inline" sx={{ ml: 1, cursor: 'pointer', fontWeight: 'bold' }} onClick={() => navigate('/login')}>(Log out)</Typography>
+                <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="h5" fontWeight="bold">
+                        {account ? `${account.FirstName}'s Account` : 'My Account'}
+                    </Typography>
+                    <Button variant="text" onClick={handleLogout} sx={{ ml: 2, color: '#ff8c00', fontWeight: 'bold' }}>
+                        (Log out)
+                    </Button>
                 </Box>
 
                 <Grid container spacing={4}>
-                    {/* Cột trái: Sidebar Menu */}
                     <Grid item xs={12} md={3.5}>
-                        <List component="nav">
-                            {menuItems.map((item) => (
-                                <ListItem disablePadding key={item.text} sx={{ mb: 1 }}>
-                                    <ListItemButton
-                                        selected={activeTab === item.text}
-                                        onClick={() => setActiveTab(item.text)}
-                                        sx={{
-                                            borderRadius: 2,
-                                            '&.Mui-selected': { backgroundColor: 'transparent', color: '#1976d2' },
-                                            '&.Mui-selected .MuiListItemIcon-root': { color: '#1976d2' }
-                                        }}
-                                    >
-                                        <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-                                        <ListItemText primary={<Typography variant="h6" fontWeight={activeTab === item.text ? 'bold' : 'normal'}>{item.text}</Typography>} />
-                                    </ListItemButton>
-                                </ListItem>
-                            ))}
-                        </List>
+                        <Paper elevation={1} sx={{ borderRadius: 2 }}>
+                            <List component="nav">
+                                {menuItems.map((item) => (
+                                    <ListItem disablePadding key={item.text}>
+                                        <ListItemButton
+                                            selected={activeTab === item.text}
+                                            onClick={() => setActiveTab(item.text)}
+                                            sx={{
+                                                borderRadius: 2,
+                                                '&.Mui-selected': { backgroundColor: '#ff8c00', color: 'white', '&:hover': { backgroundColor: '#e67e00' } },
+                                                '&.Mui-selected .MuiListItemIcon-root': { color: 'white' }
+                                            }}
+                                        >
+                                            <ListItemIcon>{item.icon}</ListItemIcon>
+                                            <ListItemText primary={<Typography variant="body1" fontWeight={activeTab === item.text ? 'bold' : 'normal'}>{item.text}</Typography>} />
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </Paper>
                     </Grid>
 
-                    {/* Cột phải: Content Area */}
                     <Grid item xs={12} md={8.5}>
-                        <Divider sx={{ mb: 2, display: { xs: 'none', md: 'block' } }} />
-                        {renderContent()}
+                        <Paper elevation={1} sx={{ p: 4, borderRadius: 2 }}>
+                            {renderContent()}
+                        </Paper>
                     </Grid>
                 </Grid>
             </Container>

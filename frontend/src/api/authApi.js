@@ -2,6 +2,7 @@ import axios from 'axios';
 
 // The base URL for your custom server, not the JSON Server /api prefix
 const AUTH_URL = 'http://localhost:8000/auth'; 
+const BASE_URL = 'http://localhost:8000';
 
 export const login = async (email, password) => {
     try {
@@ -21,5 +22,15 @@ export const register = async (userData) => {
     } catch (error) {
         console.error('Registration failed:', error.response ? error.response.data : error.message);
         throw new Error(error.response?.data?.message || 'Registration failed. Please try again.');
+    }
+};
+
+export const getAccountDetails = async (customerId) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/account/${customerId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch account details:', error);
+        throw error;
     }
 };

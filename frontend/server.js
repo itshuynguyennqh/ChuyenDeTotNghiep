@@ -24,8 +24,6 @@ server.post('/auth/login', (req, res) => {
     const customerId = emailRecord.CustomerID;
     const passwordRecord = db.get('CustomerPassWord').find({ CustomerID: customerId }).value();
 
-    // NOTE: This is a plain text password comparison. 
-    // In a real application, you MUST hash passwords.
     if (!passwordRecord || passwordRecord.PasswordSalt !== password) {
         return res.status(400).json({ message: 'Invalid password' });
     }
@@ -40,16 +38,13 @@ server.post('/auth/login', (req, res) => {
 // Register Endpoint
 server.post('/auth/register', (req, res) => {
     const { password, email, firstname, lastname } = req.body;
-    console.log(req.body);
     const db = router.db;
 
-    // 1. Check if email exists
     const existingEmail = db.get('CustomerEmailAddress').find({ EmailAddress: email }).value();
     if (existingEmail) {
         return res.status(400).json({ message: 'Email already exists' });
     }
 
-    // 2. Create Customer
     const customers = db.get('Customer').value() || [];
     const newCustomerId = customers.length > 0 ? Math.max(...customers.map(c => c.CustomerID)) + 1 : 1;
     const newCustomer = {
@@ -60,7 +55,6 @@ server.post('/auth/register', (req, res) => {
     };
     db.get('Customer').push(newCustomer).write();
 
-    // 3. Create CustomerEmailAddress
     const emailAddresses = db.get('CustomerEmailAddress').value() || [];
     const newEmailId = emailAddresses.length > 0 ? Math.max(...emailAddresses.map(e => e.EmailAddressID)) + 1 : 1;
     const newEmail = {
@@ -71,17 +65,13 @@ server.post('/auth/register', (req, res) => {
     };
     db.get('CustomerEmailAddress').push(newEmail).write();
 
-    // 4. Create CustomerPassWord
-    // NOTE: Storing plain text passwords is a major security risk.
-    // This is for simulation purposes only. Always hash passwords in a real app.
     const newPassword = {
         CustomerID: newCustomerId,
-        PasswordSalt: password, // Using PasswordSalt to store the plain password for this demo
+        PasswordSalt: password,
         ModifiedDate: new Date().toISOString()
     };
     db.get('CustomerPassWord').push(newPassword).write();
 
-    // 5. Create a Cart for the new customer
     const carts = db.get('Cart').value() || [];
     const newCartId = carts.length > 0 ? Math.max(...carts.map(c => c.CartID)) + 1 : 1;
     const newCart = {
@@ -98,6 +88,30 @@ server.post('/auth/register', (req, res) => {
         message: 'Registration successful', 
         user: newCustomer
     });
+});
+
+// Account Details Endpoint
+server.get('/account/:customerId', (req, res) => {
+    const { customerId } = req.params;
+    const db = router.db;
+
+    const customer = db.get('Customer').find({ CustomerID: parseInt(customerId) }).value();
+    if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+    }
+
+    const email = db.get('CustomerEmailAddress').find({ CustomerID: parseInt(customerId) }).value();
+    const address = db.get('CustomerAdress').find({ CustomerID: parseInt(customerId) }).value();
+    const phone = db.get('CustomerPhone').find({ CustomerID: parseInt(customerId) }).value();
+
+    const accountDetails = {
+        ...customer,
+        Email: email ? email.EmailAddress : 'N/A',
+        Address: address ? `${address.AddressLine1}, ${address.City}, ${address.PostalCode}` : 'N/A',
+        Phone: phone ? phone.PhoneNumber : 'N/A'
+    };
+
+    res.json(accountDetails);
 });
 
 
@@ -143,6 +157,9 @@ server.get('/api/docs', (req, res) => {
         </div>
         <div class="custom-endpoint">
             <strong>POST /auth/register</strong> - Register new user (Creates User, Customer, Cart)
+        </div>
+        <div class="custom-endpoint">
+            <strong>GET /account/:customerId</strong> - Get full account details for a customer
         </div>
 
         <h3>Database Resources</h3>
