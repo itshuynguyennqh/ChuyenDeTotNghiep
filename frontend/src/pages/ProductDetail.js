@@ -22,7 +22,10 @@ function ProductDetail() {
             try {
                 // Sử dụng hàm API mới để lấy chi tiết sản phẩm
                 const response = await fetchProductDetailAPI(id);
-                setProduct(response.data);
+                
+                // json-server trả về mảng khi dùng query params (?ProductID=...), cần lấy phần tử đầu tiên
+                const productData = Array.isArray(response.data) ? response.data[0] : response.data;
+                setProduct(productData);
             } catch (error) {
                 console.error("Có lỗi xảy ra khi lấy chi tiết sản phẩm!", error);
             }
@@ -52,7 +55,11 @@ function ProductDetail() {
 
     const handleAddToCart = async () => {
         try {
-            await addToCartAPI({ productid: product.productid, quantity: quantity });
+            // Server yêu cầu ProductID và Quantity (PascalCase)
+            await addToCartAPI({ 
+                ProductID: product.ProductID, 
+                Quantity: quantity 
+            });
             window.dispatchEvent(new CustomEvent('cartUpdated'));
             alert('Đã thêm vào giỏ hàng!');
         } catch (error) {
@@ -69,17 +76,17 @@ function ProductDetail() {
         );
     }
 
-    const listPrice = parseFloat(product.listprice);
-    const standardCost = parseFloat(product.standardcost);
+    const listPrice = parseFloat(product.ListPrice);
+    const standardCost = parseFloat(product.StandardCost);
     const hasDiscount = standardCost > 0 && listPrice > standardCost;
     const percentOff = hasDiscount ? Math.round(((listPrice - standardCost) / listPrice) * 100) : 0;
 
     const productSpecifications = [
-        { key: "Color", value: product.color },
-        { key: "Size", value: product.size },
-        { key: "Product Line", value: product.productline },
-        { key: "Class", value: product.class_field },
-        { key: "Style", value: product.style },
+        { key: "Color", value: product.Color },
+        { key: "Size", value: product.Size },
+        { key: "Product Line", value: product.ProductLine },
+        { key: "Class", value: product.Class },
+        { key: "Style", value: product.Style },
     ].filter(spec => spec.value); // Lọc ra những spec có giá trị
 
     return (
@@ -88,7 +95,7 @@ function ProductDetail() {
                 <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb" sx={{ mb: 4 }}>
                     <MuiLink underline="hover" color="inherit" component={Link} to="/">Home</MuiLink>
                     <MuiLink underline="hover" color="inherit" component={Link} to="/products">Products</MuiLink>
-                    <Typography color="text.primary">{product.name}</Typography>
+                    <Typography color="text.primary">{product.Name}</Typography>
                 </Breadcrumbs>
                 <Grid container spacing={4}>
                     <Grid item xs={12} md={5}>
@@ -100,16 +107,16 @@ function ProductDetail() {
                             <Box sx={{display: 'flex',justifyContent: 'center', alignItems: 'center',   p: 1, border: '1px solid #eee', borderRadius: 1, backgroundColor: '#F4E9DB' }}>
                                 <Box
                                     component="img"
-                                    src={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.productid}&size=large`}
-                                    alt={product.name}
+                                    src={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`}
+                                    alt={product.Name}
                                     sx={{ width: '60vh', height: 'auto', borderRadius: '4px' }}
-                                    onError={(e) => { e.target.onerror = null; e.target.src = `https://via.placeholder.com/400x300?text=${product.name}`; }}
+                                    onError={(e) => { e.target.onerror = null; e.target.src = `https://via.placeholder.com/400x300?text=${product.Name}`; }}
                                 />
                             </Box>
                         </Stack>
                     </Grid>
                     <Grid item xs={12} md={7} flexGrow={'1'}>
-                        <Typography variant="h4" gutterBottom fontWeight="bold">{product.name}</Typography>
+                        <Typography variant="h4" gutterBottom fontWeight="bold">{product.Name}</Typography>
                         
                         <Typography variant="caption" display="block" color="text.secondary" sx={{ mb: 2 }}>
                             Local taxes included (where applicable)
@@ -175,7 +182,7 @@ function ProductDetail() {
                         </Stack>
                         <Grid container spacing={2} justifyContent={"center"} >
                             {relatedProducts.slice(0, 10).map((product) => (
-                                <Grid item key={product.productid} xs={6} sm={4} md={3} lg={2.4}>
+                                <Grid item key={product.ProductID} xs={6} sm={4} md={3} lg={2.4}>
                                     <Card
                                         sx={{
                                             height: '100%',
@@ -186,20 +193,20 @@ function ProductDetail() {
                                             '&:hover': { transform: 'translateY(-5px)', boxShadow: 3 }
                                         }}
                                     >
-                                        <Link to={`/products/${product.productid}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                        <Link to={`/products/${product.ProductID}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                                             <Box sx={{ p: 1, backgroundColor: '#fff', m: 0.5, borderRadius: 1 }}>
                                                 <CardMedia
                                                     component="img"
                                                     height="100"
-                                                    image={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.productid}&size=large`}
-                                                    alt={product.name}
+                                                    image={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`}
+                                                    alt={product.Name}
                                                     sx={{ objectFit: 'contain' }}
                                                     onError={(e) => { e.target.onerror = null; e.target.src = `https://via.placeholder.com/150x100?text=No+Image`; }}
                                                 />
                                             </Box>
                                             <CardContent sx={{ pb: '8px !important', pt: 1, textAlign: 'left' }}>
                                                 <Typography variant="caption" component="div" fontWeight="bold" className="product-name" sx={{ maxHeight: '2.4em', overflow: 'hidden' }}>
-                                                    {product.name}
+                                                    {product.Name}
                                                 </Typography>
                                                 <Stack direction="row" alignItems="center" spacing={0.5} sx={{ my: 0.5 }}>
                                                     <Rating value={4.5} precision={0.5} readOnly size="small" sx={{ color: '#ffc107', fontSize: '0.8rem' }} />
@@ -207,7 +214,7 @@ function ProductDetail() {
                                                 </Stack>
                                                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                                                     <Typography variant="subtitle2" fontWeight="bold" color="text.primary">
-                                                        ${parseFloat(product.listprice).toFixed(2)}
+                                                        ${parseFloat(product.ListPrice).toFixed(2)}
                                                     </Typography>
                                                     <Typography variant="caption" color="text.secondary">
                                                         {product.inventory} sold

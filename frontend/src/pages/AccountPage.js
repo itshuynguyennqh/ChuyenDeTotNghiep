@@ -12,7 +12,7 @@ import {
     Assignment as OrderIcon,
 } from '@mui/icons-material';
 import { getAccountDetails } from '../api/authApi';
-import { fetchOrderHistoryAPI } from '../api/productApi';
+import { fetchOrderHistoryAPI } from '../api/orderApi';
 import AccountInfo from '../components/account/AccountInfo';
 import AddressList from '../components/account/AddressList';
 import PaymentSettings from '../components/account/PaymentSettings';
@@ -43,8 +43,8 @@ function AccountPage() {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const accountDetails = await getAccountDetails(user.CustomerID);
-                setAccount(accountDetails);
+                const response = await getAccountDetails(user.CustomerID);
+                setAccount(response.data);
 
                 const orderHistory = await fetchOrderHistoryAPI(user.CustomerID);
                 setOrders(orderHistory.data);

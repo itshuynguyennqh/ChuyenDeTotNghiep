@@ -26,11 +26,11 @@ function App() {
             <Route index element={<ProductList />} />
             <Route path="products/:id" element={<ProductDetail />} />
             <Route path="cart" element={<CartPage />} />
+            <Route path="/account" element={<AccountPage />} />
           </Route>
           {/* Thêm route cho trang đăng nhập */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/account" element={<AccountPage />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/order-success" element={<OrderSuccessPage />} />
 

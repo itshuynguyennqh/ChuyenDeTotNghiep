@@ -112,6 +112,138 @@ server.get('/account/:customerId', (req, res) => {
     res.json(accountDetails);
 });
 
+server.get('/api/proc/view-orders/', (req, res) => {
+    const { customerid } = req.query;
+    const db = router.db;
+
+    const customer = db.get('Customer').find({ CustomerID: parseInt(customerid) }).value();
+    if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+    }
+
+    // Logic mapped from SP: Xem_Danh_Sach_Don
+    // SELECT SalesOrderID, CustomerID, OrderDate, TotalDue, OrderStatus FROM SalesOrderHeader
+    const orders = db.get('SalesOrderHeader')
+        .filter({ CustomerID: parseInt(customerid) })
+        .map(order => ({
+            SalesOrderID: order.SalesOrderID,
+            CustomerID: order.CustomerID,
+            OrderDate: order.OrderDate,
+            TotalDue: order.TotalDue,
+            OrderStatus: order.OrderStatus
+        }))
+        .value();
+
+    res.json(orders || []);
+});
+
+server.post('/api/cart/items/', (req, res) => {
+    const db = router.db;
+    const { ProductID, Quantity } = req.body;
+
+    // 1. Extract CustomerID from the fake JWT token
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
+    
+    // Token format: Bearer fake-jwt-token-for-{customerId}-{timestamp}
+    const token = authHeader.split(' ')[1];
+    const match = token.match(/fake-jwt-token-for-(\d+)-/);
+    
+    if (!match) {
+        return res.status(401).json({ message: "Unauthorized: Invalid token format" });
+    }
+    
+    const CustomerID = parseInt(match[1]);
+
+    // Logic mapped from SP: Tao_Gio_Va_Them_San_Pham
+    
+    // 2. Get Product Price (Table name in schema is 'product')
+    const product = db.get('product').find({ ProductID: parseInt(ProductID) }).value();
+    
+    if (!product) {
+        return res.status(404).json({ message: 'Sản phẩm không tồn tại hoặc chưa có giá.' });
+    }
+    
+    const UnitPrice = product.ListPrice;
+
+    // 3. Check/Create Cart
+    let cart = db.get('Cart').find({ CustomerID: CustomerID, IsCheckedOut: 0 }).value();
+
+    if (!cart) {
+        const carts = db.get('Cart').value() || [];
+        const newCartId = carts.length > 0 ? Math.max(...carts.map(c => c.CartID)) + 1 : 1;
+        
+        cart = {
+            CartID: newCartId,
+            CustomerID: CustomerID,
+            CreatedDate: new Date().toISOString(),
+            ModifiedDate: new Date().toISOString(),
+            Status: 'Active',
+            IsCheckedOut: 0
+        };
+        
+        db.get('Cart').push(cart).write();
+    }
+
+    const CartID = cart.CartID;
+
+    // 4. Add/Update CartItem
+    const existingItem = db.get('CartItem')
+        .find({ CartID: CartID, ProductID: parseInt(ProductID) })
+        .value();
+
+    if (existingItem) {
+        db.get('CartItem')
+            .find({ CartItemID: existingItem.CartItemID })
+            .assign({
+                Quantity: existingItem.Quantity + parseInt(Quantity),
+                DateUpdated: new Date().toISOString()
+            })
+            .write();
+    } else {
+        const cartItems = db.get('CartItem').value() || [];
+        const newCartItemID = cartItems.length > 0 ? Math.max(...cartItems.map(c => c.CartItemID)) + 1 : 1;
+        
+        const newItem = {
+            CartItemID: newCartItemID,
+            CartID: CartID,
+            ProductID: parseInt(ProductID),
+            Quantity: parseInt(Quantity),
+            UnitPrice: UnitPrice,
+            DateAdded: new Date().toISOString(),
+            DateUpdated: new Date().toISOString()
+        };
+        
+        db.get('CartItem').push(newItem).write();
+    }
+
+    res.json({ Message: 'Đã thêm sản phẩm vào giỏ hàng!', CartID: CartID });
+});
+
+server.post('/api/proc/update-order-status/', (req, res) => {
+    const db = router.db;
+    const { SalesOrderID, NewStatus } = req.body;
+
+    // Logic mapped from SP: Cap_Nhat_Trang_Thai_Don
+    const order = db.get('SalesOrderHeader').find({ SalesOrderID: parseInt(SalesOrderID) }).value();
+
+    if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+    }
+
+    db.get('SalesOrderHeader')
+        .find({ SalesOrderID: parseInt(SalesOrderID) })
+        .assign({
+            OrderStatus: NewStatus,
+            ModifiedDate: new Date().toISOString()
+        })
+        .write();
+
+    res.json({ message: "Cập nhật trạng thái đơn hàng thành công!" });
+});
+
 
 // --- End Custom Auth Routes ---
 

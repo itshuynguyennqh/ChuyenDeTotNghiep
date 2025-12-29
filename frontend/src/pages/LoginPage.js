@@ -23,10 +23,10 @@ const LoginPage = () => {
         setLoading(true);
 
         try {
-            const data = await login(email, password);
+            const response = await login({ email, password });
             // Lưu token vào localStorage hoặc context
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
             
             navigate('/');
         } catch (err) {
