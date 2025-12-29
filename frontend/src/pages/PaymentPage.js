@@ -12,6 +12,7 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import AddressManager from '../components/common/AddressManager';
 import { fetchCartAPI, fetchAddressesAPI, placeOrderAPI } from '../api/productApi';
+import { getAccountDetails } from '../api/authApi';
 
 function PaymentPage() {
     const navigate = useNavigate();
@@ -20,9 +21,10 @@ function PaymentPage() {
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [isAddressModalOpen, setAddressModalOpen] = useState(false);
     const [processing, setProcessing] = useState(false);
+    const [userInfo, setUserInfo] = useState(null);
     
     // State cho khách vãng lai
-    const isLoggedIn = !!localStorage.getItem('access_token');
+    const isLoggedIn = !!localStorage.getItem('token');
     const [guestInfo, setGuestInfo] = useState({
         firstname: '',
         lastname: '',
@@ -40,6 +42,12 @@ function PaymentPage() {
                 setCart(cartResponse.data);
 
                 if (isLoggedIn) {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    if (user && user.CustomerID) {
+                        const accountResponse = await getAccountDetails(user.CustomerID);
+                        setUserInfo(accountResponse.data);
+                    }
+
                     const addressesResponse = await fetchAddressesAPI();
                     if (addressesResponse.data && addressesResponse.data.length > 0) {
                         setSelectedAddress(addressesResponse.data[0]);
@@ -67,7 +75,7 @@ function PaymentPage() {
                 alert("Vui lòng chọn địa chỉ giao hàng!");
                 return;
             }
-            orderData = { address_id: selectedAddress.addressid };
+            orderData = { address_id: selectedAddress.AddressID };
         } else {
             // Validate guest info
             if (!guestInfo.firstname || !guestInfo.email || !guestInfo.phone || !guestInfo.addressline1 || !guestInfo.city) {
@@ -99,11 +107,11 @@ function PaymentPage() {
         return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>Loading...</Box>;
     }
 
-    if (!cart || !cart.items || cart.items.length === 0) {
+    if (!cart || !cart.Items || cart.Items.length === 0) {
         return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>Giỏ hàng trống</Box>;
     }
 
-    const subtotal = cart.items.reduce((total, item) => total + parseFloat(item.subtotal), 0);
+    const subtotal = cart.Total || cart.Items.reduce((total, item) => total + (item.Quantity * item.UnitPrice), 0);
     const voucherDiscount = 0;
     const shippingFee = 0;
     const totalPayment = subtotal - voucherDiscount + shippingFee;
@@ -121,26 +129,44 @@ function PaymentPage() {
                     <Grid item xs={12} md={7} sx={{ pr: { md: 4 } }}>
                         {isLoggedIn ? (
                             // --- GIAO DIỆN CHO USER ĐÃ ĐĂNG NHẬP ---
-                            <Paper elevation={0} sx={{ p: 2, backgroundColor: 'transparent', display: 'flex', alignItems: 'center', cursor: 'pointer', mb: 2 }} onClick={() => setAddressModalOpen(true)}>
-                                <LocationIcon sx={{ color: '#d32f2f', mr: 2 }} />
-                                <Box sx={{ flexGrow: 1 }}>
-                                    {selectedAddress ? (
+                            <>
+                                {/* Hiển thị thông tin cá nhân từ DB */}
+                                <Box sx={{ mb: 3, p: 2, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#fff' }}>
+                                    <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>Contact Information</Typography>
+                                    {userInfo ? (
                                         <>
-                                            <Typography variant="subtitle1" fontWeight="bold">
-                                                {selectedAddress.addressline1}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                {selectedAddress.city}, {selectedAddress.postalcode}
-                                            </Typography>
+                                            <Typography variant="body1" fontWeight="bold">{userInfo.FirstName} {userInfo.LastName}</Typography>
+                                            <Typography variant="body2" color="text.secondary">Email: {userInfo.Email}</Typography>
+                                            <Typography variant="body2" color="text.secondary">Phone: {userInfo.Phone}</Typography>
                                         </>
                                     ) : (
-                                        <Typography variant="subtitle1" fontWeight="bold">
-                                            No address selected. Click to add one.
-                                        </Typography>
+                                        <Typography variant="body2">Loading user info...</Typography>
                                     )}
                                 </Box>
-                                <ChevronRightIcon sx={{ color: '#ccc' }} />
-                            </Paper>
+
+                                {/* Phần chọn địa chỉ */}
+                                <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>Shipping Address</Typography>
+                                <Paper elevation={0} sx={{ p: 2, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#fff', display: 'flex', alignItems: 'center', cursor: 'pointer', mb: 2 }} onClick={() => setAddressModalOpen(true)}>
+                                    <LocationIcon sx={{ color: '#d32f2f', mr: 2 }} />
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        {selectedAddress ? (
+                                            <>
+                                                <Typography variant="subtitle1" fontWeight="bold">
+                                                    {selectedAddress.AddressLine1}
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {selectedAddress.ContactName}, {selectedAddress.PhoneNumber}
+                                                </Typography>
+                                            </>
+                                        ) : (
+                                            <Typography variant="subtitle1" fontWeight="bold">
+                                                No address selected. Click to add one.
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                    <ChevronRightIcon sx={{ color: '#ccc' }} />
+                                </Paper>
+                            </>
                         ) : (
                             // --- GIAO DIỆN CHO KHÁCH VÃNG LAI (GUEST FORM) ---
                             <Box sx={{ mb: 4, p: 2, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#fff' }}>
@@ -174,28 +200,28 @@ function PaymentPage() {
                         <Divider sx={{ mb: 3 }} />
 
                         <Stack spacing={3} >
-                            {cart.items.map((item) => (
-                                <Box key={item.cartitemid} sx={{ display: 'flex', alignItems: 'center' }}>
+                            {cart.Items.map((item) => (
+                                <Box key={item.CartItemID} sx={{ display: 'flex', alignItems: 'center' }}>
                                     <Box sx={{ width: 80, height: 80, backgroundColor: '#fff', borderRadius: 2, p: 1, border: '1px solid #eee' }}>
                                         <CardMedia 
                                             component="img" 
-                                            image={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${item.productid.productid}&size=large`}
+                                            image={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${item.ProductID}&size=large`}
                                             sx={{ objectFit: 'contain', height: '100%' }} 
                                             onError={(e) => { e.target.onerror = null; e.target.src = `https://via.placeholder.com/100?text=No+Image`; }}
                                         />
                                     </Box>
                                     <Box sx={{ flexGrow: 1, ml: 2 }}>
-                                        <Typography variant="subtitle2" fontWeight="bold">{item.productid.name}</Typography>
-                                        {item.productid.color && (
+                                        <Typography variant="subtitle2" fontWeight="bold">{item.Name}</Typography>
+                                        {item.Color && (
                                             <Typography variant="caption" sx={{ color: '#999', backgroundColor: '#eee', px: 1, borderRadius: 1 }}>
-                                                Color: {item.productid.color}
+                                                Color: {item.Color}
                                             </Typography>
                                         )}
                                         <Typography variant="subtitle2" color="error" sx={{ mt: 0.5 }}>
-                                            ${parseFloat(item.unitprice).toFixed(2)}
+                                            ${parseFloat(item.UnitPrice).toFixed(2)}
                                         </Typography>
                                     </Box>
-                                    <Typography variant="body2" color="text.secondary">x{item.quantity}</Typography>
+                                    <Typography variant="body2" color="text.secondary">x{item.Quantity}</Typography>
                                 </Box>
                             ))}
                         </Stack>

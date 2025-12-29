@@ -137,6 +137,55 @@ server.get('/api/proc/view-orders/', (req, res) => {
     res.json(orders || []);
 });
 
+server.get('/api/cart/', (req, res) => {
+    const db = router.db;
+    
+    // 1. Extract CustomerID from token
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const match = token.match(/fake-jwt-token-for-(\d+)-/);
+    
+    if (!match) {
+        return res.status(401).json({ message: "Unauthorized: Invalid token format" });
+    }
+    
+    const CustomerID = parseInt(match[1]);
+
+    // 2. Find Active Cart
+    const cart = db.get('Cart').find({ CustomerID: CustomerID, IsCheckedOut: 0 }).value();
+
+    if (!cart) {
+        return res.json({ CartID: null, Items: [], Total: 0 });
+    }
+
+    // 3. Get Items and Join with Product details
+    const cartItems = db.get('CartItem').filter({ CartID: cart.CartID }).value();
+
+    const itemsWithDetails = cartItems.map(item => {
+        // Table name is 'product' based on your previous code
+        const product = db.get('product').find({ ProductID: item.ProductID }).value();
+        
+        return {
+            ...item,
+            // Merge product info for display
+            Name: product ? product.Name : 'Unknown Product',
+            ProductNumber: product ? product.ProductNumber : '',
+            Color: product ? product.Color : '',
+            Size: product ? product.Size : '',
+            ListPrice: product ? product.ListPrice : 0,
+            ThumbNailPhoto: product ? product.ThumbNailPhoto : null
+        };
+    });
+
+    const total = itemsWithDetails.reduce((sum, item) => sum + (item.Quantity * item.UnitPrice), 0);
+
+    res.json({ CartID: cart.CartID, Items: itemsWithDetails, Total: total });
+});
+
 server.post('/api/cart/items/', (req, res) => {
     const db = router.db;
     const { ProductID, Quantity } = req.body;
@@ -244,6 +293,79 @@ server.post('/api/proc/update-order-status/', (req, res) => {
     res.json({ message: "Cập nhật trạng thái đơn hàng thành công!" });
 });
 
+// --- Address Routes (Mapped to CustomerAdress table) ---
+
+server.get('/api/addresses/', (req, res) => {
+    const db = router.db;
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: "Unauthorized" });
+    
+    const token = authHeader.split(' ')[1];
+    const match = token.match(/fake-jwt-token-for-(\d+)-/);
+    if (!match) return res.status(401).json({ message: "Invalid token" });
+    
+    const CustomerID = parseInt(match[1]);
+
+    // Table name in db.json seems to be 'CustomerAdress' based on existing code
+    const addresses = db.get('CustomerAdress').filter({ CustomerID: CustomerID }).value();
+    res.json(addresses || []);
+});
+
+server.post('/api/addresses/', (req, res) => {
+    const db = router.db;
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: "Unauthorized" });
+    
+    const token = authHeader.split(' ')[1];
+    const match = token.match(/fake-jwt-token-for-(\d+)-/);
+    if (!match) return res.status(401).json({ message: "Invalid token" });
+    
+    const CustomerID = parseInt(match[1]);
+    const { addressline1, contactname, phonenumber } = req.body;
+
+    const addresses = db.get('CustomerAdress').value() || [];
+    // Generate new ID
+    const newAddressId = addresses.length > 0 ? Math.max(...addresses.map(a => a.AddressID || 0)) + 1 : 1;
+
+    const newAddress = {
+        AddressID: newAddressId,
+        CustomerID: CustomerID,
+        AddressLine1: addressline1,
+        ContactName: contactname,
+        PhoneNumber: phonenumber,
+        ModifiedDate: new Date().toISOString(),
+        rowguid: 'uuid-' + Date.now()
+    };
+
+    db.get('CustomerAdress').push(newAddress).write();
+    res.status(201).json(newAddress);
+});
+
+server.put('/api/addresses/:id/', (req, res) => {
+    const db = router.db;
+    const { id } = req.params;
+    const { addressline1, contactname, phonenumber } = req.body;
+
+    db.get('CustomerAdress')
+        .find({ AddressID: parseInt(id) })
+        .assign({
+            AddressLine1: addressline1,
+            ContactName: contactname,
+            PhoneNumber: phonenumber,
+            ModifiedDate: new Date().toISOString()
+        })
+        .write();
+    
+    res.json({ message: "Address updated" });
+});
+
+server.delete('/api/addresses/:id/', (req, res) => {
+    const db = router.db;
+    const { id } = req.params;
+    
+    db.get('CustomerAdress').remove({ AddressID: parseInt(id) }).write();
+    res.json({ message: "Address deleted" });
+});
 
 // --- End Custom Auth Routes ---
 

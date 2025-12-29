@@ -42,7 +42,7 @@ function CartPage() {
         try {
             // Lưu ý: API update cần body chứa đủ thông tin, tùy vào serializer
             // Ở đây ta chỉ cập nhật quantity
-            await updateCartItemAPI(itemId, { quantity: newQuantity });
+            await updateCartItemAPI(itemId, { Quantity: newQuantity });
             fetchCart(); // Tải lại giỏ hàng
             window.dispatchEvent(new CustomEvent('cartUpdated'));
         } catch (error) {
@@ -54,11 +54,11 @@ function CartPage() {
         return <Container sx={{ textAlign: 'center', my: 5 }}><CircularProgress /></Container>;
     }
 
-    if (!cart || !cart.items || cart.items.length === 0) {
+    if (!cart || !cart.Items || cart.Items.length === 0) {
         return <Container sx={{ textAlign: 'center', my: 5 }}><Typography variant="h6">Giỏ hàng của bạn đang trống.</Typography></Container>;
     }
 
-    const cartTotal = cart.items.reduce((total, item) => total + parseFloat(item.subtotal), 0);
+    const cartTotal = cart.Total || cart.Items.reduce((total, item) => total + (item.Quantity * item.UnitPrice), 0);
 
     return (
         <Container sx={{ my: 5 }}>
@@ -79,33 +79,33 @@ function CartPage() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {cart.items.map(item => (
-                                    <TableRow key={item.cartitemid}>
+                                {cart.Items.map(item => (
+                                    <TableRow key={item.CartItemID}>
                                         <TableCell>
                                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                                 <img
-                                                    src={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${item.productid.productid}&size=large`}
-                                                    alt={item.productid.name}
+                                                    src={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${item.ProductID}&size=large`}
+                                                    alt={item.Name}
                                                     style={{ width: 80, height: 80, objectFit: 'contain', marginRight: '16px' }}
                                                 />
-                                                <Typography component={RouterLink} to={`/products/${item.productid.productid}`} variant="body1" sx={{ fontWeight: 'bold', textDecoration: 'none', color: 'inherit' }}>
-                                                    {item.productid.name}
+                                                <Typography component={RouterLink} to={`/products/${item.ProductID}`} variant="body1" sx={{ fontWeight: 'bold', textDecoration: 'none', color: 'inherit' }}>
+                                                    {item.Name}
                                                 </Typography>
                                             </Box>
                                         </TableCell>
-                                        <TableCell align="right">${parseFloat(item.unitprice).toFixed(2)}</TableCell>
+                                        <TableCell align="right">${parseFloat(item.UnitPrice).toFixed(2)}</TableCell>
                                         <TableCell align="center">
                                             <TextField
                                                 type="number"
-                                                value={item.quantity}
-                                                onChange={(e) => handleUpdateQuantity(item.cartitemid, parseInt(e.target.value))}
+                                                value={item.Quantity}
+                                                onChange={(e) => handleUpdateQuantity(item.CartItemID, parseInt(e.target.value))}
                                                 inputProps={{ min: 1, style: { textAlign: 'center' } }}
                                                 sx={{ width: '80px' }}
                                             />
                                         </TableCell>
-                                        <TableCell align="right">${parseFloat(item.subtotal).toFixed(2)}</TableCell>
+                                        <TableCell align="right">${(item.Quantity * item.UnitPrice).toFixed(2)}</TableCell>
                                         <TableCell align="center">
-                                            <IconButton onClick={() => handleDeleteItem(item.cartitemid)} color="error">
+                                            <IconButton onClick={() => handleDeleteItem(item.CartItemID)} color="error">
                                                 <DeleteIcon />
                                             </IconButton>
                                         </TableCell>

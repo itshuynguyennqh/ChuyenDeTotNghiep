@@ -48,14 +48,14 @@ function AddressManager({ open, onClose, onSelectAddress }) {
         const formData = new FormData(event.currentTarget);
         const data = {
             addressline1: formData.get('addressline1'),
-            city: formData.get('city'),
-            postalcode: formData.get('postalcode'),
+            contactname: formData.get('contactname'),
+            phonenumber: formData.get('phonenumber'),
             modifieddate: new Date().toISOString(),
         };
 
         try {
             if (editingAddress) {
-                await updateAddressAPI(editingAddress.addressid, data);
+                await updateAddressAPI(editingAddress.AddressID, data);
             } else {
                 await addAddressAPI(data);
             }
@@ -86,13 +86,13 @@ function AddressManager({ open, onClose, onSelectAddress }) {
                     <List>
                         {addresses.map((address) => (
                             <ListItem
-                                key={address.addressid}
+                                key={address.AddressID}
                                 secondaryAction={
                                     <>
                                         <IconButton aria-label="edit" onClick={(e) => { e.stopPropagation(); handleEdit(address); }}>
                                             <EditIcon />
                                         </IconButton>
-                                        <IconButton edge="end" aria-label="delete" onClick={(e) => handleDelete(address.addressid, e)}>
+                                        <IconButton edge="end" aria-label="delete" onClick={(e) => handleDelete(address.AddressID, e)}>
                                             <DeleteIcon />
                                         </IconButton>
                                     </>
@@ -101,8 +101,8 @@ function AddressManager({ open, onClose, onSelectAddress }) {
                                 onClick={() => onSelectAddress(address)}
                             >
                                 <ListItemText
-                                    primary={address.addressline1}
-                                    secondary={`${address.city}, ${address.postalcode}`}
+                                    primary={address.AddressLine1}
+                                    secondary={`${address.ContactName || ''} - ${address.PhoneNumber || ''}`}
                                 />
                             </ListItem>
                         ))}
@@ -128,27 +128,27 @@ function AddressManager({ open, onClose, onSelectAddress }) {
                             type="text"
                             fullWidth
                             variant="standard"
-                            defaultValue={editingAddress?.addressline1}
+                            defaultValue={editingAddress?.AddressLine1}
                             required
                         />
                         <TextField
                             margin="dense"
-                            name="city"
-                            label="City"
+                            name="contactname"
+                            label="Contact Name"
                             type="text"
                             fullWidth
                             variant="standard"
-                            defaultValue={editingAddress?.city}
+                            defaultValue={editingAddress?.ContactName}
                             required
                         />
                         <TextField
                             margin="dense"
-                            name="postalcode"
-                            label="Postal Code"
+                            name="phonenumber"
+                            label="Phone Number"
                             type="text"
                             fullWidth
                             variant="standard"
-                            defaultValue={editingAddress?.postalcode}
+                            defaultValue={editingAddress?.PhoneNumber}
                             required
                         />
                     </Box>
