@@ -1,33 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-    Grid, Box, Typography, Button, CircularProgress, Divider, Stack, Rating, Card, CardContent, CardMedia, Breadcrumbs, Link as MuiLink
+    Grid, Box, Typography, Button, CircularProgress, Stack, Rating, Card, CardContent,
+    CardMedia, Breadcrumbs, Link as MuiLink, Tabs, Tab, Avatar, IconButton
 } from '@mui/material';
 import { Container } from '@mui/system';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import RemoveIcon from '@mui/icons-material/Remove';
-import AddIcon from '@mui/icons-material/Add';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
-import { fetchProductDetailAPI, fetchProductsAPI, addToCartAPI } from '../api/productApi'; // Import API functions
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import { fetchProductDetailAPI, fetchProductsAPI, addToCartAPI } from '../api/productApi';
+import './ProductDetail.css';
 
 function ProductDetail() {
     const [product, setProduct] = useState(null);
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [quantity, setQuantity] = useState(1);
+    const [selectedTab, setSelectedTab] = useState(1); // 0 for Rent, 1 for Buy
+    const [selectedSize, setSelectedSize] = useState('L');
+    const [selectedColor, setSelectedColor] = useState('Black');
+    const [selectedImage, setSelectedImage] = useState(0);
     const { id } = useParams();
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                // Sử dụng hàm API mới để lấy chi tiết sản phẩm
                 const response = await fetchProductDetailAPI(id);
-                
-                // json-server trả về mảng khi dùng query params (?ProductID=...), cần lấy phần tử đầu tiên
                 const productData = Array.isArray(response.data) ? response.data[0] : response.data;
                 setProduct(productData);
             } catch (error) {
-                console.error("Có lỗi xảy ra khi lấy chi tiết sản phẩm!", error);
+                console.error("Error fetching product details!", error);
             }
         };
         fetchProduct();
@@ -39,7 +40,7 @@ function ProductDetail() {
                 const response = await fetchProductsAPI({ limit: 10 });
                 setRelatedProducts(response.data.slice(0, 10));
             } catch (error) {
-                console.error("Có lỗi xảy ra khi lấy dữ liệu sản phẩm liên quan!", error);
+                console.error("Error fetching related products!", error);
             }
         };
         fetchRelatedProducts();
@@ -55,22 +56,21 @@ function ProductDetail() {
 
     const handleAddToCart = async () => {
         try {
-            // Server yêu cầu ProductID và Quantity (PascalCase)
-            await addToCartAPI({ 
-                ProductID: product.ProductID, 
-                Quantity: quantity 
+            await addToCartAPI({
+                ProductID: product.ProductID,
+                Quantity: quantity
             });
             window.dispatchEvent(new CustomEvent('cartUpdated'));
-            alert('Đã thêm vào giỏ hàng!');
+            alert('Added to cart successfully!');
         } catch (error) {
-            console.error("Lỗi khi thêm vào giỏ hàng:", error);
-            alert('Thêm vào giỏ hàng thất bại!');
+            console.error("Error adding to cart:", error);
+            alert('Failed to add to cart!');
         }
     };
 
     if (!product) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f3e5d8' }}>
+            <Box className="loading-container">
                 <CircularProgress />
             </Box>
         );
@@ -79,155 +79,322 @@ function ProductDetail() {
     const listPrice = parseFloat(product.ListPrice);
     const standardCost = parseFloat(product.StandardCost);
     const hasDiscount = standardCost > 0 && listPrice > standardCost;
-    const percentOff = hasDiscount ? Math.round(((listPrice - standardCost) / listPrice) * 100) : 0;
 
-    const productSpecifications = [
-        { key: "Color", value: product.Color },
-        { key: "Size", value: product.Size },
-        { key: "Product Line", value: product.ProductLine },
-        { key: "Class", value: product.Class },
-        { key: "Style", value: product.Style },
-    ].filter(spec => spec.value); // Lọc ra những spec có giá trị
+    const productImages = [
+        `https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`,
+        `https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`
+    ];
+
+    const reviews = [
+        {
+            name: "mrbean",
+            avatar: "MB",
+            rating: 5,
+            date: "Mar 7, 2022",
+            comment: "Yo this bike's a beast fr. Been hittin' trails every weekend and it rides SMOOTH af. Light frame, sick design, brakes on point. 100% recommend if ur into off-road stuff.",
+            hasImage: true
+        },
+        {
+            name: "hulkbigboi",
+            avatar: "HB",
+            rating: 5,
+            date: "Jul 19, 2022",
+            comment: "Been commuting w/ this bad boy for 2 months now — no probs at all. Smooth gears, great balance, handles bumps like a champ. 10/10 would cop again",
+            hasImage: true
+        }
+    ];
+
+    const specifications = [
+        { key: "Model", value: "Mountain 100" },
+        { key: "Color", value: product.Color || "Black" },
+        { key: "Frame material", value: "High strength aluminum alloy" },
+        { key: "Frame size", value: "48 cm" },
+        { key: "Wheel size", value: "27.5 Inchs" },
+        { key: "Suspension", value: "Font suspension fork with shock absorb" }
+    ];
+
+    const buyerImages = [
+        `https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`,
+        `https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`,
+        `https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`,
+        `https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`,
+    ];
 
     return (
-        <Box sx={{ flexGrow: 1, minHeight: '100vh', background: "#f3e5d8", py: 4 }} >
-            <Container maxWidth="lg" sx={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', p: 4 }}>
-                <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb" sx={{ mb: 4 }}>
-                    <MuiLink underline="hover" color="inherit" component={Link} to="/">Home</MuiLink>
-                    <MuiLink underline="hover" color="inherit" component={Link} to="/products">Products</MuiLink>
-                    <Typography color="text.primary">{product.Name}</Typography>
+        <Box className="product-detail-page">
+            <Container maxWidth="xl">
+                {/* Breadcrumb */}
+                <Breadcrumbs
+                    separator={<NavigateNextIcon fontSize="small" />}
+                    className="breadcrumb"
+                >
+                    <MuiLink component={Link} to="/" className="breadcrumb-link">
+                        Home
+                    </MuiLink>
+                    <MuiLink component={Link} to="/products" className="breadcrumb-link">
+                        Mountain Bikes
+                    </MuiLink>
+                    <Typography className="breadcrumb-current">
+                        {product.Name}
+                    </Typography>
                 </Breadcrumbs>
+
                 <Grid container spacing={4}>
-                    <Grid item xs={12} md={5}>
-                        <Stack direction="row" sx={{ width: 'fit-content' }}>
-                            <Stack direction="column" spacing={1} sx={{ mt: 1, mr: 1, color: '#f37021' }}>
-                                <Box component="span" sx={{ fontSize: 30, border: '2px solid #eee', borderRadius: 1, p: 0.5, cursor: 'pointer' }}>🚲</Box>
-                                <Box component="span" sx={{ fontSize: 30, border: '2px solid #eee', borderRadius: 1, p: 0.5, cursor: 'pointer' }}>🚴</Box>
+                    {/* Left Side - Product Images */}
+                    <Grid item xs={12} md={6}>
+                        <Box className="image-gallery">
+                            <Stack className="thumbnail-column">
+                                {productImages.slice(0, 2).map((img, index) => (
+                                    <Box
+                                        key={index}
+                                        className={`thumbnail ${selectedImage === index ? 'active' : ''}`}
+                                        onClick={() => setSelectedImage(index)}
+                                    >
+                                        <img src={img} alt={`Product ${index + 1}`} />
+                                    </Box>
+                                ))}
                             </Stack>
-                            <Box sx={{display: 'flex',justifyContent: 'center', alignItems: 'center',   p: 1, border: '1px solid #eee', borderRadius: 1, backgroundColor: '#F4E9DB' }}>
-                                <Box
-                                    component="img"
-                                    src={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`}
+                            <Box className="main-image-container">
+                                <img
+                                    src={productImages[selectedImage]}
                                     alt={product.Name}
-                                    sx={{ width: '60vh', height: 'auto', borderRadius: '4px' }}
-                                    onError={(e) => { e.target.onerror = null; e.target.src = `https://via.placeholder.com/400x300?text=${product.Name}`; }}
+                                    className="main-image"
                                 />
                             </Box>
-                        </Stack>
-                    </Grid>
-                    <Grid item xs={12} md={7} flexGrow={'1'}>
-                        <Typography variant="h4" gutterBottom fontWeight="bold">{product.Name}</Typography>
-                        
-                        <Typography variant="caption" display="block" color="text.secondary" sx={{ mb: 2 }}>
-                            Local taxes included (where applicable)
-                        </Typography>
-                        <Stack direction="row" spacing={2} alignItems="baseline" sx={{ mb: 3 }}>
-                            <Typography variant="h5" color="primary" fontWeight="bold">${standardCost.toFixed(2)}</Typography>
-                            {hasDiscount && (
-                                <>
-                                    <Typography variant="body1" color="text.secondary" sx={{ textDecoration: 'line-through' }}>${listPrice.toFixed(2)}</Typography>
-                                    <Typography variant="body1" color="error" fontWeight="bold">({percentOff}% Off)</Typography>
-                                </>
-                            )}
-                        </Stack>
-                        <Divider sx={{ mb: 3 }} />
-                        <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
-                            <Typography variant="subtitle1" fontWeight="bold">Quantity:</Typography>
-                            <Stack direction="row" sx={{ border: '1px solid #ddd', borderRadius: 1, overflow: 'hidden' }}>
-                                <Button onClick={() => handleQuantityChange('decrement')} size="small" sx={{ p: 1, minWidth: 40 }}><RemoveIcon /></Button>
-                                <Typography sx={{ p: 1, borderLeft: '1px solid #ddd', borderRight: '1px solid #ddd' }}>{quantity}</Typography>
-                                <Button onClick={() => handleQuantityChange('increment')} size="small" sx={{ p: 1, minWidth: 40 }}><AddIcon /></Button>
-                            </Stack>
-                        </Stack>
-                        <Stack spacing={1}>
-                            <Button
-                                variant="contained"
-                                sx={{ backgroundColor: '#f37021', '&:hover': { backgroundColor: '#e0651d' } }}
-                                startIcon={<ShoppingCartIcon />}
-                                size="large"
-                                onClick={handleAddToCart}
-                            >
-                                ADD TO CART
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                size="large"
-                            >
-                                BUY IT NOW
-                            </Button>
-                        </Stack>
-                    </Grid>
-                    <Grid item xs={12} flexGrow={1}>
-                        <Box sx={{ background: "#fdf0e5", p: 3, borderRadius: '8px' }}>
-                            <Typography variant="h6" fontWeight="bold" gutterBottom>Specifications</Typography>
-                            <TableContainer>
-                                <Table size="small" aria-label="product specifications">
-                                    <TableBody>
-                                        {productSpecifications.map((spec) => (
-                                            <TableRow key={spec.key} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: 'bold', border: 'none', width: '30%', pl: 0 }}>{spec.key}</TableCell>
-                                                <TableCell sx={{ border: 'none', color: 'text.secondary' }}>{spec.value}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
                         </Box>
                     </Grid>
-                    <Grid item xs={12} sx={{ mt: 3 }}>
-                        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                            <Typography variant="h6" fontWeight="bold">Product ratings</Typography>
-                            <MuiLink href="#" underline="hover" color="primary">View All</MuiLink>
-                        </Stack>
-                        <Grid container spacing={2} justifyContent={"center"} >
-                            {relatedProducts.slice(0, 10).map((product) => (
-                                <Grid item key={product.ProductID} xs={6} sm={4} md={3} lg={2.4}>
-                                    <Card
-                                        sx={{
-                                            height: '100%',
-                                            backgroundColor: '#fdf6ec',
-                                            boxShadow: 'none',
-                                            border: '1px solid #eee',
-                                            transition: '0.3s',
-                                            '&:hover': { transform: 'translateY(-5px)', boxShadow: 3 }
-                                        }}
-                                    >
-                                        <Link to={`/products/${product.ProductID}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                            <Box sx={{ p: 1, backgroundColor: '#fff', m: 0.5, borderRadius: 1 }}>
-                                                <CardMedia
-                                                    component="img"
-                                                    height="100"
-                                                    image={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`}
-                                                    alt={product.Name}
-                                                    sx={{ objectFit: 'contain' }}
-                                                    onError={(e) => { e.target.onerror = null; e.target.src = `https://via.placeholder.com/150x100?text=No+Image`; }}
-                                                />
+
+                    {/* Right Side - Product Info */}
+                    <Grid item xs={12} md={6}>
+                        <Box className="product-info-card">
+                            <Typography variant="h4" className="product-title">
+                                {product.Name}
+                            </Typography>
+
+                            <Box className="tab-container">
+                                <Tabs
+                                    value={selectedTab}
+                                    onChange={(e, newValue) => setSelectedTab(newValue)}
+                                    className="purchase-tabs"
+                                >
+                                    <Tab label="Rent" />
+                                    <Tab label="Buy" />
+                                </Tabs>
+                            </Box>
+
+                            <Box className="price-section">
+                                <Typography className="current-price">
+                                    ${standardCost.toFixed(2)}
+                                </Typography>
+                                {hasDiscount && (
+                                    <Typography className="original-price">
+                                        ${listPrice.toFixed(2)}
+                                    </Typography>
+                                )}
+                            </Box>
+
+                            <Box className="selection-group">
+                                <Box className="color-selector">
+                                    <Typography className="selector-label">
+                                        Color: <span className="selector-value">{selectedColor}</span>
+                                    </Typography>
+                                    <Stack direction="row" spacing={1} className="color-options">
+                                        <Box
+                                            className={`color-option active`}
+                                            style={{ backgroundColor: '#1E1E1E' }}
+                                        />
+                                        <Box
+                                            className="color-option"
+                                            style={{ backgroundColor: '#FFFFFF', border: '1px solid #ddd' }}
+                                        />
+                                    </Stack>
+                                </Box>
+
+                                <Box className="size-selector">
+                                    <Typography className="selector-label">Size</Typography>
+                                    <Stack direction="row" spacing={1} className="size-options">
+                                        {['S', 'M', 'L', 'XL'].map((size) => (
+                                            <Box
+                                                key={size}
+                                                className={`size-option ${selectedSize === size ? 'active' : ''}`}
+                                                onClick={() => setSelectedSize(size)}
+                                            >
+                                                {size}
                                             </Box>
-                                            <CardContent sx={{ pb: '8px !important', pt: 1, textAlign: 'left' }}>
-                                                <Typography variant="caption" component="div" fontWeight="bold" className="product-name" sx={{ maxHeight: '2.4em', overflow: 'hidden' }}>
-                                                    {product.Name}
-                                                </Typography>
-                                                <Stack direction="row" alignItems="center" spacing={0.5} sx={{ my: 0.5 }}>
-                                                    <Rating value={4.5} precision={0.5} readOnly size="small" sx={{ color: '#ffc107', fontSize: '0.8rem' }} />
-                                                    <Typography variant="caption" color="text.secondary">(175)</Typography>
-                                                </Stack>
-                                                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                                    <Typography variant="subtitle2" fontWeight="bold" color="text.primary">
-                                                        ${parseFloat(product.ListPrice).toFixed(2)}
-                                                    </Typography>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        {product.inventory} sold
-                                                    </Typography>
-                                                </Stack>
-                                            </CardContent>
-                                        </Link>
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Box>
+
+                            <Box className="quantity-selector">
+                                <Typography className="selector-label">Quantity</Typography>
+                                <Box className="quantity-controls">
+                                    <button
+                                        onClick={() => handleQuantityChange('decrement')}
+                                        className="quantity-btn"
+                                    >
+                                        -
+                                    </button>
+                                    <span className="quantity-value">{quantity}</span>
+                                    <button
+                                        onClick={() => handleQuantityChange('increment')}
+                                        className="quantity-btn"
+                                    >
+                                        +
+                                    </button>
+                                </Box>
+                            </Box>
+
+                            <Stack spacing={2} className="action-buttons">
+                                <Button
+                                    variant="contained"
+                                    className="add-to-cart-btn"
+                                    startIcon={<ShoppingCartIcon />}
+                                    onClick={handleAddToCart}
+                                >
+                                    Add to cart
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    className="buy-now-btn"
+                                >
+                                    Buy Now
+                                </Button>
+                            </Stack>
+                        </Box>
                     </Grid>
                 </Grid>
+
+                {/* Specifications Section */}
+                <Box className="specifications-section">
+                    <Typography variant="h5" className="section-title">Specifications</Typography>
+                    <Grid container spacing={2} className="specs-grid">
+                        {specifications.map((spec, index) => (
+                            <Grid item xs={12} sm={6} key={index}>
+                                <Box className="spec-row">
+                                    <Typography className="spec-label">{spec.key}</Typography>
+                                    <Typography className="spec-value">{spec.value}</Typography>
+                                </Box>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Box>
+
+                {/* Product Ratings Section */}
+                <Box className="ratings-section">
+                    <Box className="ratings-header">
+                        <Typography variant="h5" className="section-title">Product ratings</Typography>
+                        <MuiLink href="#" className="view-all-link">
+                            View All <NavigateNextIcon fontSize="small" />
+                        </MuiLink>
+                    </Box>
+
+                    <Box className="rating-summary">
+                        <Stack direction="row" spacing={1} alignItems="center">
+                            <Rating value={4.5} precision={0.5} readOnly size="medium" />
+                            <Typography className="rating-score">4.5/5</Typography>
+                            <Typography className="rating-count">(175 reviews)</Typography>
+                        </Stack>
+                    </Box>
+
+                    {/* Pictures from buyers */}
+                    <Box className="buyer-pictures">
+                        <Typography className="subsection-title">Pictures from buyers</Typography>
+                        <Stack direction="row" spacing={1} className="buyer-images-grid">
+                            {buyerImages.map((img, index) => (
+                                <Box key={index} className="buyer-image">
+                                    <img src={img} alt={`Buyer ${index + 1}`} />
+                                </Box>
+                            ))}
+                            <Box className="buyer-image more-images">
+                                <Typography>+35</Typography>
+                            </Box>
+                        </Stack>
+                        <MuiLink href="#" className="view-all-small">
+                            View All (175) <NavigateNextIcon fontSize="small" />
+                        </MuiLink>
+                    </Box>
+
+                    {/* Customer Reviews */}
+                    <Box className="reviews-list">
+                        {reviews.map((review, index) => (
+                            <Box key={index} className="review-item">
+                                <Stack direction="row" spacing={2}>
+                                    <Avatar className="review-avatar">{review.avatar}</Avatar>
+                                    <Box className="review-content">
+                                        <Box className="review-header">
+                                            <Typography className="reviewer-name">{review.name}</Typography>
+                                            <Rating value={review.rating} readOnly size="small" />
+                                            <Typography className="review-date">{review.date}</Typography>
+                                        </Box>
+                                        <Typography className="review-comment">
+                                            {review.comment}
+                                        </Typography>
+                                        {review.hasImage && (
+                                            <Box className="review-image">
+                                                <img
+                                                    src={productImages[0]}
+                                                    alt="Review"
+                                                />
+                                            </Box>
+                                        )}
+                                        <Box className="review-actions">
+                                            <Button
+                                                size="small"
+                                                startIcon={<ThumbUpOutlinedIcon />}
+                                                className="helpful-btn"
+                                            >
+                                                Helpful?
+                                            </Button>
+                                            <Button size="small" className="report-btn">
+                                                Report abuse
+                                            </Button>
+                                        </Box>
+                                    </Box>
+                                </Stack>
+                            </Box>
+                        ))}
+                    </Box>
+                </Box>
+
+                {/* You may also like Section */}
+                <Box className="related-products-section">
+                    <Typography className="section-subtitle">You may also like</Typography>
+                    <Grid container spacing={2}>
+                        {relatedProducts.slice(0, 10).map((relatedProduct) => (
+                            <Grid item key={relatedProduct.ProductID} xs={6} sm={4} md={3} lg={2.4}>
+                                <Card className="related-product-card">
+                                    <Link
+                                        to={`/products/${relatedProduct.ProductID}`}
+                                        className="product-link"
+                                    >
+                                        <CardMedia
+                                            component="img"
+                                            image={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${relatedProduct.ProductID}&size=large`}
+                                            alt={relatedProduct.Name}
+                                            className="related-product-image"
+                                        />
+                                        <CardContent className="related-product-content">
+                                            <Typography className="related-product-name">
+                                                {relatedProduct.Name}
+                                            </Typography>
+                                            <Rating value={4.5} precision={0.5} readOnly size="small" />
+                                            <Typography className="related-product-reviews">(175)</Typography>
+                                            <Box className="related-product-footer">
+                                                <Typography className="related-product-price">
+                                                    ${parseFloat(relatedProduct.ListPrice).toFixed(2)}
+                                                </Typography>
+                                                <Typography className="related-product-sold">
+                                                    142 sold
+                                                </Typography>
+                                            </Box>
+                                        </CardContent>
+                                    </Link>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Box>
             </Container>
         </Box>
     );

@@ -1,149 +1,181 @@
 import React, { useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { 
-    Container, Grid, Typography, Box, Paper, Button, IconButton, 
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-    CircularProgress, TextField 
+import {
+    Container, Grid, Typography, Box, Paper, Button, IconButton,
+    Checkbox, Divider, TextField, InputAdornment, MenuItem, Select, FormControl
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { fetchCartAPI, deleteCartItemAPI, updateCartItemAPI } from '../api/productApi';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag'; // Icon cho Buy
+import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService'; // Icon cho Rent
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-function CartPage() {
-    const [cart, setCart] = useState(null);
-    const [loading, setLoading] = useState(true);
+const CartPage = () => {
+    // State giả lập cho giao diện
+    const [buyItems, setBuyItems] = useState([
+        { id: 1, name: "Road and Gravel Helmets", price: 97.00, qty: 1, img: "https://via.placeholder.com/100" },
+        { id: 2, name: "Cycling Gloves 2.0", price: 50.00, qty: 1, img: "https://via.placeholder.com/100" }
+    ]);
 
-    const fetchCart = async () => {
-        try {
-            const response = await fetchCartAPI();
-            setCart(response.data);
-        } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu giỏ hàng", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCart();
-    }, []);
-
-    const handleDeleteItem = async (itemId) => {
-        try {
-            await deleteCartItemAPI(itemId);
-            fetchCart(); // Tải lại giỏ hàng sau khi xóa
-            window.dispatchEvent(new CustomEvent('cartUpdated')); // Báo cho Header cập nhật
-        } catch (error) {
-            console.error("Lỗi khi xóa sản phẩm:", error);
-        }
-    };
-
-    const handleUpdateQuantity = async (itemId, newQuantity) => {
-        if (newQuantity < 1) return;
-        try {
-            // Lưu ý: API update cần body chứa đủ thông tin, tùy vào serializer
-            // Ở đây ta chỉ cập nhật quantity
-            await updateCartItemAPI(itemId, { Quantity: newQuantity });
-            fetchCart(); // Tải lại giỏ hàng
-            window.dispatchEvent(new CustomEvent('cartUpdated'));
-        } catch (error) {
-            console.error("Lỗi khi cập nhật số lượng:", error);
-        }
-    };
-
-    if (loading) {
-        return <Container sx={{ textAlign: 'center', my: 5 }}><CircularProgress /></Container>;
-    }
-
-    if (!cart || !cart.Items || cart.Items.length === 0) {
-        return <Container sx={{ textAlign: 'center', my: 5 }}><Typography variant="h6">Giỏ hàng của bạn đang trống.</Typography></Container>;
-    }
-
-    const cartTotal = cart.Total || cart.Items.reduce((total, item) => total + (item.Quantity * item.UnitPrice), 0);
+    const [rentItems, setRentItems] = useState([
+        { id: 3, name: "Touring-1000 Blue, 46", price: 20, deposit: 2699.99, qty: 1, type: "Blue", img: "https://via.placeholder.com/100" }
+    ]);
 
     return (
-        <Container sx={{ my: 5 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
-                Giỏ hàng của bạn
-            </Typography>
-            <Grid container spacing={3}>
-                <Grid item xs={12} md={8}>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Sản phẩm</TableCell>
-                                    <TableCell align="right">Giá</TableCell>
-                                    <TableCell align="center">Số lượng</TableCell>
-                                    <TableCell align="right">Tạm tính</TableCell>
-                                    <TableCell align="center">Xóa</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {cart.Items.map(item => (
-                                    <TableRow key={item.CartItemID}>
-                                        <TableCell>
-                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                <img
-                                                    src={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${item.ProductID}&size=large`}
-                                                    alt={item.Name}
-                                                    style={{ width: 80, height: 80, objectFit: 'contain', marginRight: '16px' }}
-                                                />
-                                                <Typography component={RouterLink} to={`/products/${item.ProductID}`} variant="body1" sx={{ fontWeight: 'bold', textDecoration: 'none', color: 'inherit' }}>
-                                                    {item.Name}
-                                                </Typography>
+        <Box sx={{ bgcolor: '#f5efe6', minHeight: '100vh', py: 4 }}>
+            <Container maxWidth="lg">
+                <Grid container spacing={4}>
+
+                    {/* CỘT TRÁI: DANH SÁCH SẢN PHẨM */}
+                    <Grid item xs={12} md={8}>
+
+                        {/* SECTION: ITEM TO BUY */}
+                        <Box sx={{ mb: 4 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
+                                <Box sx={{ bgcolor: '#ff8120', p: 1, borderRadius: '8px', display: 'flex' }}>
+                                    <ShoppingBagIcon sx={{ color: 'white' }} />
+                                </Box>
+                                <Typography variant="h6" fontWeight="bold">Item to Buy</Typography>
+                                <Typography variant="body2" color="text.secondary">({buyItems.length} items)</Typography>
+                            </Box>
+
+                            <Paper sx={{ borderRadius: '20px', p: 0, overflow: 'hidden' }}>
+                                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', borderBottom: '1px solid #eee' }}>
+                                    <Checkbox size="small" />
+                                    <Typography variant="body2" fontWeight="500">Select all</Typography>
+                                </Box>
+                                {buyItems.map((item) => (
+                                    <Box key={item.id} sx={{ p: 3, display: 'flex', gap: 3, borderBottom: '1px solid #eee' }}>
+                                        <Checkbox size="small" sx={{ alignSelf: 'center' }} />
+                                        <Box component="img" src={item.img} sx={{ width: 80, height: 80, objectFit: 'contain' }} />
+                                        <Box sx={{ flexGrow: 1 }}>
+                                            <Typography fontWeight="bold">{item.name}</Typography>
+                                            <Typography variant="h6" color="#d32f2f" fontWeight="bold">${item.price.toFixed(2)}</Typography>
+
+                                            {/* Quantity Controls */}
+                                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, border: '1px solid #ddd', borderRadius: '20px', width: 'fit-content' }}>
+                                                <IconButton size="small"><DeleteOutlineIcon fontSize="small" /></IconButton>
+                                                <IconButton size="small"><RemoveIcon fontSize="small" /></IconButton>
+                                                <Typography sx={{ mx: 1, fontWeight: 'bold' }}>{item.qty}</Typography>
+                                                <IconButton size="small" sx={{ color: '#ff8120' }}><AddIcon fontSize="small" /></IconButton>
                                             </Box>
-                                        </TableCell>
-                                        <TableCell align="right">${parseFloat(item.UnitPrice).toFixed(2)}</TableCell>
-                                        <TableCell align="center">
-                                            <TextField
-                                                type="number"
-                                                value={item.Quantity}
-                                                onChange={(e) => handleUpdateQuantity(item.CartItemID, parseInt(e.target.value))}
-                                                inputProps={{ min: 1, style: { textAlign: 'center' } }}
-                                                sx={{ width: '80px' }}
-                                            />
-                                        </TableCell>
-                                        <TableCell align="right">${(item.Quantity * item.UnitPrice).toFixed(2)}</TableCell>
-                                        <TableCell align="center">
-                                            <IconButton onClick={() => handleDeleteItem(item.CartItemID)} color="error">
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
+                                        </Box>
+                                    </Box>
                                 ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                            </Paper>
+                        </Box>
+
+                        {/* SECTION: ITEM TO RENT */}
+                        <Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
+                                <Box sx={{ bgcolor: '#2d5e89', p: 1, borderRadius: '8px', display: 'flex' }}>
+                                    <HomeRepairServiceIcon sx={{ color: 'white' }} />
+                                </Box>
+                                <Typography variant="h6" fontWeight="bold">Item to Rent</Typography>
+                                <Typography variant="body2" color="text.secondary">({rentItems.length} item)</Typography>
+                            </Box>
+
+                            <Paper sx={{ borderRadius: '20px', p: 0, overflow: 'hidden' }}>
+                                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', borderBottom: '1px solid #eee' }}>
+                                    <Checkbox size="small" />
+                                    <Typography variant="body2" fontWeight="500">Select all</Typography>
+                                </Box>
+                                {rentItems.map((item) => (
+                                    <Box key={item.id} sx={{ p: 3, display: 'flex', gap: 3 }}>
+                                        <Checkbox size="small" sx={{ alignSelf: 'center' }} />
+                                        <Box component="img" src={item.img} sx={{ width: 100, height: 100, objectFit: 'contain' }} />
+                                        <Box sx={{ flexGrow: 1 }}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <Typography fontWeight="bold">{item.name}</Typography>
+                                                <Box sx={{ textAlign: 'right' }}>
+                                                    <Typography variant="caption" fontWeight="bold" color="#ff8120">REFUNDABLE DEPOSIT</Typography>
+                                                    <Typography fontWeight="bold" color="#d32f2f">${item.deposit.toLocaleString()}</Typography>
+                                                </Box>
+                                            </Box>
+
+                                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 0.5 }}>
+                                                <Typography variant="caption" sx={{ bgcolor: '#eee', px: 1, borderRadius: '4px' }}>Type: {item.type}</Typography>
+                                            </Box>
+
+                                            <Typography variant="body1" color="#d32f2f" fontWeight="bold" sx={{ mt: 1 }}>${item.price}/day</Typography>
+
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mt: 2 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: '20px', width: 'fit-content' }}>
+                                                    <IconButton size="small"><DeleteOutlineIcon fontSize="small" /></IconButton>
+                                                    <IconButton size="small"><RemoveIcon fontSize="small" /></IconButton>
+                                                    <Typography sx={{ mx: 1, fontWeight: 'bold' }}>{item.qty}</Typography>
+                                                    <IconButton size="small" sx={{ color: '#2d5e89' }}><AddIcon fontSize="small" /></IconButton>
+                                                </Box>
+
+                                                <Box sx={{ border: '1px solid #ddd', borderRadius: '8px', p: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Typography variant="caption">12/25/2025</Typography>
+                                                    <Typography variant="caption">→</Typography>
+                                                    <Typography variant="caption">12/31/2025</Typography>
+                                                    <CalendarTodayIcon sx={{ fontSize: 16, color: '#666' }} />
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                ))}
+                            </Paper>
+                        </Box>
+                    </Grid>
+
+                    {/* CỘT PHẢI: SUMMARY */}
+                    <Grid item xs={12} md={4}>
+                        <Box sx={{ position: 'sticky', top: 20 }}>
+                            {/* Purchase Summary */}
+                            <Paper sx={{ p: 3, borderRadius: '20px', mb: 3, bgcolor: '#fff6ed' }}>
+                                <Typography variant="h6" fontWeight="bold" color="#ff8120" gutterBottom>Purchase Summary</Typography>
+                                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                    <Typography variant="body2">Voucher</Typography>
+                                    <Typography variant="body2" color="text.secondary">Select or enter code &gt;</Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+                                    <Typography variant="body2">Shipping</Typography>
+                                    <Typography variant="body2" fontWeight="bold">$20</Typography>
+                                </Box>
+                                <Divider sx={{ mb: 2 }} />
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                                    <Typography variant="body1">Total (2 items)</Typography>
+                                    <Typography variant="h5" fontWeight="bold" color="#d32f2f">$167</Typography>
+                                </Box>
+                                <Button fullWidth variant="contained" sx={{ bgcolor: '#ff8120', py: 1.5, borderRadius: '12px', '&:hover': { bgcolor: '#e6731c' } }}>
+                                    Order
+                                </Button>
+                            </Paper>
+
+                            {/* Rental Summary */}
+                            <Paper sx={{ p: 3, borderRadius: '20px', bgcolor: '#e8f0f6' }}>
+                                <Typography variant="h6" fontWeight="bold" color="#2d5e89" gutterBottom>Rental Summary</Typography>
+                                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                    <Typography variant="body2">Voucher</Typography>
+                                    <Typography variant="body2" color="text.secondary">Select or enter code &gt;</Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                    <Typography variant="body2">Shipping</Typography>
+                                    <Typography variant="body2" fontWeight="bold">$20</Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+                                    <Typography variant="body2">Security Deposit</Typography>
+                                    <Typography variant="body2" fontWeight="bold" color="#d32f2f">$2,699.99</Typography>
+                                </Box>
+                                <Divider sx={{ mb: 2 }} />
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                                    <Typography variant="body1">Total (2 items)</Typography>
+                                    <Typography variant="h5" fontWeight="bold" color="#d32f2f">$2,839.99</Typography>
+                                </Box>
+                                <Button fullWidth variant="contained" sx={{ bgcolor: '#2d5e89', py: 1.5, borderRadius: '12px' }}>
+                                    Rent
+                                </Button>
+                            </Paper>
+                        </Box>
+                    </Grid>
                 </Grid>
-                <Grid item xs={12} md={4}>
-                    <Paper sx={{ p: 2 }}>
-                        <Typography variant="h6" gutterBottom>Tổng cộng</Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                            <Typography>Tạm tính</Typography>
-                            <Typography>${cartTotal.toFixed(2)}</Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                            <Typography>Phí vận chuyển</Typography>
-                            <Typography>Free</Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.2rem' }}>
-                            <Typography variant="h6">Tổng tiền</Typography>
-                            <Typography variant="h6">${cartTotal.toFixed(2)}</Typography>
-                        </Box>
-                        <Button
-                            component={RouterLink}
-                            to="/payment"
-                            variant="contained"
-                            fullWidth
-                            sx={{ mt: 3 , backgroundColor: '#FF8D28'}}
-                        >
-                            Tiến hành thanh toán
-                        </Button>
-                    </Paper>
-                </Grid>
-            </Grid>
-        </Container>
+            </Container>
+        </Box>
     );
-}
+};
 
 export default CartPage;

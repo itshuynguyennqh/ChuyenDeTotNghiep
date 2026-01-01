@@ -15,3 +15,7 @@ export const deleteCartItemAPI = (itemId) => {
 export const updateCartItemAPI = (itemId, data) => {
     return axiosClient.put(`/api/cart/items/${itemId}/`, data);
 };
+
+export const checkoutAPI = (data) => {
+    return axiosClient.post('/api/checkout', data);
+};
