@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
     Grid, Box, Typography, Button, CircularProgress, Stack, Rating, Card, CardContent,
     CardMedia, Breadcrumbs, Link as MuiLink, Tabs, Tab, Avatar, IconButton, Paper, Divider
 } from '@mui/material';
+// Import các Icon từ Material UI
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { Container } from '@mui/system';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -20,7 +24,10 @@ function ProductDetail() {
     const [selectedSize, setSelectedSize] = useState('L');
     const [selectedColor, setSelectedColor] = useState('Black');
     const [selectedImage, setSelectedImage] = useState(0);
+    const [rentalStartDate, setRentalStartDate] = useState('12/25/2025');
+    const [rentalEndDate, setRentalEndDate] = useState('12/31/2025');
     const { id } = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -69,6 +76,307 @@ function ProductDetail() {
         }
     };
 
+    const handleBuyNow = () => {
+        const orderData = {
+            type: 'buy',
+            product: {
+                ProductID: product.ProductID,
+                Name: product.Name,
+                Price: parseFloat(product.StandardCost),
+                Quantity: quantity,
+                Size: selectedSize,
+                Color: selectedColor,
+                Image: `https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`
+            }
+        };
+        navigate('/payment', { state: orderData });
+    };
+
+    const handleRentNow = () => {
+        // Calculate days between rental dates
+        const startDate = new Date(rentalStartDate);
+        const endDate = new Date(rentalEndDate);
+        const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end days
+        
+        const orderData = {
+            type: 'rent',
+            product: {
+                ProductID: product.ProductID,
+                Name: product.Name,
+                PricePerDay: 20,
+                Quantity: quantity,
+                Size: selectedSize,
+                Color: selectedColor,
+                RentalStartDate: rentalStartDate,
+                RentalEndDate: rentalEndDate,
+                Days: days || 3, // Calculate from dates, fallback to 3
+                SecurityDeposit: 2699.99,
+                Image: `https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`
+            }
+        };
+        navigate('/payment', { state: orderData });
+    };
+
+    const renderRentSection = () => {
+        return (
+            <Paper elevation={0} sx={{
+                border: '1px solid #ddd',
+                borderRadius: '20px',
+                overflow: 'hidden',
+                mt: 2,
+                bgcolor: '#fcfcfc'
+            }}>
+                <Box sx={{ p: 3 }}>
+                    {/* Price Per Day */}
+                    
+                    <Typography variant="h4" fontWeight="bold" sx={{ mb: 2 }}>
+                        $20 <Typography component="span" variant="h6" color="text.secondary">/ day</Typography>
+                    </Typography>
+
+                    {/* Selection Group: Color & Size */}
+                    <Grid container spacing={2} sx={{ mb: 3 }}>
+                        {/* Color Selection */}
+                        <Grid item xs={6}>
+                            <Typography variant="body2" fontWeight="bold" color="#666" sx={{ mb: 1 }}>
+                                Color: <Typography component="span" fontWeight="normal" color="text.secondary">Black</Typography>
+                            </Typography>
+                            <Stack direction="row" spacing={1}>
+                                <Box sx={{
+                                    width: 32, height: 32, bgcolor: '#1E1E1E', borderRadius: '50%',
+                                    border: '2px solid #FF8C00', p: '2px', cursor: 'pointer'
+                                }} />
+                                <Box sx={{
+                                    width: 32, height: 32, bgcolor: '#FFFFFF', borderRadius: '50%',
+                                    border: '1px solid #ddd', cursor: 'pointer'
+                                }} />
+                            </Stack>
+                        </Grid>
+
+                        {/* Size Selection */}
+                        <Grid item xs={6}>
+                            <Typography variant="body2" fontWeight="bold" color="#666" sx={{ mb: 1 }}>Size</Typography>
+                            <Stack direction="row" spacing={1}>
+                                {['S', 'M', 'L', 'XL'].map((s) => (
+                                    <Box key={s} sx={{
+                                        px: 1.5, py: 0.5, borderRadius: '8px', border: '1px solid #ddd',
+                                        fontSize: '0.8rem', fontWeight: 'bold', color: s === 'L' ? '#FF8C00' : '#666',
+                                        borderColor: s === 'L' ? '#FF8C00' : '#ddd',
+                                        bgcolor: s === 'L' ? '#FFF5EE' : 'transparent',
+                                        cursor: 'pointer'
+                                    }}>{s}</Box>
+                                ))}
+                            </Stack>
+                        </Grid>
+                    </Grid>
+
+                    {/* Quantity Stepper */}
+                    <Box sx={{ mb: 3 }}>
+                        <Typography variant="body2" fontWeight="bold" color="#666" sx={{ mb: 1 }}>Quantity</Typography>
+                        <Box sx={{
+                            display: 'flex', alignItems: 'center', border: '1px solid #000',
+                            borderRadius: '20px', width: 'fit-content', px: 1
+                        }}>
+                            <IconButton size="small" onClick={() => handleQuantityChange('decrement')}><RemoveIcon fontSize="small" /></IconButton>
+                            <Typography sx={{ mx: 2, fontWeight: 'bold' }}>{quantity}</Typography>
+                            <IconButton size="small" onClick={() => handleQuantityChange('increment')}><AddIcon fontSize="small" /></IconButton>
+                        </Box>
+                    </Box>
+
+                    {/* Rental Period Picker */}
+                    <Box sx={{ mb: 3 }}>
+                        <Typography variant="body2" fontWeight="bold" color="#666" sx={{ mb: 1 }}>Rental Period</Typography>
+                        <Box sx={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            border: '1px solid #ddd', borderRadius: '12px', p: 1.5, bgcolor: '#fff'
+                        }}>
+                            <Typography variant="body2">12/25/2025</Typography>
+                            <CalendarTodayIcon sx={{ fontSize: 18, color: '#666' }} />
+                            <Typography variant="body2">→</Typography>
+                            <Typography variant="body2">12/31/2025</Typography>
+                            <CalendarTodayIcon sx={{ fontSize: 18, color: '#666' }} />
+                        </Box>
+                    </Box>
+
+                    {/* Refundable Deposit Section */}
+                    <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                        <Typography fontWeight="bold" color="#FF8C00">REFUNDABLE DEPOSIT</Typography>
+                        <Typography variant="h4" fontWeight="bold">$2,699.99</Typography>
+                    </Box>
+
+                    {/* Info Box */}
+                    <Box sx={{
+                        bgcolor: '#FFF0E5', p: 1.5, borderRadius: '12px', mb: 3,
+                        display: 'flex', gap: 1, alignItems: 'flex-start', border: '1px solid #FFE0CC'
+                    }}>
+                        <Box sx={{
+                            width: 16, height: 16, borderRadius: '50%', border: '1px solid #4caf50',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 0.3
+                        }}>
+                            <Typography sx={{ color: '#4caf50', fontSize: '10px', fontWeight: 'bold' }}>✓</Typography>
+                        </Box>
+                        <Typography variant="caption" color="text.secondary">
+                            This amount is held temporarily. It will be fully released immediately after the bike is returned safely.
+                        </Typography>
+                    </Box>
+
+                    {/* Action Buttons */}
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<ShoppingCartIcon />}
+                            onClick={handleAddToCart}
+                            sx={{
+                                bgcolor: '#555', color: '#fff', borderRadius: '12px',
+                                py: 1.5, textTransform: 'none', fontWeight: 'bold',
+                                '&:hover': { bgcolor: '#333' }
+                            }}
+                        >
+                            Add to cart
+                        </Button>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={handleRentNow}
+                            sx={{
+                                bgcolor: '#FF8C00', color: '#fff', borderRadius: '12px',
+                                py: 1.5, textTransform: 'none', fontWeight: 'bold',
+                                '&:hover': { bgcolor: '#e67e00' }
+                            }}
+                        >
+                            Rent Now
+                        </Button>
+                    </Stack>
+                </Box>
+            </Paper>
+        );
+    };
+
+    const renderBuySection = () => {
+        const listPrice = parseFloat(product.ListPrice);
+        const standardCost = parseFloat(product.StandardCost);
+        const hasDiscount = standardCost > 0 && listPrice > standardCost;
+
+        return (
+            <Paper elevation={0} sx={{
+                border: '1px solid #ddd',
+                borderRadius: '20px',
+                overflow: 'hidden',
+                mt: 2,
+                bgcolor: '#fcfcfc'
+            }}>
+                <Box sx={{ p: 3 }}>
+                    {/* Price Section */}
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="h4" fontWeight="bold" color="#000">
+                            ${standardCost.toFixed(2)}
+                        </Typography>
+                        {hasDiscount && (
+                            <Typography variant="h6" color="text.secondary" sx={{ textDecoration: 'line-through', mt: 0.5 }}>
+                                ${listPrice.toFixed(2)}
+                            </Typography>
+                        )}
+                    </Box>
+
+                    {/* Selection Group: Color & Size */}
+                    <Grid container spacing={2} sx={{ mb: 3 }}>
+                        {/* Color Selection */}
+                        <Grid item xs={6}>
+                            <Typography variant="body2" fontWeight="bold" color="#666" sx={{ mb: 1 }}>
+                                Color: <Typography component="span" fontWeight="normal" color="text.secondary">{selectedColor}</Typography>
+                            </Typography>
+                            <Stack direction="row" spacing={1}>
+                                <Box
+                                    sx={{
+                                        width: 32, height: 32, bgcolor: '#1E1E1E', borderRadius: '50%',
+                                        border: '2px solid #FF8C00', p: '2px', cursor: 'pointer'
+                                    }}
+                                    onClick={() => setSelectedColor('Black')}
+                                />
+                                <Box
+                                    sx={{
+                                        width: 32, height: 32, bgcolor: '#FFFFFF', borderRadius: '50%',
+                                        border: '1px solid #ddd', cursor: 'pointer'
+                                    }}
+                                    onClick={() => setSelectedColor('White')}
+                                />
+                            </Stack>
+                        </Grid>
+
+                        {/* Size Selection */}
+                        <Grid item xs={6}>
+                            <Typography variant="body2" fontWeight="bold" color="#666" sx={{ mb: 1 }}>Size</Typography>
+                            <Stack direction="row" spacing={1}>
+                                {['S', 'M', 'L', 'XL'].map((s) => (
+                                    <Box
+                                        key={s}
+                                        onClick={() => setSelectedSize(s)}
+                                        sx={{
+                                            px: 1.5, py: 0.5, borderRadius: '8px', border: '1px solid #ddd',
+                                            fontSize: '0.8rem', fontWeight: 'bold', 
+                                            color: selectedSize === s ? '#FF8C00' : '#666',
+                                            borderColor: selectedSize === s ? '#FF8C00' : '#ddd',
+                                            bgcolor: selectedSize === s ? '#FFF5EE' : 'transparent',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {s}
+                                    </Box>
+                                ))}
+                            </Stack>
+                        </Grid>
+                    </Grid>
+
+                    {/* Quantity Stepper */}
+                    <Box sx={{ mb: 3 }}>
+                        <Typography variant="body2" fontWeight="bold" color="#666" sx={{ mb: 1 }}>Quantity</Typography>
+                        <Box sx={{
+                            display: 'flex', alignItems: 'center', border: '1px solid #000',
+                            borderRadius: '20px', width: 'fit-content', px: 1
+                        }}>
+                            <IconButton size="small" onClick={() => handleQuantityChange('decrement')}>
+                                <RemoveIcon fontSize="small" />
+                            </IconButton>
+                            <Typography sx={{ mx: 2, fontWeight: 'bold' }}>{quantity}</Typography>
+                            <IconButton size="small" onClick={() => handleQuantityChange('increment')}>
+                                <AddIcon fontSize="small" />
+                            </IconButton>
+                        </Box>
+                    </Box>
+
+                    {/* Action Buttons */}
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<ShoppingCartIcon />}
+                            onClick={handleAddToCart}
+                            sx={{
+                                bgcolor: '#555', color: '#fff', borderRadius: '12px',
+                                py: 1.5, textTransform: 'none', fontWeight: 'bold',
+                                '&:hover': { bgcolor: '#333' }
+                            }}
+                        >
+                            Add to cart
+                        </Button>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={handleBuyNow}
+                        sx={{
+                            bgcolor: '#FF8C00', color: '#fff', borderRadius: '12px',
+                            py: 1.5, textTransform: 'none', fontWeight: 'bold',
+                            '&:hover': { bgcolor: '#e67e00' }
+                        }}
+                    >
+                        Buy Now
+                    </Button>
+                    </Stack>
+                </Box>
+            </Paper>
+        );
+    };
+
     if (!product) {
         return (
             <Box className="loading-container">
@@ -76,10 +384,6 @@ function ProductDetail() {
             </Box>
         );
     }
-
-    const listPrice = parseFloat(product.ListPrice);
-    const standardCost = parseFloat(product.StandardCost);
-    const hasDiscount = standardCost > 0 && listPrice > standardCost;
 
     const productImages = [
         `https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${product.ProductID}&size=large`,
@@ -142,7 +446,7 @@ function ProductDetail() {
 
                 <Grid container spacing={4}>
                     {/* Left Side - Product Images */}
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={6} flexGrow={1}>
                         <Box className="image-gallery">
                             <Stack className="thumbnail-column">
                                 {productImages.slice(0, 2).map((img, index) => (
@@ -167,7 +471,7 @@ function ProductDetail() {
 
                     {/* Right Side - Product Info */}
                     <Grid item xs={12} md={6}>
-                        <Box className="product-info-card">
+                        <Box className="product-info-card" width="600px">
                             <Typography variant="h4" className="product-title">
                                 {product.Name}
                             </Typography>
@@ -183,129 +487,7 @@ function ProductDetail() {
                                 </Tabs>
                             </Box>
 
-                            {selectedTab === 0 ? (
-                                // Rent Card
-                                <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: '12px', mt: 2 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                        <Typography variant="h5" fontWeight="bold" color="primary">
-                                            $15.00 <Typography component="span" variant="body1" color="text.secondary">/ day</Typography>
-                                        </Typography>
-                                    </Box>
-
-                                    <Box sx={{ mb: 3 }}>
-                                        <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>Rental Period</Typography>
-                                        <Stack direction="row" spacing={2} alignItems="center">
-                                            <Box sx={{ border: '1px solid #ccc', borderRadius: '8px', p: 1, flexGrow: 1, textAlign: 'center' }}>
-                                                <Typography variant="body2" color="text.secondary">Start Date</Typography>
-                                                <Typography fontWeight="bold">Nov 10, 2025</Typography>
-                                            </Box>
-                                            <Typography>-</Typography>
-                                            <Box sx={{ border: '1px solid #ccc', borderRadius: '8px', p: 1, flexGrow: 1, textAlign: 'center' }}>
-                                                <Typography variant="body2" color="text.secondary">End Date</Typography>
-                                                <Typography fontWeight="bold">Nov 12, 2025</Typography>
-                                            </Box>
-                                        </Stack>
-                                    </Box>
-
-                                    <Box sx={{ bgcolor: '#f5f5f5', p: 2, borderRadius: '8px', mb: 3 }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                            <InfoOutlinedIcon fontSize="small" color="action" />
-                                            <Typography variant="subtitle2" fontWeight="bold">REFUNDABLE DEPOSIT</Typography>
-                                        </Box>
-                                        <Typography variant="body2" color="text.secondary">
-                                            This amount is held temporarily. It will be fully released immediately after the bike is returned safely.
-                                        </Typography>
-                                        <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>$50.00</Typography>
-                                    </Box>
-
-                                    <Button variant="contained" fullWidth size="large" sx={{ textTransform: 'none', fontWeight: 'bold' }}>
-                                        Rent Now
-                                    </Button>
-                                </Paper>
-                            ) : (
-                                // Buy Card
-                                <Box>
-                                    <Box className="price-section">
-                                        <Typography className="current-price">
-                                            ${standardCost.toFixed(2)}
-                                        </Typography>
-                                        {hasDiscount && (
-                                            <Typography className="original-price">
-                                                ${listPrice.toFixed(2)}
-                                            </Typography>
-                                        )}
-                                    </Box>
-
-                                    <Box className="selection-group">
-                                        <Box className="color-selector">
-                                            <Typography className="selector-label">
-                                                Color: <span className="selector-value">{selectedColor}</span>
-                                            </Typography>
-                                            <Stack direction="row" spacing={1} className="color-options">
-                                                <Box
-                                                    className={`color-option active`}
-                                                    style={{ backgroundColor: '#1E1E1E' }}
-                                                />
-                                                <Box
-                                                    className="color-option"
-                                                    style={{ backgroundColor: '#FFFFFF', border: '1px solid #ddd' }}
-                                                />
-                                            </Stack>
-                                        </Box>
-
-                                        <Box className="size-selector">
-                                            <Typography className="selector-label">Size</Typography>
-                                            <Stack direction="row" spacing={1} className="size-options">
-                                                {['S', 'M', 'L', 'XL'].map((size) => (
-                                                    <Box
-                                                        key={size}
-                                                        className={`size-option ${selectedSize === size ? 'active' : ''}`}
-                                                        onClick={() => setSelectedSize(size)}
-                                                    >
-                                                        {size}
-                                                    </Box>
-                                                ))}
-                                            </Stack>
-                                        </Box>
-                                    </Box>
-
-                                    <Box className="quantity-selector">
-                                        <Typography className="selector-label">Quantity</Typography>
-                                        <Box className="quantity-controls">
-                                            <button
-                                                onClick={() => handleQuantityChange('decrement')}
-                                                className="quantity-btn"
-                                            >
-                                                -
-                                            </button>
-                                            <span className="quantity-value">{quantity}</span>
-                                            <button
-                                                onClick={() => handleQuantityChange('increment')}
-                                                className="quantity-btn"
-                                            >
-                                                +
-                                            </button>
-                                        </Box>
-                                    </Box>
-
-                                    <Stack spacing={2} className="action-buttons">
-                                        <Button
-                                            variant="contained"
-                                            className="add-to-cart-btn"
-                                            startIcon={<ShoppingCartIcon />}
-                                            onClick={handleAddToCart}
-                                        >
-                                            Add to cart
-                                        </Button>
-                                        <Button
-                                            variant="contained"
-                                            className="buy-now-btn"
-                                        >
-                                            Buy Now
-                                        </Button>
-                                    </Stack>
-                                </Box>
-                            )}
+                            {selectedTab === 0 ? renderRentSection() : renderBuySection()}
                         </Box>
                     </Grid>
                 </Grid>
