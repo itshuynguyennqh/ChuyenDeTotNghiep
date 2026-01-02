@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
     Grid, Box, Typography, Button, CircularProgress, Stack, Rating, Card, CardContent,
-    CardMedia, Breadcrumbs, Link as MuiLink, Tabs, Tab, Avatar, IconButton
+    CardMedia, Breadcrumbs, Link as MuiLink, Tabs, Tab, Avatar, IconButton, Paper, Divider
 } from '@mui/material';
 import { Container } from '@mui/system';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { fetchProductDetailAPI, fetchProductsAPI, addToCartAPI } from '../api/productApi';
 import './ProductDetail.css';
 
@@ -182,85 +183,129 @@ function ProductDetail() {
                                 </Tabs>
                             </Box>
 
-                            <Box className="price-section">
-                                <Typography className="current-price">
-                                    ${standardCost.toFixed(2)}
-                                </Typography>
-                                {hasDiscount && (
-                                    <Typography className="original-price">
-                                        ${listPrice.toFixed(2)}
-                                    </Typography>
-                                )}
-                            </Box>
+                            {selectedTab === 0 ? (
+                                // Rent Card
+                                <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: '12px', mt: 2 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                        <Typography variant="h5" fontWeight="bold" color="primary">
+                                            $15.00 <Typography component="span" variant="body1" color="text.secondary">/ day</Typography>
+                                        </Typography>
+                                    </Box>
 
-                            <Box className="selection-group">
-                                <Box className="color-selector">
-                                    <Typography className="selector-label">
-                                        Color: <span className="selector-value">{selectedColor}</span>
-                                    </Typography>
-                                    <Stack direction="row" spacing={1} className="color-options">
-                                        <Box
-                                            className={`color-option active`}
-                                            style={{ backgroundColor: '#1E1E1E' }}
-                                        />
-                                        <Box
-                                            className="color-option"
-                                            style={{ backgroundColor: '#FFFFFF', border: '1px solid #ddd' }}
-                                        />
-                                    </Stack>
-                                </Box>
-
-                                <Box className="size-selector">
-                                    <Typography className="selector-label">Size</Typography>
-                                    <Stack direction="row" spacing={1} className="size-options">
-                                        {['S', 'M', 'L', 'XL'].map((size) => (
-                                            <Box
-                                                key={size}
-                                                className={`size-option ${selectedSize === size ? 'active' : ''}`}
-                                                onClick={() => setSelectedSize(size)}
-                                            >
-                                                {size}
+                                    <Box sx={{ mb: 3 }}>
+                                        <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>Rental Period</Typography>
+                                        <Stack direction="row" spacing={2} alignItems="center">
+                                            <Box sx={{ border: '1px solid #ccc', borderRadius: '8px', p: 1, flexGrow: 1, textAlign: 'center' }}>
+                                                <Typography variant="body2" color="text.secondary">Start Date</Typography>
+                                                <Typography fontWeight="bold">Nov 10, 2025</Typography>
                                             </Box>
-                                        ))}
+                                            <Typography>-</Typography>
+                                            <Box sx={{ border: '1px solid #ccc', borderRadius: '8px', p: 1, flexGrow: 1, textAlign: 'center' }}>
+                                                <Typography variant="body2" color="text.secondary">End Date</Typography>
+                                                <Typography fontWeight="bold">Nov 12, 2025</Typography>
+                                            </Box>
+                                        </Stack>
+                                    </Box>
+
+                                    <Box sx={{ bgcolor: '#f5f5f5', p: 2, borderRadius: '8px', mb: 3 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                            <InfoOutlinedIcon fontSize="small" color="action" />
+                                            <Typography variant="subtitle2" fontWeight="bold">REFUNDABLE DEPOSIT</Typography>
+                                        </Box>
+                                        <Typography variant="body2" color="text.secondary">
+                                            This amount is held temporarily. It will be fully released immediately after the bike is returned safely.
+                                        </Typography>
+                                        <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>$50.00</Typography>
+                                    </Box>
+
+                                    <Button variant="contained" fullWidth size="large" sx={{ textTransform: 'none', fontWeight: 'bold' }}>
+                                        Rent Now
+                                    </Button>
+                                </Paper>
+                            ) : (
+                                // Buy Card
+                                <Box>
+                                    <Box className="price-section">
+                                        <Typography className="current-price">
+                                            ${standardCost.toFixed(2)}
+                                        </Typography>
+                                        {hasDiscount && (
+                                            <Typography className="original-price">
+                                                ${listPrice.toFixed(2)}
+                                            </Typography>
+                                        )}
+                                    </Box>
+
+                                    <Box className="selection-group">
+                                        <Box className="color-selector">
+                                            <Typography className="selector-label">
+                                                Color: <span className="selector-value">{selectedColor}</span>
+                                            </Typography>
+                                            <Stack direction="row" spacing={1} className="color-options">
+                                                <Box
+                                                    className={`color-option active`}
+                                                    style={{ backgroundColor: '#1E1E1E' }}
+                                                />
+                                                <Box
+                                                    className="color-option"
+                                                    style={{ backgroundColor: '#FFFFFF', border: '1px solid #ddd' }}
+                                                />
+                                            </Stack>
+                                        </Box>
+
+                                        <Box className="size-selector">
+                                            <Typography className="selector-label">Size</Typography>
+                                            <Stack direction="row" spacing={1} className="size-options">
+                                                {['S', 'M', 'L', 'XL'].map((size) => (
+                                                    <Box
+                                                        key={size}
+                                                        className={`size-option ${selectedSize === size ? 'active' : ''}`}
+                                                        onClick={() => setSelectedSize(size)}
+                                                    >
+                                                        {size}
+                                                    </Box>
+                                                ))}
+                                            </Stack>
+                                        </Box>
+                                    </Box>
+
+                                    <Box className="quantity-selector">
+                                        <Typography className="selector-label">Quantity</Typography>
+                                        <Box className="quantity-controls">
+                                            <button
+                                                onClick={() => handleQuantityChange('decrement')}
+                                                className="quantity-btn"
+                                            >
+                                                -
+                                            </button>
+                                            <span className="quantity-value">{quantity}</span>
+                                            <button
+                                                onClick={() => handleQuantityChange('increment')}
+                                                className="quantity-btn"
+                                            >
+                                                +
+                                            </button>
+                                        </Box>
+                                    </Box>
+
+                                    <Stack spacing={2} className="action-buttons">
+                                        <Button
+                                            variant="contained"
+                                            className="add-to-cart-btn"
+                                            startIcon={<ShoppingCartIcon />}
+                                            onClick={handleAddToCart}
+                                        >
+                                            Add to cart
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            className="buy-now-btn"
+                                        >
+                                            Buy Now
+                                        </Button>
                                     </Stack>
                                 </Box>
-                            </Box>
-
-                            <Box className="quantity-selector">
-                                <Typography className="selector-label">Quantity</Typography>
-                                <Box className="quantity-controls">
-                                    <button
-                                        onClick={() => handleQuantityChange('decrement')}
-                                        className="quantity-btn"
-                                    >
-                                        -
-                                    </button>
-                                    <span className="quantity-value">{quantity}</span>
-                                    <button
-                                        onClick={() => handleQuantityChange('increment')}
-                                        className="quantity-btn"
-                                    >
-                                        +
-                                    </button>
-                                </Box>
-                            </Box>
-
-                            <Stack spacing={2} className="action-buttons">
-                                <Button
-                                    variant="contained"
-                                    className="add-to-cart-btn"
-                                    startIcon={<ShoppingCartIcon />}
-                                    onClick={handleAddToCart}
-                                >
-                                    Add to cart
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    className="buy-now-btn"
-                                >
-                                    Buy Now
-                                </Button>
-                            </Stack>
+                            )}
                         </Box>
                     </Grid>
                 </Grid>
