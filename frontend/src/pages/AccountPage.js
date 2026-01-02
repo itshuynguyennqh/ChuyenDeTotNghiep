@@ -6,9 +6,11 @@ import AccountInfo from '../components/account/AccountInfo';
 import AddressList from '../components/account/AddressList';
 import PaymentSettings from '../components/account/PaymentSettings';
 import OrderHistory from '../components/account/OrderHistory';
+import OrderDetail from '../components/account/OrderDetail';
 
 const AccountPage = () => {
     const [activeTab, setActiveTab] = useState('Account Information');
+    const [selectedOrder, setSelectedOrder] = useState(null);
     const menuItems = [
         { text: 'Account Information', icon: <PersonIcon /> },
         { text: 'Saved Address', icon: <HomeIcon /> },
@@ -17,10 +19,10 @@ const AccountPage = () => {
     ];
 
     return (
-        <Box sx={{ backgroundColor: '#fcf6f0', minHeight: '100vh', py: 4 }}>
+        <Box sx={{ backgroundColor: '#F3E8DB', minHeight: '100vh', py: 4, display: 'flex', flexDirection: 'column' }}>
             <Container maxWidth="xl">
                 <Typography variant="body2" sx={{ mb: 4, color: '#1976d2' }}>Home / Account</Typography>
-                <Grid container spacing={3} display={"flex"}>
+                <Grid container spacing={3} display={"flex"} flexWrap={"nowrap"}>
                     {/* Sidebar */}
                     <Grid item xs={12} md={3}>
                         <Paper sx={{ borderRadius: '20px', overflow: 'hidden', p: 2 }}>
@@ -56,7 +58,16 @@ const AccountPage = () => {
                             {activeTab === 'Account Information' && <AccountInfo />}
                             {activeTab === 'Saved Address' && <AddressList />}
                             {activeTab === 'Payment Setting' && <PaymentSettings />}
-                            {activeTab === 'My order' && <OrderHistory />}
+                            {activeTab === 'My order' && (
+                                selectedOrder ? (
+                                    <OrderDetail 
+                                        order={selectedOrder} 
+                                        onBack={() => setSelectedOrder(null)} 
+                                    />
+                                ) : (
+                                    <OrderHistory onOrderSelect={setSelectedOrder} />
+                                )
+                            )}
                         </Box>
                     </Grid>
                 </Grid>

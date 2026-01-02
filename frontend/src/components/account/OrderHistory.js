@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import {
     Box, Typography, Paper, Tabs, Tab, TextField, Select, MenuItem,
-    InputAdornment, Chip, IconButton, Divider
+    InputAdornment, Chip, IconButton, Divider, Button
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import OrderDetail from "./OrderDetail";
 
-const OrderHistory = () => {
-    const [activeTab, setActiveTab] = useState(0);
+const OrderHistory = ({ onOrderSelect }) => {
+    const [activeTab, setActiveTab] = useState(1); // Default to Rental tab
     const [statusFilter, setStatusFilter] = useState('All');
 
     // Danh sách trạng thái dựa trên Frame 1617.png
@@ -18,23 +17,31 @@ const OrderHistory = () => {
         "return requested", "returning"
     ];
 
-    // Style cho nhãn trạng thái (Chips) dựa trên Frame 1617.png
+    // Style cho nhãn trạng thái (Chips) dựa trên hình ảnh
     const getStatusStyle = (status) => {
+        const statusColors = {
+            'preparing': { bg: '#FEF9C3', color: '#854D0E' }, // Light yellow
+            'renting': { bg: '#DBEAFE', color: '#1E40AF' },    // Light blue
+            'inspecting': { bg: '#F3E8DB', color: '#78350F' }, // Light brown
+            'pending': { bg: '#FEF9C3', color: '#854D0E' }
+        };
+        const style = statusColors[status.toLowerCase()] || { bg: '#F5EFE6', color: '#4D4D4D' };
         return {
-            backgroundColor: '#F5EFE6', // Màu beige nhạt
-            color: '#4D4D4D',          // Màu chữ xám đậm
-            border: '1px solid #D1D1D1',
+            backgroundColor: style.bg,
+            color: style.color,
             fontWeight: 'bold',
-            borderRadius: '8px',
-            textTransform: 'capitalize',
+            borderRadius: '12px',
+            textTransform: 'lowercase',
             height: '24px',
-            fontSize: '0.75rem'
+            fontSize: '0.75rem',
+            px: 1.5
         };
     };
-    const [selectedOrder, setSelectedOrder] = useState(null); // Lưu order đang được chọn
-    if (selectedOrder) {
-        return <OrderDetail order={selectedOrder} onBack={() => setSelectedOrder(null)} />;
-    }
+    const handleOrderClick = (order) => {
+        if (onOrderSelect) {
+            onOrderSelect(order);
+        }
+    };
 
     return (
         <Box>
@@ -88,44 +95,161 @@ const OrderHistory = () => {
                 </Box>
 
                 {/* Order List */}
-                <Box sx={{ p: 1 }}>
-                    {/* Item 1 */}
-                    <Box onClick={() => setSelectedOrder({ id: '244523YTH' })} sx={{ cursor: 'pointer', display: 'flex', gap: 2, p: 2, borderBottom: '1px solid #EEE' }}>
-                        <Box component="img" src="https://via.placeholder.com/100" sx={{ width: 100, height: 100, borderRadius: '10px', border: '1px solid #EEE' }} />
+                <Box sx={{ p: 2 }}>
+                    {/* Rental Item 1 */}
+                    <Box 
+                        onClick={() => handleOrderClick({ id: '244523YTH', type: 'rent' })} 
+                        sx={{ cursor: 'pointer', display: 'flex', gap: 2, p: 2, borderBottom: '1px solid #EEE', '&:hover': { bgcolor: '#fafafa' } }}
+                    >
+                        <Box 
+                            component="img" 
+                            src="https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=1&size=large" 
+                            sx={{ width: 100, height: 100, borderRadius: '10px', border: '1px solid #EEE', objectFit: 'contain', bgcolor: '#fff' }} 
+                        />
                         <Box sx={{ flexGrow: 1 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography fontWeight="bold">Touring-1000 Blue, 46</Typography>
-                                    <Chip label="pending" sx={getStatusStyle('pending')} />
-                                </Box>
-                                <Typography fontWeight="bold" color="#D32F2F">$2,384.07</Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                <Typography fontWeight="bold" variant="subtitle1">Touring-1000 Blue, 46</Typography>
+                                <Chip label="preparing" sx={getStatusStyle('preparing')} />
                             </Box>
-                            <Typography variant="body2" color="text.secondary">Type: Blue</Typography>
-                            <Typography variant="body2" color="text.secondary">x1</Typography>
-
-                            {/* Thanh Rate product xám như trong ảnh */}
-                            <Box sx={{ mt: 2, bgcolor: '#EEEEEE', py: 0.5, borderRadius: '4px', textAlign: 'center' }}>
-                                <Typography variant="caption" color="text.secondary">Rate this product</Typography>
-                            </Box>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Type: Blue</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Oct 12 - Oct 20, 2025</Typography>
+                            <Button 
+                                variant="outlined" 
+                                size="small"
+                                sx={{ 
+                                    bgcolor: '#EEEEEE', 
+                                    color: '#666',
+                                    border: 'none',
+                                    textTransform: 'none',
+                                    borderRadius: '4px',
+                                    px: 2,
+                                    '&:hover': { bgcolor: '#E0E0E0', border: 'none' }
+                                }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    // Handle rate product
+                                }}
+                            >
+                                Rate this product
+                            </Button>
+                        </Box>
+                        <Box sx={{ textAlign: 'right', minWidth: 200 }}>
+                            <Typography variant="body2" fontWeight="bold" color="#D32F2F" sx={{ mb: 0.5 }}>
+                                TOTAL RENTAL FEE
+                            </Typography>
+                            <Typography variant="h6" fontWeight="bold" color="#D32F2F" sx={{ mb: 2 }}>
+                                $180
+                            </Typography>
+                            <Typography variant="body2" fontWeight="bold" color="#D32F2F" sx={{ mb: 0.5 }}>
+                                SECURITY DEPOSIT
+                            </Typography>
+                            <Typography variant="h6" fontWeight="bold" color="#D32F2F">
+                                $2,699.99
+                            </Typography>
                         </Box>
                     </Box>
 
-                    {/* Item 2 */}
-                    <Box sx={{ display: 'flex', gap: 2, p: 2 }}>
-                        <Box component="img" src="https://via.placeholder.com/100" sx={{ width: 100, height: 100, borderRadius: '10px', border: '1px solid #EEE' }} />
+                    {/* Rental Item 2 */}
+                    <Box 
+                        onClick={() => handleOrderClick({ id: '244523YTH', type: 'rent' })} 
+                        sx={{ cursor: 'pointer', display: 'flex', gap: 2, p: 2, borderBottom: '1px solid #EEE', '&:hover': { bgcolor: '#fafafa' } }}
+                    >
+                        <Box 
+                            component="img" 
+                            src="https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=2&size=large" 
+                            sx={{ width: 100, height: 100, borderRadius: '10px', border: '1px solid #EEE', objectFit: 'contain', bgcolor: '#fff' }} 
+                        />
                         <Box sx={{ flexGrow: 1 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography fontWeight="bold">OnBros Bike Helmet</Typography>
-                                    <Chip label="preparing" sx={getStatusStyle('preparing')} />
-                                </Box>
-                                <Typography fontWeight="bold" color="#D32F2F">$49.00</Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                <Typography fontWeight="bold" variant="subtitle1">Touring-1000 Blue, 46</Typography>
+                                <Chip label="renting" sx={getStatusStyle('renting')} />
                             </Box>
-                            <Typography variant="body2" color="text.secondary">x1</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Type: Blue</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Oct 12 - Oct 20, 2025</Typography>
+                            <Button 
+                                variant="outlined" 
+                                size="small"
+                                sx={{ 
+                                    bgcolor: '#EEEEEE', 
+                                    color: '#666',
+                                    border: 'none',
+                                    textTransform: 'none',
+                                    borderRadius: '4px',
+                                    px: 2,
+                                    '&:hover': { bgcolor: '#E0E0E0', border: 'none' }
+                                }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                }}
+                            >
+                                Rate this product
+                            </Button>
+                        </Box>
+                        <Box sx={{ textAlign: 'right', minWidth: 200 }}>
+                            <Typography variant="body2" fontWeight="bold" color="#D32F2F" sx={{ mb: 0.5 }}>
+                                TOTAL RENTAL FEE
+                            </Typography>
+                            <Typography variant="h6" fontWeight="bold" color="#D32F2F" sx={{ mb: 2 }}>
+                                $180
+                            </Typography>
+                            <Typography variant="body2" fontWeight="bold" color="#D32F2F" sx={{ mb: 0.5 }}>
+                                SECURITY DEPOSIT
+                            </Typography>
+                            <Typography variant="h6" fontWeight="bold" color="#D32F2F">
+                                $2,699.99
+                            </Typography>
+                        </Box>
+                    </Box>
 
-                            <Box sx={{ mt: 2, bgcolor: '#EEEEEE', py: 0.5, borderRadius: '4px', textAlign: 'center' }}>
-                                <Typography variant="caption" color="text.secondary">Rate this product</Typography>
+                    {/* Rental Item 3 */}
+                    <Box 
+                        onClick={() => handleOrderClick({ id: '244523YTH', type: 'rent' })} 
+                        sx={{ cursor: 'pointer', display: 'flex', gap: 2, p: 2, '&:hover': { bgcolor: '#fafafa' } }}
+                    >
+                        <Box 
+                            component="img" 
+                            src="https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=3&size=large" 
+                            sx={{ width: 100, height: 100, borderRadius: '10px', border: '1px solid #EEE', objectFit: 'contain', bgcolor: '#fff' }} 
+                        />
+                        <Box sx={{ flexGrow: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                <Typography fontWeight="bold" variant="subtitle1">Touring-1000 Blue, 46</Typography>
+                                <Chip label="inspecting" sx={getStatusStyle('inspecting')} />
                             </Box>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Type: Blue</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Oct 12 - Oct 20, 2025</Typography>
+                            <Button 
+                                variant="outlined" 
+                                size="small"
+                                sx={{ 
+                                    bgcolor: '#EEEEEE', 
+                                    color: '#666',
+                                    border: 'none',
+                                    textTransform: 'none',
+                                    borderRadius: '4px',
+                                    px: 2,
+                                    '&:hover': { bgcolor: '#E0E0E0', border: 'none' }
+                                }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                }}
+                            >
+                                Rate this product
+                            </Button>
+                        </Box>
+                        <Box sx={{ textAlign: 'right', minWidth: 200 }}>
+                            <Typography variant="body2" fontWeight="bold" color="#D32F2F" sx={{ mb: 0.5 }}>
+                                TOTAL RENTAL FEE
+                            </Typography>
+                            <Typography variant="h6" fontWeight="bold" color="#D32F2F" sx={{ mb: 2 }}>
+                                $180
+                            </Typography>
+                            <Typography variant="body2" fontWeight="bold" color="#D32F2F" sx={{ mb: 0.5 }}>
+                                SECURITY DEPOSIT
+                            </Typography>
+                            <Typography variant="h6" fontWeight="bold" color="#D32F2F">
+                                $2,699.99
+                            </Typography>
                         </Box>
                     </Box>
                 </Box>

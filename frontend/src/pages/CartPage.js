@@ -28,7 +28,7 @@ const CartPage = () => {
                 <Grid container spacing={4}>
 
                     {/* CỘT TRÁI: DANH SÁCH SẢN PHẨM */}
-                    <Grid item xs={12} md={8}>
+                    <Grid item xs={12} md={8} flexGrow={1}>
 
                         {/* SECTION: ITEM TO BUY */}
                         <Box sx={{ mb: 4 }}>
@@ -123,7 +123,7 @@ const CartPage = () => {
                     </Grid>
 
                     {/* CỘT PHẢI: SUMMARY */}
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={4} flexGrow={1}>
                         <Box sx={{ position: 'sticky', top: 20 }}>
                             {/* Purchase Summary */}
                             <Paper sx={{ p: 3, borderRadius: '20px', mb: 3, bgcolor: '#fff6ed' }}>
