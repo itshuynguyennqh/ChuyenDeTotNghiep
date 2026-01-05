@@ -6,7 +6,7 @@ const theme = createTheme({
   palette: {
     // Thay thế bằng mã màu từ Figma của bạn
     primary: {
-      main: '#1976d2',  // Ví dụ: màu xanh dương chính
+      main: '#F4E9DB',  // Ví dụ: màu xanh dương chính
     },
     secondary: {
       main: '#dc004e', // Ví dụ: màu hồng phụ

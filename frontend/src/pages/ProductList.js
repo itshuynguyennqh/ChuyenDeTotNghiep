@@ -145,14 +145,14 @@ function ProductList() {
     );
 
     return (
-        <Container maxWidth="xl" sx={{ backgroundColor: '#fcf6f0', minHeight: '100vh', py: 4 }} >
+        <Container maxWidth="xl" sx={{ backgroundColor: '#F4E9DB', minHeight: '100vh', py: 4 }} >
 
             {/* Thêm wrap="nowrap" để đảm bảo không bao giờ bị rớt dòng nếu nội dung quá lớn */}
             <Grid container spacing={3}>
 
                 {/* --- CỘT SIDEBAR (FILTERS) --- */}
                 {/* xs={3}: Luôn chiếm 25% chiều rộng màn hình bất kể kích thước */}
-                <Grid item xs={3} md={2.5}>
+                <Grid item xs={3} md={2.5} backgroundColor={"#FFF"} >
                     <MockSidebar />
                 </Grid>
 
