@@ -20,6 +20,18 @@ import OrderSuccessPage from "./pages/OrderSuccessPage";
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProductList from './pages/admin/AdminProductList';
+import AdminProductAdd from './pages/admin/AdminProductAdd';
+import AdminProductEdit from './pages/admin/AdminProductEdit';
+import AdminOrderList from './pages/admin/AdminOrderList';
+import AdminOrderDetail from './pages/admin/AdminOrderDetail';
+import AdminCustomerList from './pages/admin/AdminCustomerList';
+import AdminCategoryList from './pages/admin/AdminCategoryList';
+import AdminStaffList from './pages/admin/AdminStaffList';
+import AdminPromotionList from './pages/admin/AdminPromotionList';
+import AdminPromotionAdd from './pages/admin/AdminPromotionAdd';
+import AdminPromotionEdit from './pages/admin/AdminPromotionEdit';
+import AdminRentalConfig from './pages/admin/AdminRentalConfig';
+import AdminChatbotFAQ from './pages/admin/AdminChatbotFAQ';
 
 function App() {
   return (
@@ -44,7 +56,18 @@ function App() {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="products" element={<AdminProductList />} />
-            {/* Thêm các route admin khác tại đây */}
+            <Route path="products/add" element={<AdminProductAdd />} />
+            <Route path="products/edit/:id" element={<AdminProductEdit />} />
+            <Route path="orders" element={<AdminOrderList />} />
+            <Route path="orders/:id" element={<AdminOrderDetail />} />
+            <Route path="customers" element={<AdminCustomerList />} />
+            <Route path="categories" element={<AdminCategoryList />} />
+            <Route path="staff" element={<AdminStaffList />} />
+            <Route path="promotions" element={<AdminPromotionList />} />
+            <Route path="promotions/add" element={<AdminPromotionAdd />} />
+            <Route path="promotions/edit/:id" element={<AdminPromotionEdit />} />
+            <Route path="rental-config" element={<AdminRentalConfig />} />
+            <Route path="chatbot-faq" element={<AdminChatbotFAQ />} />
           </Route>
 
         </Routes>

@@ -1,26 +1,46 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-    Box, Drawer, AppBar, Toolbar, List, Typography, Divider,
-    ListItem, ListItemButton, ListItemIcon, ListItemText, Button
+    Box, Drawer, AppBar, Toolbar, List, Typography,
+    ListItem, ListItemButton, ListItemIcon, ListItemText, 
+    Button, IconButton, Menu, MenuItem, useMediaQuery, useTheme
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
-import PeopleIcon from '@mui/icons-material/People';
-import ReceiptIcon from '@mui/icons-material/Receipt';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CategoryIcon from '@mui/icons-material/Category';
+import GroupIcon from '@mui/icons-material/Group';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import GroupsIcon from '@mui/icons-material/Groups';
+import SettingsIcon from '@mui/icons-material/Settings';
+import TuneIcon from '@mui/icons-material/Tune';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
+import logo from '../../assets/BikeGo-logo-orange.png';
+import whiteLogo from '../../assets/BikeGo-logo-whitebike.png';
+import Footer from '../layout/Footer';
 
 const drawerWidth = 240;
 
 const AdminLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const [anchorEl, setAnchorEl] = useState(null);
 
     const menuItems = [
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
-        { text: 'Products', icon: <ShoppingBagIcon />, path: '/admin/products' },
-        { text: 'Orders', icon: <ReceiptIcon />, path: '/admin/orders' },
-        { text: 'Customers', icon: <PeopleIcon />, path: '/admin/customers' },
+        { text: 'Product', icon: <InventoryIcon />, path: '/admin/products' },
+        { text: 'Sales', icon: <AccessTimeIcon />, path: '/admin/promotions' },
+        { text: 'Category', icon: <CategoryIcon />, path: '/admin/categories' },
+        { text: 'Customer', icon: <GroupIcon />, path: '/admin/customers' },
+        { text: 'Orders', icon: <ListAltIcon />, path: '/admin/orders' },
+        { text: 'Staff', icon: <GroupsIcon />, path: '/admin/staff' },
+        { text: 'Setting', icon: <SettingsIcon />, path: '/admin/settings' },
+        { text: 'Rental Config', icon: <TuneIcon />, path: '/admin/rental-config' },
+        { text: 'Chatbot & FAQ', icon: <ChatBubbleOutlineIcon />, path: '/admin/chatbot-faq' },
     ];
 
     const handleLogout = () => {
@@ -29,50 +49,160 @@ const AdminLayout = () => {
         navigate('/login');
     };
 
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userEmail = user.email || user.EmailAddress || 'admin@bikego.com';
+    const userRole = user.role || user.Role || 'Admin';
+
+    const isActive = (path) => {
+        if (path === '/admin/dashboard') {
+            return location.pathname === path;
+        }
+        return location.pathname.startsWith(path);
+    };
+
+    const handleMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
     return (
-        <Box sx={{ display: 'flex' }}>
-            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, backgroundColor: '#2c3e50' }}>
-                <Toolbar>
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                        BikeGo Admin
-                    </Typography>
-                    <Button color="inherit" startIcon={<LogoutIcon />} onClick={handleLogout}>
-                        Logout
-                    </Button>
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                variant="permanent"
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            {/* Header */}
+            <AppBar 
+                position="fixed" 
+                sx={{ 
+                    zIndex: (theme) => theme.zIndex.drawer + (isMobile ? 0 : 1), 
+                    backgroundColor: 'white',
+                    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)'
                 }}
             >
-                <Toolbar />
-                <Box sx={{ overflow: 'auto' }}>
-                    <List>
-                        {menuItems.map((item) => (
-                            <ListItem key={item.text} disablePadding>
-                                <ListItemButton 
-                                    selected={location.pathname === item.path}
-                                    onClick={() => navigate(item.path)}
-                                >
-                                    <ListItemIcon>
-                                        {item.icon}
-                                    </ListItemIcon>
-                                    <ListItemText primary={item.text} />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List>
-                    <Divider />
+                <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, md: 3 } }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box
+                            component="img"
+                            src={logo}
+                            alt="BikeGo Logo"
+                            sx={{ height: 40, width: 'auto' }}
+                        />
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <IconButton onClick={handleMenuOpen} sx={{ p: 0.5 }}>
+                            <PersonIcon sx={{ color: '#666' }} />
+                        </IconButton>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={handleMenuClose}
+                        >
+                            <MenuItem disabled>
+                                <Typography variant="body2" sx={{ color: '#666' }}>
+                                    {userEmail}
+                                </Typography>
+                            </MenuItem>
+                            <MenuItem onClick={handleLogout}>
+                                <LogoutIcon sx={{ mr: 1, fontSize: '1rem' }} />
+                                Log out
+                            </MenuItem>
+                        </Menu>
+                    </Box>
+                </Toolbar>
+            </AppBar>
+
+            <Box sx={{ display: 'flex', flex: 1 }}>
+                {/* Sidebar */}
+                <Drawer
+                    variant={isMobile ? 'temporary' : 'permanent'}
+                    sx={{
+                        width: drawerWidth,
+                        flexShrink: 0,
+                        [`& .MuiDrawer-paper`]: { 
+                            width: drawerWidth, 
+                            boxSizing: 'border-box',
+                            backgroundColor: '#F4E9DB',
+                            borderRight: 'none'
+                        },
+                    }}
+                >
+                    <Toolbar sx={{ justifyContent: 'center', py: 2 }}>
+                        <Box
+                            component="img"
+                            src={logo}
+                            alt="BikeGo Logo"
+                            sx={{ height: 35, width: 'auto' }}
+                        />
+                    </Toolbar>
+                    <Box sx={{ overflow: 'auto', px: 1 }}>
+                        <List>
+                            {menuItems.map((item) => {
+                                const active = isActive(item.path);
+                                return (
+                                    <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+                                        <ListItemButton 
+                                            selected={active}
+                                            onClick={() => {
+                                                navigate(item.path);
+                                                if (isMobile) {
+                                                    // Close drawer on mobile after navigation
+                                                }
+                                            }}
+                                            sx={{
+                                                borderRadius: 2,
+                                                backgroundColor: active ? '#FE7E15' : 'transparent',
+                                                color: active ? 'white' : '#333',
+                                                '&:hover': {
+                                                    backgroundColor: active ? '#FE7E15' : 'rgba(254, 126, 21, 0.1)',
+                                                },
+                                                '&.Mui-selected': {
+                                                    backgroundColor: '#FE7E15',
+                                                    color: 'white',
+                                                    '&:hover': {
+                                                        backgroundColor: '#FE7E15',
+                                                    },
+                                                },
+                                                py: 1.5,
+                                                px: 2
+                                            }}
+                                        >
+                                            <ListItemIcon sx={{ color: active ? 'white' : '#666', minWidth: 40 }}>
+                                                {item.icon}
+                                            </ListItemIcon>
+                                            <ListItemText 
+                                                primary={item.text} 
+                                                primaryTypographyProps={{
+                                                    fontSize: '0.9rem',
+                                                    fontWeight: active ? 600 : 400
+                                                }}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                );
+                            })}
+                        </List>
+                    </Box>
+                </Drawer>
+
+                {/* Main Content */}
+                <Box 
+                    component="main" 
+                    sx={{ 
+                        flexGrow: 1, 
+                        p: { xs: 2, md: 3 }, 
+                        backgroundColor: '#F4E9DB', 
+                        minHeight: '100vh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` }
+                    }}
+                >
+                    <Toolbar />
+                    <Box sx={{ flex: 1, backgroundColor: 'white', borderRadius: 2, p: 3 }}>
+                        <Outlet />
+                    </Box>
+                    <Footer />
                 </Box>
-            </Drawer>
-            <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
-                <Toolbar />
-                {/* Nơi hiển thị nội dung các trang con */}
-                <Outlet />
             </Box>
         </Box>
     );

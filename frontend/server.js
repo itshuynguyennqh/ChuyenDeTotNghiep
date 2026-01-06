@@ -14,6 +14,69 @@ server.post('/auth/login', (req, res) => {
     const { email, password } = req.body;
     const db = router.db;
 
+    // --- MOCK STAFF/ADMIN LOGIC ---
+    // Demo accounts for staff login (password is 'password' for all demo accounts)
+    const staffAccounts = {
+        'admin@bikego.com': { 
+            Role: 'Admin', 
+            EmailAddress: 'admin@bikego.com',
+            FirstName: 'Admin',
+            LastName: 'User'
+        },
+        'staff@bikego.com': { 
+            Role: 'Order Staff', 
+            EmailAddress: 'staff@bikego.com',
+            FirstName: 'Order',
+            LastName: 'Staff'
+        },
+        'order@bikego.com': { 
+            Role: 'Order Staff', 
+            EmailAddress: 'order@bikego.com',
+            FirstName: 'Order',
+            LastName: 'Manager'
+        },
+        'product@bikego.com': { 
+            Role: 'Product Staff', 
+            EmailAddress: 'product@bikego.com',
+            FirstName: 'Product',
+            LastName: 'Staff'
+        },
+        'anv@cycle-shop.com': { 
+            Role: 'Order Staff', 
+            EmailAddress: 'anv@cycle-shop.com',
+            FirstName: 'An',
+            LastName: 'Vo'
+        },
+        'eha@cycle-shop.com': { 
+            Role: 'Product Staff', 
+            EmailAddress: 'eha@cycle-shop.com',
+            FirstName: 'Eha',
+            LastName: 'Staff'
+        }
+    };
+
+    // Check if this is a staff account
+    const staffAccount = staffAccounts[email];
+    
+    if (staffAccount) {
+        // Staff account - password is 'password' for demo
+        if (password !== 'password') {
+            return res.status(400).json({ message: 'Invalid password' });
+        }
+
+        const userResponse = {
+            CustomerID: 9999,
+            FirstName: staffAccount.FirstName,
+            LastName: staffAccount.LastName,
+            EmailAddress: staffAccount.EmailAddress,
+            Role: staffAccount.Role
+        };
+
+        const token = `fake-jwt-token-for-staff-${Date.now()}`;
+        return res.json({ token, user: userResponse });
+    }
+
+    // Regular customer account
     const emailRecord = db.get('CustomerEmailAddress').find({ EmailAddress: email }).value();
     if (!emailRecord) {
         return res.status(400).json({ message: 'User not found' });
@@ -27,12 +90,7 @@ server.post('/auth/login', (req, res) => {
     }
 
     const customer = db.get('Customer').find({ CustomerID: customerId }).value();
-
-    // --- MOCK ADMIN LOGIC ---
-    // Giả lập: Nếu email là admin@bikego.com thì gán Role = 'Admin'
-    // Các user khác là 'Customer'
-    const userRole = email === 'admin@bikego.com' ? 'Admin' : 'Customer';
-    const userResponse = { ...customer, Role: userRole };
+    const userResponse = { ...customer, Role: 'Customer', EmailAddress: email };
 
     const token = `fake-jwt-token-for-${customerId}-${Date.now()}`;
     

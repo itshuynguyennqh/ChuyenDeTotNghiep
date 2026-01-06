@@ -29,7 +29,8 @@ const LoginPage = () => {
             localStorage.setItem('user', JSON.stringify(response.data.user));
             
             // Kiểm tra Role để điều hướng
-            if (response.data.user.Role === 'Admin') {
+            const userRole = response.data.user.Role;
+            if (userRole === 'Admin' || userRole === 'Order Staff' || userRole === 'Product Staff') {
                 navigate('/admin/dashboard');
             } else {
                 navigate('/');
@@ -70,6 +71,22 @@ const LoginPage = () => {
                             </Box>
                             <Typography variant="h3" fontWeight="bold" sx={{ color: '#002147', mt: 2 }}>Log in</Typography>
                             <Typography variant="body1" color="text.secondary">Please enter your account</Typography>
+                            
+                            {/* Demo Accounts Info */}
+                            <Box sx={{ mt: 2, p: 2, bgcolor: '#FFF0E5', borderRadius: '12px', textAlign: 'left', maxWidth: '350px' }}>
+                                <Typography variant="caption" fontWeight="bold" sx={{ color: '#FF8C00', display: 'block', mb: 1 }}>
+                                    Demo Staff Accounts:
+                                </Typography>
+                                <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+                                    <strong>Admin:</strong> admin@bikego.com / password
+                                </Typography>
+                                <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+                                    <strong>Order Staff:</strong> staff@bikego.com / password
+                                </Typography>
+                                <Typography variant="caption" sx={{ display: 'block' }}>
+                                    <strong>Product Staff:</strong> product@bikego.com / password
+                                </Typography>
+                            </Box>
                         </Box>
 
                         <Box component="form" onSubmit={handleLogin} sx={{ width: '100%', maxWidth: '350px' }}>
