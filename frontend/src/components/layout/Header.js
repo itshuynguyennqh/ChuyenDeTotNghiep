@@ -49,9 +49,9 @@ function Header() {
         <>
             <AppBar
                 position="static"
+                elevation={100}
                 sx={{
-                    backgroundColor: '#F4E9DB',
-                    boxShadow: '0px 2px 4px rgba(0,0,0,0.2)'
+                    backgroundColor: '#F4E9DB'
                 }}
             >
                 <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', paddingY: 1 }}>
