@@ -23,20 +23,25 @@ const LoginPage = () => {
         setLoading(true);
 
         try {
-            const response = await login({ email, password });
-            // Lưu token vào localStorage hoặc context
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            // FastAPI backend expects { identifier, password }
+            const response = await login({ identifier: email, password });
+            // FastAPI returns { access_token, token_type, role, name, id }
+            localStorage.setItem('token', response.data.access_token);
+            localStorage.setItem('user', JSON.stringify({
+                id: response.data.id,
+                name: response.data.name,
+                role: response.data.role
+            }));
             
             // Kiểm tra Role để điều hướng
-            const userRole = response.data.user.Role;
-            if (userRole === 'Admin' || userRole === 'Order Staff' || userRole === 'Product Staff') {
+            const userRole = response.data.role; // 'admin', 'staff', or 'customer'
+            if (userRole === 'admin' || userRole === 'staff') {
                 navigate('/admin/dashboard');
             } else {
                 navigate('/');
             }
         } catch (err) {
-            setError(err.message || 'Login failed. Please check your credentials.');
+            setError(err.response?.data?.detail || err.message || 'Login failed. Please check your credentials.');
         } finally {
             setLoading(false);
         }

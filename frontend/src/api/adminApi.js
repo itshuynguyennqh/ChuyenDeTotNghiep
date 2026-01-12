@@ -1,409 +1,328 @@
 import axiosClient from './axiosClient';
 
-// Mock data - replace with actual API calls when backend is ready
-const MOCK_DELAY = 500; // Simulate network delay
-
 // Dashboard APIs
 export const getDashboardMetrics = async () => {
-  // TODO: Replace with: return axiosClient.get('/api/admin/dashboard/metrics');
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/dashboard');
+  // Transform response to match frontend expectations
+  const data = response.data.data;
   return {
     data: {
-      totalRevenue: 428000,
-      revenueChange: 15,
-      activeRentals: 18,
-      totalCustomers: 1250,
-      overdueReturns: 3,
+      totalRevenue: data.summary.total_revenue.value,
+      revenueChange: data.summary.total_revenue.growth_percentage,
+      activeRentals: data.summary.active_rental.value,
+      totalCustomers: data.summary.total_customers.value,
+      overdueReturns: data.summary.overdue_return.value,
+      revenueChart: data.revenue_chart,
+      inventoryStatus: data.inventory_status
     }
   };
 };
 
 export const getSalesVsRentRevenue = async (period = 'week') => {
-  // TODO: Replace with: return axiosClient.get(`/api/admin/dashboard/sales-vs-rent?period=${period}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  // This endpoint needs to be implemented in the backend
+  // For now, return mock data or use dashboard endpoint
+  const response = await getDashboardMetrics();
   return {
-    data: [
-      { day: 'Mon', sell: 12000, rent: 8000 },
-      { day: 'Tue', sell: 15000, rent: 9000 },
-      { day: 'Wed', sell: 18000, rent: 10000 },
-      { day: 'Thu', sell: 14000, rent: 8500 },
-      { day: 'Fri', sell: 20000, rent: 12000 },
-      { day: 'Sat', sell: 25000, rent: 15000 },
-      { day: 'Sun', sell: 22000, rent: 13000 },
-    ]
+    data: response.data.revenueChart?.series || []
   };
 };
 
 export const getInventoryStatus = async () => {
-  // TODO: Replace with: return axiosClient.get('/api/admin/dashboard/inventory-status');
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/dashboard');
+  const breakdown = response.data.data.inventory_status.breakdown;
   return {
     data: {
-      available: 89,
-      renting: 9,
-      maintenance: 2,
+      available: breakdown.find(b => b.status === 'available')?.value || 0,
+      renting: breakdown.find(b => b.status === 'renting')?.value || 0,
+      maintenance: breakdown.find(b => b.status === 'maintenance')?.value || 0,
     }
   };
 };
 
 export const getRevenueReport = async (startDate, endDate) => {
-  // TODO: Replace with: return axiosClient.get(`/api/admin/reports/revenue?start=${startDate}&end=${endDate}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/reports', {
+    params: { start_date: startDate, end_date: endDate }
+  });
+  const report = response.data.data.revenue_report;
   return {
     data: {
-      reportPeriodRevenue: 45231.00,
-      totalOrders: 342,
-      avgDailyRevenue: 1459.06,
+      reportPeriodRevenue: report.total_revenue,
+      totalOrders: report.total_orders,
+      avgDailyRevenue: report.avg_daily_revenue,
     }
   };
 };
 
 export const getTopSellingProducts = async (startDate, endDate) => {
-  // TODO: Replace with: return axiosClient.get(`/api/admin/reports/top-selling?start=${startDate}&end=${endDate}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/reports', {
+    params: { start_date: startDate, end_date: endDate }
+  });
   return {
-    data: [
-      {
-        rank: 1,
-        productName: 'Mountain Trek X500',
-        category: 'Mountain Bikes',
-        image: '/api/placeholder/150/150',
-        quantitySold: 342,
-        revenue: 45231.00,
-      },
-      // Add more mock data as needed
-    ]
+    data: response.data.data.top_selling_products.map(p => ({
+      rank: p.rank,
+      productName: p.product_name,
+      category: p.category_name,
+      image: p.image_url,
+      quantitySold: p.quantity_sold,
+      revenue: p.revenue,
+    }))
   };
 };
 
 export const getTopRentedProducts = async (startDate, endDate) => {
-  // TODO: Replace with: return axiosClient.get(`/api/admin/reports/top-rented?start=${startDate}&end=${endDate}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/reports', {
+    params: { start_date: startDate, end_date: endDate }
+  });
   return {
-    data: [
-      {
-        rank: 1,
-        productName: 'Mountain Trek X500',
-        category: 'Mountain Bikes',
-        image: '/api/placeholder/150/150',
-        timesRented: 342,
-        revenue: 45231.00,
-      },
-      // Add more mock data as needed
-    ]
+    data: response.data.data.top_rented_products.map(p => ({
+      rank: p.rank,
+      productName: p.product_name,
+      category: p.category_name,
+      image: p.image_url,
+      timesRented: p.times_rented,
+      revenue: p.revenue,
+    }))
   };
 };
 
 // Product APIs
 export const getAdminProducts = async (params = {}) => {
-  // TODO: Replace with: return axiosClient.get('/api/admin/products', { params });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/products', { params });
   return {
-    data: [
-      {
-        id: 1,
-        name: 'Touring-1000 Blue, 46',
-        category: 'Touring Bike',
-        image: '/api/placeholder/150/150',
-        sellPrice: 2384.07,
-        rentPrice: 20,
-        rate: 4.8,
-        totalStock: 142,
-        availableStock: 105,
-        status: 'in_stock',
-      },
-      // Add more mock data
-    ]
+    data: response.data.data.map(p => ({
+      id: p.id,
+      name: p.name,
+      category: p.category_name,
+      image: p.image_url,
+      sellPrice: p.prices.list_price,
+      rentPrice: p.prices.rent_price,
+      totalStock: p.stock.total_stock,
+      availableStock: p.stock.available_stock,
+      status: p.status_label.toLowerCase().replace(' ', '_'),
+    })),
+    pagination: response.data.pagination
   };
 };
 
 export const getAdminProduct = async (id) => {
-  // TODO: Replace with: return axiosClient.get(`/api/admin/products/${id}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get(`/admin/products/${id}`);
+  const p = response.data.data;
   return {
     data: {
-      id,
-      name: 'Touring-1000 Blue, 46',
-      category: 'Touring Bike',
-      // Full product data
+      id: p.id,
+      name: p.name,
+      category: p.category_name,
+      image: p.images[0]?.url || '',
+      sellPrice: p.prices.list_price,
+      rentPrice: p.prices.rent_price,
+      description: p.description,
+      stock: p.stock,
+      attributes: p.attributes,
+      rentalConfig: p.rental_config,
+      status: p.status_label,
     }
   };
 };
 
 export const createAdminProduct = async (data) => {
-  // TODO: Replace with: return axiosClient.post('/api/admin/products', data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id: Date.now(), ...data } };
+  const response = await axiosClient.post('/admin/products', data);
+  return response;
 };
 
 export const updateAdminProduct = async (id, data) => {
-  // TODO: Replace with: return axiosClient.put(`/api/admin/products/${id}`, data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id, ...data } };
+  const response = await axiosClient.patch(`/admin/products/${id}`, data);
+  return response;
 };
 
 export const deleteAdminProduct = async (id) => {
-  // TODO: Replace with: return axiosClient.delete(`/api/admin/products/${id}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { success: true } };
+  const response = await axiosClient.delete(`/admin/products/${id}`);
+  return response;
 };
 
 // Order APIs
-export const getAdminOrders = async (type = 'purchase', params = {}) => {
-  // TODO: Replace with: return axiosClient.get(`/api/admin/orders?type=${type}`, { params });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+export const getAdminOrders = async (type = 'all', params = {}) => {
+  const response = await axiosClient.get('/admin/orders', {
+    params: { type, ...params }
+  });
   return {
-    data: [
-      {
-        id: 'ORD-2023-1001',
-        type: type,
-        total: 145.00,
-        status: type === 'rental' ? 'preparing' : 'shipping',
-        rentalPeriod: type === 'rental' ? { start: '2023-10-10', end: '2023-10-15' } : null,
-        createdAt: '2023-10-24T10:45:00Z',
-      },
-      // Add more mock data
-    ]
+    data: response.data.data,
+    pagination: response.data.pagination
   };
 };
 
-export const getAdminOrder = async (id) => {
-  // TODO: Replace with: return axiosClient.get(`/api/admin/orders/${id}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+export const getAdminOrder = async (id, type = 'sale') => {
+  const response = await axiosClient.get(`/admin/orders/${id}`, {
+    params: { type }
+  });
   return {
-    data: {
-      id,
-      type: 'purchase',
-      status: 'pending',
-      // Full order data
-    }
+    data: response.data.data
   };
 };
 
-export const updateOrderStatus = async (id, status) => {
-  // TODO: Replace with: return axiosClient.patch(`/api/admin/orders/${id}/status`, { status });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id, status } };
+export const updateOrderStatus = async (id, status, type = 'sale') => {
+  const response = await axiosClient.patch(`/admin/orders/${id}/status`, 
+    { status },
+    { params: { type } }
+  );
+  return response;
 };
 
 // Customer APIs
 export const getAdminCustomers = async (params = {}) => {
-  // TODO: Replace with: return axiosClient.get('/api/admin/customers', { params });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/customers', { params });
   return {
-    data: [
-      {
-        id: 1,
-        name: 'Jane Cooper',
-        phone: '+1 (555) 123-4567',
-        status: 'active',
-      },
-      // Add more mock data
-    ]
+    data: response.data.data,
+    pagination: response.data.pagination
   };
 };
 
 export const getAdminCustomer = async (id) => {
-  // TODO: Replace with: return axiosClient.get(`/api/admin/customers/${id}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get(`/admin/customers/${id}`);
   return {
-    data: {
-      id,
-      name: 'Jane Cooper',
-      phone: '+1 (555) 123-4567',
-      status: 'active',
-      memberTier: 'Gold',
-      totalSpending: 4250.00,
-      totalOrders: 12,
-      orders: [],
-    }
+    data: response.data.data
   };
 };
 
 export const updateCustomerStatus = async (id, status) => {
-  // TODO: Replace with: return axiosClient.patch(`/api/admin/customers/${id}/status`, { status });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id, status } };
+  const response = await axiosClient.patch(`/admin/customers/${id}`, { status });
+  return response;
 };
 
 // Category APIs
-export const getAdminCategories = async () => {
-  // TODO: Replace with: return axiosClient.get('/api/admin/categories');
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+export const getAdminCategories = async (params = {}) => {
+  const response = await axiosClient.get('/admin/categories', { params });
   return {
-    data: [
-      { id: 1, name: 'Mountain Bikes' },
-      { id: 2, name: 'Road Bikes' },
-      { id: 3, name: 'Touring Bikes' },
-      { id: 4, name: 'Gloves' },
-      { id: 5, name: 'Bib-shorts' },
-      { id: 6, name: 'Socks' },
-    ]
+    data: response.data.data,
+    pagination: response.data.pagination
   };
 };
 
 export const createAdminCategory = async (data) => {
-  // TODO: Replace with: return axiosClient.post('/api/admin/categories', data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id: Date.now(), ...data } };
+  const response = await axiosClient.post('/admin/categories', data);
+  return response;
 };
 
 export const updateAdminCategory = async (id, data) => {
-  // TODO: Replace with: return axiosClient.put(`/api/admin/categories/${id}`, data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id, ...data } };
+  const response = await axiosClient.patch(`/admin/categories/${id}`, data);
+  return response;
 };
 
 export const deleteAdminCategory = async (id) => {
-  // TODO: Replace with: return axiosClient.delete(`/api/admin/categories/${id}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { success: true } };
+  const response = await axiosClient.delete(`/admin/categories/${id}`);
+  return response;
 };
 
 // Staff APIs
 export const getAdminStaff = async (params = {}) => {
-  // TODO: Replace with: return axiosClient.get('/api/admin/staff', { params });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/staffs', { params });
   return {
-    data: [
-      {
-        id: 1,
-        fullName: 'Nguyen Van A',
-        phone: '+84 909 123 456',
-        email: 'anv@cycle-shop.com',
-        role: 'Order Staff',
-        status: 'active',
-      },
-      // Add more mock data
-    ]
+    data: response.data.data,
+    pagination: response.data.pagination
   };
 };
 
 export const createAdminStaff = async (data) => {
-  // TODO: Replace with: return axiosClient.post('/api/admin/staff', data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id: Date.now(), ...data } };
+  const response = await axiosClient.post('/admin/staffs', data);
+  return response;
 };
 
 export const updateAdminStaff = async (id, data) => {
-  // TODO: Replace with: return axiosClient.put(`/api/admin/staff/${id}`, data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id, ...data } };
+  const response = await axiosClient.patch(`/admin/staffs/${id}`, data);
+  return response;
 };
 
 export const deleteAdminStaff = async (id) => {
-  // TODO: Replace with: return axiosClient.delete(`/api/admin/staff/${id}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { success: true } };
+  const response = await axiosClient.delete(`/admin/staffs/${id}`);
+  return response;
 };
 
 // Promotion APIs
 export const getAdminPromotions = async (params = {}) => {
-  // TODO: Replace with: return axiosClient.get('/api/admin/promotions', { params });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/promotions', { params });
   return {
-    data: [
-      {
-        id: 1,
-        name: 'Summer Sale 2025',
-        code: 'SUMMER25',
-        value: 20,
-        valueType: 'percentage',
-        quantityLimit: 100,
-        duration: { from: '2025-06-01', to: '2025-08-31' },
-        condition: 'Diamond',
-        status: 'active',
-        scope: 'All',
-      },
-      // Add more mock data
-    ]
+    data: response.data.data,
+    pagination: response.data.pagination
   };
 };
 
 export const getAdminPromotion = async (id) => {
-  // TODO: Replace with: return axiosClient.get(`/api/admin/promotions/${id}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get(`/admin/promotions/${id}`);
   return {
-    data: {
-      id,
-      name: 'Summer Sale 2025',
-      // Full promotion data
-    }
+    data: response.data.data
   };
 };
 
 export const createAdminPromotion = async (data) => {
-  // TODO: Replace with: return axiosClient.post('/api/admin/promotions', data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id: Date.now(), ...data } };
+  const response = await axiosClient.post('/admin/promotions', data);
+  return response;
 };
 
 export const updateAdminPromotion = async (id, data) => {
-  // TODO: Replace with: return axiosClient.put(`/api/admin/promotions/${id}`, data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id, ...data } };
+  const response = await axiosClient.patch(`/admin/promotions/${id}`, data);
+  return response;
 };
 
 export const deleteAdminPromotion = async (id) => {
-  // TODO: Replace with: return axiosClient.delete(`/api/admin/promotions/${id}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { success: true } };
+  const response = await axiosClient.delete(`/admin/promotions/${id}`);
+  return response;
 };
 
 // Rental Config APIs
 export const getRentalConfig = async () => {
-  // TODO: Replace with: return axiosClient.get('/api/admin/rental-config');
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/settings/rental');
   return {
     data: {
-      minRentalDays: 1,
-      maxRentalDays: 30,
-      defaultDepositRate: 80,
-      overdueFeeRate: 150,
-      cancellationPolicy: 'Flexible',
-      rentDeduction: 100,
+      minRentalDays: response.data.data.duration_limits.min_days,
+      maxRentalDays: response.data.data.duration_limits.max_days,
+      defaultDepositRate: response.data.data.deposit.default_rate,
+      overdueFeeRate: response.data.data.penalty.overdue_fee_rate,
+      cancellationPolicy: response.data.data.penalty.cancellation_policy,
+      rentDeduction: response.data.data.rent_to_own.rent_deduction,
     }
   };
 };
 
 export const updateRentalConfig = async (data) => {
-  // TODO: Replace with: return axiosClient.put('/api/admin/rental-config', data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data };
+  const requestData = {
+    duration_limits: {
+      min_days: data.minRentalDays,
+      max_days: data.maxRentalDays
+    },
+    deposit: {
+      default_rate: data.defaultDepositRate
+    },
+    penalty: {
+      overdue_fee_rate: data.overdueFeeRate,
+      cancellation_policy: data.cancellationPolicy
+    },
+    rent_to_own: {
+      rent_deduction: data.rentDeduction
+    }
+  };
+  const response = await axiosClient.patch('/admin/settings/rental', requestData);
+  return response;
 };
 
 // Chatbot FAQ APIs
 export const getAdminFAQs = async (params = {}) => {
-  // TODO: Replace with: return axiosClient.get('/api/admin/faqs', { params });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+  const response = await axiosClient.get('/admin/faqs', { params });
   return {
-    data: [
-      {
-        id: 1,
-        question: 'How is the rental deposit calculated?',
-        answer: 'The deposit is calculated based on the bike\'s value and the rental...',
-        keywords: 'deposit, calculation, fee',
-        status: 'active',
-      },
-      // Add more mock data
-    ]
+    data: response.data.data,
+    pagination: response.data.pagination
   };
 };
 
 export const createAdminFAQ = async (data) => {
-  // TODO: Replace with: return axiosClient.post('/api/admin/faqs', data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id: Date.now(), ...data } };
+  const response = await axiosClient.post('/admin/faqs', data);
+  return response;
 };
 
 export const updateAdminFAQ = async (id, data) => {
-  // TODO: Replace with: return axiosClient.put(`/api/admin/faqs/${id}`, data);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { id, ...data } };
+  const response = await axiosClient.patch(`/admin/faqs/${id}`, data);
+  return response;
 };
 
 export const deleteAdminFAQ = async (id) => {
-  // TODO: Replace with: return axiosClient.delete(`/api/admin/faqs/${id}`);
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-  return { data: { success: true } };
+  const response = await axiosClient.delete(`/admin/faqs/${id}`);
+  return response;
 };
