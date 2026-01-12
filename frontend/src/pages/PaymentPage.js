@@ -10,8 +10,6 @@ import {
     ChevronRight as ChevronRightIcon,
     CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
-import Header from '../components/layout/Header';
-import Footer from '../components/layout/Footer';
 import AddressManager from '../components/common/AddressManager';
 import { fetchCartAPI, fetchAddressesAPI, placeOrderAPI } from '../api/productApi';
 import { getAccountDetails } from '../api/authApi';
@@ -179,9 +177,7 @@ function PaymentPage() {
     }
 
     return (
-        <Box sx={{ backgroundColor: '#F3E8DB', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Header />
-
+        <>
             <Container maxWidth="xl" sx={{ py: 2, flexGrow: 1 }}>
                 <Typography variant="body2" sx={{ mb: 3, color: '#1976d2' }}>
                     Home  /  <span style={{ fontWeight: 'bold' }}>Payment</span>
@@ -437,7 +433,6 @@ function PaymentPage() {
                 </Grid>
             </Container>
 
-            <Footer />
 
             {isLoggedIn && (
                 <AddressManager
@@ -538,7 +533,8 @@ function PaymentPage() {
                     </Typography>
                 </DialogContent>
             </Dialog>
-        </Box>
+        </>
+
     );
 }
 
