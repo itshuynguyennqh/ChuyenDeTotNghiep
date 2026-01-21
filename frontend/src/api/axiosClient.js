@@ -31,4 +31,36 @@ axiosClient.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+// Response interceptor để xử lý format response từ backend
+axiosClient.interceptors.response.use(
+    (response) => {
+        // Backend trả về format: {success, data, message, pagination}
+        // Giữ nguyên response để các API có thể truy cập đầy đủ thông tin
+        return response;
+    },
+    (error) => {
+        // Xử lý error responses từ backend
+        if (error.response) {
+            // Backend trả về errors dạng: {detail: "Error message"}
+            const errorMessage = error.response.data?.detail || 
+                                error.response.data?.message || 
+                                error.response.statusText || 
+                                'An error occurred';
+            
+            // Tạo error object với message rõ ràng hơn
+            const customError = new Error(errorMessage);
+            customError.status = error.response.status;
+            customError.data = error.response.data;
+            
+            return Promise.reject(customError);
+        } else if (error.request) {
+            // Request được gửi nhưng không nhận được response
+            return Promise.reject(new Error('Network error: No response from server'));
+        } else {
+            // Có lỗi khi setup request
+            return Promise.reject(error);
+        }
+    }
+);
+
 export default axiosClient;
