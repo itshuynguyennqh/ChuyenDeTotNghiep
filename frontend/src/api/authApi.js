@@ -24,7 +24,7 @@ export const DangKyTaiKhoanView = (data) => {
  * @returns {Promise} Response with {message, customer_id}
  */
 export const verifyRegistrationAPI = (data) => {
-    return axiosClient.post('/auth/verify-registration', data);
+    return axiosClient.post('/auth/verify_registration', data);
 };
 
 /**
@@ -33,7 +33,7 @@ export const verifyRegistrationAPI = (data) => {
  * @returns {Promise} Response with {message}
  */
 export const forgotPasswordAPI = (data) => {
-    return axiosClient.post('/auth/forgot-password', data);
+    return axiosClient.post('/auth/forgot_password', data);
 };
 
 /**
@@ -42,7 +42,7 @@ export const forgotPasswordAPI = (data) => {
  * @returns {Promise} Response with {message}
  */
 export const resetPasswordAPI = (data) => {
-    return axiosClient.post('/auth/reset-password', data);
+    return axiosClient.post('/auth/reset_password', data);
 };
 
 // Aliases for backward compatibility

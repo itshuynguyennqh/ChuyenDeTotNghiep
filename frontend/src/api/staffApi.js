@@ -1,9 +1,18 @@
 import axiosClient from './axiosClient';
 
 /**
+ * @deprecated This file uses legacy endpoints.
+ * 
  * NOTE: This file contains staff-specific order management APIs.
  * Admin staff management (CRUD) is in adminApi.js
  * Category and Product management for staff should use adminApi.js
+ * 
+ * Please use adminApi.js for all admin/staff operations:
+ * - fetchOrdersAPI() -> use adminApi.getAdminOrders()
+ * - fetchOrderDetailAPI() -> use adminApi.getAdminOrder()
+ * - updateOrderStatusAPI() -> use adminApi.updateOrderStatus()
+ * - prepareForPickupAPI() -> use adminApi.prepareRentalOrder()
+ * - reviewCancellationRequestAPI() -> use adminApi.reviewOrderCancellationRequest()
  */
 
 // ==================== Staff Order Management APIs ====================

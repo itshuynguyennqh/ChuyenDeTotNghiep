@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // Logic:
 // 1. Nếu có biến môi trường REACT_APP_API_URL (ví dụ từ Ngrok), dùng nó.
-// 2. Nếu không, mặc định dùng localhost hoặc IP mạng LAN hiện tại với cổng 8000.
-const baseURL = process.env.REACT_APP_API_URL || `http://${window.location.hostname}:8000`;
+// 2. Nếu không, mặc định dùng localhost với cổng 8001 (theo API documentation).
+const baseURL = process.env.REACT_APP_API_URL || `http://${window.location.hostname}:8001`;
 
 const axiosClient = axios.create({
     baseURL: baseURL,

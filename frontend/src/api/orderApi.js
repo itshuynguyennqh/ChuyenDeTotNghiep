@@ -1,11 +1,16 @@
 import axiosClient from './axiosClient';
 
 /**
+ * @deprecated This file uses legacy endpoints.
+ * 
  * NOTE: This file contains customer-facing order APIs.
  * Admin order management APIs are in adminApi.js
  * 
- * Some endpoints below may be using legacy paths. 
- * If backend has /users/orders endpoints, update accordingly.
+ * Checkout API is available in storeApi.js:
+ * - placeOrderAPI() -> use storeApi.checkout()
+ * 
+ * Customer order history endpoints are not available in current API documentation.
+ * These legacy endpoints may be removed in future versions.
  */
 
 // ==================== Customer Order APIs ====================

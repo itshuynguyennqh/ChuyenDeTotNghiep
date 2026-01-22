@@ -138,22 +138,3 @@ export const checkout = (data) => {
     return axiosClient.post('/store/order/checkout', data);
 };
 
-// ===================================================================
-// STORE API - Store Info Endpoints (if available)
-// ===================================================================
-
-/**
- * Get store information
- * @returns {Promise} Store info (name, logo, description, contact, social media)
- */
-export const getStoreInfo = () => {
-    return axiosClient.get('/store/info');
-};
-
-/**
- * Get store locations
- * @returns {Promise} List of store locations
- */
-export const getStoreLocations = () => {
-    return axiosClient.get('/store/locations');
-};

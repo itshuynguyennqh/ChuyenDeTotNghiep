@@ -39,9 +39,12 @@ export const deleteAdminProduct = (productId) => {
 };
 
 // Product Reviews APIs
-export const getProductReviews = (productId, params = {}) => {
+export const getAdminProductReviews = (productId, params = {}) => {
   return axiosClient.get(`/admin/reviews/${productId}`, { params });
 };
+
+// Backward compatibility alias
+export const getProductReviews = getAdminProductReviews;
 
 // Order APIs
 export const getAdminOrders = (params = {}) => {

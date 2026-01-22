@@ -1,74 +1,64 @@
 import axiosClient from './axiosClient';
 
-// Profile APIs
+// ===================================================================
+// USER API - Profile Endpoints
+// ===================================================================
+
+/**
+ * Get user profile
+ * @returns {Promise} User profile data
+ */
 export const getUserProfile = () => {
-  return axiosClient.get('/users/profile');
+  return axiosClient.get('/user/profile');
 };
 
+/**
+ * Update user profile
+ * @param {Object} data - Profile update data (first_name, last_name, phone, avatar_url - all optional)
+ * @returns {Promise} Success response
+ */
 export const updateUserProfile = (data) => {
-  return axiosClient.patch('/users/profile', data);
+  return axiosClient.patch('/user/profile', data);
 };
 
-// Password APIs
-export const changePassword = (currentPassword, newPassword, confirmPassword) => {
-  return axiosClient.post('/users/change-password', {
-    current_password: currentPassword,
-    new_password: newPassword,
-    confirm_password: confirmPassword
-  });
-};
+// ===================================================================
+// USER API - Address Endpoints
+// ===================================================================
 
-// Address APIs
+/**
+ * Get user addresses
+ * @returns {Promise} List of user addresses
+ */
 export const fetchAddressesAPI = () => {
-  return axiosClient.get('/users/addresses');
+  return axiosClient.get('/user/addresses');
 };
 
+/**
+ * Add new address
+ * @param {Object} data - Address data (address_line1, city, postal_code, phone_number, is_default)
+ * @returns {Promise} Created address data
+ */
 export const addAddressAPI = (data) => {
-  return axiosClient.post('/users/addresses', data);
+  return axiosClient.post('/user/addresses', data);
 };
 
+/**
+ * Update address
+ * @param {number} addressId - Address ID
+ * @param {Object} data - Address update data (all fields optional)
+ * @returns {Promise} Success response
+ */
 export const updateAddressAPI = (addressId, data) => {
-  return axiosClient.patch(`/users/addresses/${addressId}`, data);
+  return axiosClient.patch(`/user/addresses/${addressId}`, data);
 };
 
+/**
+ * Delete address
+ * @param {number} addressId - Address ID
+ * @returns {Promise} Success response
+ */
 export const deleteAddressAPI = (addressId) => {
-  return axiosClient.delete(`/users/addresses/${addressId}`);
-};
-
-// Wishlist APIs
-export const getWishlists = (params = {}) => {
-  return axiosClient.get('/users/wishlists', { params });
-};
-
-export const addToWishlist = (productId) => {
-  return axiosClient.post('/users/wishlists', { product_id: productId });
-};
-
-export const removeFromWishlist = (productId) => {
-  return axiosClient.delete(`/users/wishlists/${productId}`);
-};
-
-// Notification APIs
-export const getNotifications = (params = {}) => {
-  return axiosClient.get('/users/notifications', { params });
-};
-
-export const markNotificationAsRead = (notificationId) => {
-  return axiosClient.patch(`/users/notifications/${notificationId}/read`);
-};
-
-// Settings APIs
-export const getUserSettings = () => {
-  return axiosClient.get('/users/settings');
-};
-
-export const updateUserSettings = (data) => {
-  return axiosClient.patch('/users/settings', data);
-};
-
-// Logout API
-export const logoutAPI = () => {
-  return axiosClient.post('/users/logout');
+  return axiosClient.delete(`/user/addresses/${addressId}`);
 };
 
 // Backward compatibility aliases
