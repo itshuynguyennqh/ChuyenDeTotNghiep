@@ -23,15 +23,31 @@ const LoginPage = () => {
         setLoading(true);
 
         try {
-            const response = await login({ email, password });
-            // Lưu token vào localStorage hoặc context
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            
-            // Kiểm tra Role để điều hướng
-            const userRole = response.data.user.Role;
-            if (userRole === 'Admin' || userRole === 'Order Staff' || userRole === 'Product Staff') {
-                navigate('/admin/dashboard');
+            // Backend yêu cầu payload: {identifier, password}
+            // identifier có thể là email hoặc số điện thoại
+            const response = await login({ identifier: email, password });
+
+            // Backend trả về: {access_token, token_type, role, name, id}
+            localStorage.setItem('token', response.data.access_token);
+            localStorage.setItem('user', JSON.stringify({
+                id: response.data.id,
+                name: response.data.name,
+                role: response.data.role,
+                token_type: response.data.token_type,
+            }));
+
+            // Kiểm tra role để điều hướng
+            // Backend returns: "customer", "product_staff", "order_staff", or "admin"
+            const userRole = response.data.role;
+            if (userRole !== 'customer') {
+                if (userRole === 'product_staff') {
+                    navigate('/admin/products');
+                } else if (userRole === 'order_staff') {
+                    navigate('/admin/orders');
+                } else {
+                    // Admin or other roles go to dashboard
+                    navigate('/admin/dashboard');
+                }
             } else {
                 navigate('/');
             }

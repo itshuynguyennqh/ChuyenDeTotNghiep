@@ -34,9 +34,12 @@ const AdminProductList = () => {
     try {
       setLoading(true);
       const response = await getAdminProducts({ status: statusFilter, search: searchValue });
-      setProducts(response.data);
+      // API returns PagedResponse with structure: {status, code, data: [...], pagination}
+      // Extract the actual array from response.data.data
+      setProducts(response.data?.data || []);
     } catch (error) {
       console.error('Failed to load products:', error);
+      setProducts([]); // Set empty array on error to prevent filter errors
     } finally {
       setLoading(false);
     }
@@ -171,7 +174,7 @@ const AdminProductList = () => {
     },
   ];
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = (Array.isArray(products) ? products : []).filter((product) => {
     if (searchValue) {
       const searchLower = searchValue.toLowerCase();
       return (

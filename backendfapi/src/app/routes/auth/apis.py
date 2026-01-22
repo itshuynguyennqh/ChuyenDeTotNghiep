@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from passlib.context import CryptContext
+from passlib.exc import UnknownHashError
 from jose import jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -73,10 +75,8 @@ def verify_otp(pending_user: models.PendingRegistration, verify_data: VerifyOTPR
 
     return True
 
-@auth_router.post("/login", response_model=TokenResponse)
-async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
-    identifier = login_data.identifier
-
+def _authenticate_user(identifier: str, password: str, db: Session):
+    """Helper function to authenticate user and return token response"""
     employee = db.query(models.Employee).filter(
         or_(
             models.Employee.EmailAddress == identifier,
@@ -85,20 +85,47 @@ async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     ).first()
 
     if employee:
-        if verify_password(login_data.password, employee.PasswordSalt):
-            token = create_access_token(data={
-                "sub": employee.EmailAddress or employee.PhoneNumber,
-                "role": employee.DepartmentName,
-                "type": "employee",
-                "id": employee.BusinessEntityID
-            })
-            return {
-                "access_token": token,
-                "token_type": "bearer",
-                "role": employee.DepartmentName,
-                "name": employee.FullName,
-                "id": employee.BusinessEntityID
-            }
+        # Check if password hash exists and is valid
+        if not employee.PasswordSalt:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Thông tin đăng nhập hoặc mật khẩu không chính xác",
+            )
+        
+        try:
+            if verify_password(password, employee.PasswordSalt):
+                # Map GroupName to role for frontend
+                # GroupName: "Product Staff" -> role: "product_staff"
+                # GroupName: "Order Staff" -> role: "order_staff"
+                # Otherwise (Admin) -> role: "admin" or keep DepartmentName
+                if employee.GroupName == "Product Staff":
+                    role_value = "product_staff"
+                elif employee.GroupName == "Order Staff":
+                    role_value = "order_staff"
+                else:
+                    # For admin or other roles, use "admin" or DepartmentName
+                    role_value = "admin"
+                
+                token = create_access_token(data={
+                    "sub": employee.EmailAddress or employee.PhoneNumber,
+                    "role": role_value,
+                    "type": "employee",
+                    "id": employee.BusinessEntityID
+                })
+                return {
+                    "access_token": token,
+                    "token_type": "bearer",
+                    "role": role_value,
+                    "name": employee.FullName,
+                    "id": employee.BusinessEntityID
+                }
+        except UnknownHashError:
+            # Handle cases where password hash format is invalid (e.g., old SHA256 format)
+            # This can happen if staff was created with the old generate_hash function
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Định dạng mật khẩu không hợp lệ. Vui lòng liên hệ quản trị viên để đặt lại mật khẩu.",
+            )
 
     customer_id = None
     
@@ -125,7 +152,7 @@ async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
         ).first()
 
         if cust_pass_record and customer_info:
-            if verify_password(login_data.password, cust_pass_record.PasswordSalt):
+            if verify_password(password, cust_pass_record.PasswordSalt):
                 primary_email_record = db.query(models.CustomerEmailAddress).filter(
                     models.CustomerEmailAddress.CustomerID == customer_id
                 ).first()
@@ -153,7 +180,26 @@ async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
         detail="Thông tin đăng nhập hoặc mật khẩu không chính xác",
     )
 
-@auth_router.post("/register")
+@auth_router.post("/auth/token", response_model=TokenResponse)
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    """
+    OAuth2 compatible token endpoint for Swagger UI.
+    Uses form data with 'username' and 'password' fields.
+    """
+    return _authenticate_user(form_data.username, form_data.password, db)
+
+@auth_router.post("/auth/login", response_model=TokenResponse)
+async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
+    """
+    JSON-based login endpoint for API clients.
+    Uses JSON body with 'identifier' and 'password' fields.
+    """
+    return _authenticate_user(login_data.identifier, login_data.password, db)
+
+@auth_router.post("/auth/register")
 async def register(
     reg_data: RegisterRequest, 
     background_tasks: BackgroundTasks,
@@ -205,7 +251,7 @@ async def register(
         "email": reg_data.email
     }
 
-@auth_router.post("/verify_registration")
+@auth_router.post("/auth/verify_registration")
 async def verify_registration(verify_data: VerifyOTPRequest, db: Session = Depends(get_db)):
     pending_user = db.query(models.PendingRegistration).filter(
         models.PendingRegistration.Email == verify_data.email
@@ -254,7 +300,7 @@ async def verify_registration(verify_data: VerifyOTPRequest, db: Session = Depen
         print(f"Error Verification: {e}")
         raise HTTPException(status_code=500, detail="Lỗi hệ thống khi tạo tài khoản")
 
-@auth_router.post("/forgot_password")
+@auth_router.post("/auth/forgot_password")
 async def forgot_password(
     request: ForgotPasswordRequest, 
     background_tasks: BackgroundTasks, 
@@ -293,7 +339,7 @@ async def forgot_password(
 
     return {"message": "Mã xác thực đã được gửi đến email của bạn."}
 
-@auth_router.post("/reset_password")
+@auth_router.post("/auth/reset_password")
 async def reset_password(
     request: ResetPasswordRequest, 
     db: Session = Depends(get_db)

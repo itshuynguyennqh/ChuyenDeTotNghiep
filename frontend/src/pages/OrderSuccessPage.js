@@ -2,10 +2,12 @@ import React from 'react';
 import { Container, Typography, Button, Box, Paper } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Link as RouterLink } from 'react-router-dom';
+import Chatbot from '../components/common/Chatbot';
 
 function OrderSuccessPage() {
     return (
-        <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
+        <Box>
+            <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
             <Paper elevation={3} sx={{ p: 4, textAlign: 'center', borderRadius: 2 }}>
                 <CheckCircleIcon sx={{ fontSize: 80, color: '#4caf50', mb: 2 }} />
                 
@@ -38,6 +40,10 @@ function OrderSuccessPage() {
                 </Box>
             </Paper>
         </Container>
+        
+        {/* Chatbot Component */}
+        <Chatbot />
+        </Box>
     );
 }
 

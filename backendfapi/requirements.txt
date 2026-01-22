@@ -2,3 +2,9 @@ fastapi
 uvicorn[standard]
 sqlalchemy
 pyodbc
+google-generativeai
+passlib
+argon2-cffi
+python-jose
+python-dotenv
+fastapi-mail

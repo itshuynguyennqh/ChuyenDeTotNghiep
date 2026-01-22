@@ -1,5 +1,6 @@
 // AccountPage.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Grid, Box, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Divider } from '@mui/material';
 import { Person as PersonIcon, Home as HomeIcon, Payment as PaymentIcon, Assignment as OrderIcon } from '@mui/icons-material';
 import AccountInfo from '../components/account/AccountInfo';
@@ -9,8 +10,22 @@ import OrderHistory from '../components/account/OrderHistory';
 import OrderDetail from '../components/account/OrderDetail';
 
 const AccountPage = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('Account Information');
     const [selectedOrder, setSelectedOrder] = useState(null);
+    
+    // Get user info from localStorage
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userName = user.name || 'Account';
+    
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Dispatch event to update cart count in header
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
+        navigate('/');
+    };
+    
     const menuItems = [
         { text: 'Account Information', icon: <PersonIcon /> },
         { text: 'Saved Address', icon: <HomeIcon /> },
@@ -27,7 +42,24 @@ const AccountPage = () => {
                     <Grid item xs={12} md={3}>
                         <Paper sx={{ borderRadius: '20px', overflow: 'hidden', p: 2 }}>
                             <Box sx={{ p: 2, mb: 2 }}>
-                                <Typography fontWeight="bold">Kumo’s Account <Typography component="span" sx={{ fontWeight: 'normal', color: '#666', cursor: 'pointer' }}>(Log out)</Typography></Typography>
+                                <Typography fontWeight="bold">
+                                    {userName}'s Account{' '}
+                                    <Typography 
+                                        component="span" 
+                                        sx={{ 
+                                            fontWeight: 'normal', 
+                                            color: '#666', 
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                color: '#1976d2',
+                                                textDecoration: 'underline'
+                                            }
+                                        }}
+                                        onClick={handleLogout}
+                                    >
+                                        (Log out)
+                                    </Typography>
+                                </Typography>
                             </Box>
                             <Divider sx={{ mb: 1 }} />
                             <List>

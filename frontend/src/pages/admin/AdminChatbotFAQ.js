@@ -46,13 +46,34 @@ const AdminChatbotFAQ = () => {
     loadFAQs();
   }, [statusFilter]);
 
+  // Reload FAQs when search value changes (with debounce)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadFAQs();
+    }, 500); // Debounce 500ms
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchValue]);
+
   const loadFAQs = async () => {
     try {
       setLoading(true);
-      const response = await getAdminFAQs({ status: statusFilter, search: searchValue });
-      setFaqs(response.data);
+      // Build params object - only include status if not 'all'
+      const params = {};
+      if (statusFilter !== 'all') {
+        params.status = statusFilter;
+      }
+      if (searchValue) {
+        params.search = searchValue;
+      }
+      
+      const response = await getAdminFAQs(params);
+      // API returns PagedResponse with structure: {status, code, data: [...], pagination}
+      // Extract the actual array from response.data.data
+      setFaqs(response.data?.data || []);
     } catch (error) {
       console.error('Failed to load FAQs:', error);
+      setFaqs([]); // Set empty array on error to prevent filter errors
     } finally {
       setLoading(false);
     }
@@ -61,10 +82,14 @@ const AdminChatbotFAQ = () => {
   const handleOpenModal = (faq = null) => {
     if (faq) {
       setEditFAQ(faq);
+      // Convert keywords array to comma-separated string for form
+      const keywordsStr = Array.isArray(faq.keywords) 
+        ? faq.keywords.join(', ') 
+        : (faq.keywords || '');
       setFormData({
         question: faq.question || '',
         answer: faq.answer || '',
-        keywords: faq.keywords || '',
+        keywords: keywordsStr,
         status: faq.status || 'active',
       });
     } else {
@@ -97,10 +122,22 @@ const AdminChatbotFAQ = () => {
 
   const handleSave = async () => {
     try {
+      // Convert keywords string to array for API
+      const keywordsArray = formData.keywords
+        ? formData.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0)
+        : [];
+      
+      const payload = {
+        question: formData.question,
+        answer: formData.answer,
+        keywords: keywordsArray,
+        status: formData.status,
+      };
+
       if (editFAQ) {
-        await updateAdminFAQ(editFAQ.id, formData);
+        await updateAdminFAQ(editFAQ.id, payload);
       } else {
-        await createAdminFAQ(formData);
+        await createAdminFAQ(payload);
       }
       loadFAQs();
       handleCloseModal();
@@ -140,7 +177,16 @@ const AdminChatbotFAQ = () => {
         </Typography>
       ),
     },
-    { id: 'keywords', label: 'KEYWORDS' },
+    {
+      id: 'keywords',
+      label: 'KEYWORDS',
+      render: (value) => {
+        if (Array.isArray(value)) {
+          return value.join(', ');
+        }
+        return value || '';
+      },
+    },
     {
       id: 'status',
       label: 'STATUS',
@@ -177,19 +223,8 @@ const AdminChatbotFAQ = () => {
     },
   ];
 
-  const filteredFAQs = faqs.filter((faq) => {
-    if (searchValue) {
-      const searchLower = searchValue.toLowerCase();
-      return (
-        faq.question?.toLowerCase().includes(searchLower) ||
-        faq.answer?.toLowerCase().includes(searchLower) ||
-        faq.keywords?.toLowerCase().includes(searchLower)
-      );
-    }
-    return true;
-  });
-
-  const rows = filteredFAQs.map((faq) => ({
+  // No need for client-side filtering since API handles search and status filter
+  const rows = (Array.isArray(faqs) ? faqs : []).map((faq) => ({
     id: faq.id,
     question: faq.question,
     answer: faq.answer,

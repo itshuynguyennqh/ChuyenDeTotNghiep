@@ -45,12 +45,23 @@ const statusConfig = {
 };
 
 const StatusBadge = ({ status, customLabel }) => {
+  // Map numeric status values to string equivalents
+  // Customer/Staff status: 1 = active, 0 = banned/inactive
+  let statusString = '';
+  if (status === 1 || status === '1') {
+    statusString = 'active';
+  } else if (status === 0 || status === '0') {
+    statusString = 'banned';
+  } else if (status != null) {
+    statusString = String(status);
+  }
+  
   // Normalize status to lowercase with underscores
-  const normalizedStatus = status?.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+  const normalizedStatus = statusString.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
   const config = statusConfig[normalizedStatus] || { 
     color: '#9E9E9E', 
     bgColor: '#F5F5F5', 
-    label: status || 'Unknown' 
+    label: statusString || 'Unknown' 
   };
   
   return (

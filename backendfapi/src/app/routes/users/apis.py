@@ -13,7 +13,7 @@ from .config import *
 from ...helper import *
 
 users_router = APIRouter(prefix="/user", tags=["User"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 # ==========================================
 # 0. AUTH DEPENDENCY

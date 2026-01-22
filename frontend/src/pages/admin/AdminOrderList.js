@@ -31,9 +31,12 @@ const AdminOrderList = () => {
       setLoading(true);
       const type = tabValue === 0 ? 'purchase' : 'rental';
       const response = await getAdminOrders(type, { status: statusFilter, search: searchValue });
-      setOrders(response.data);
+      // API returns PagedResponse with structure: {status, code, data: [...], pagination}
+      // Extract the actual array from response.data.data
+      setOrders(response.data?.data || []);
     } catch (error) {
       console.error('Failed to load orders:', error);
+      setOrders([]); // Set empty array on error to prevent filter errors
     } finally {
       setLoading(false);
     }
@@ -113,7 +116,7 @@ const AdminOrderList = () => {
     },
   ];
 
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = (Array.isArray(orders) ? orders : []).filter((order) => {
     if (searchValue) {
       const searchLower = searchValue.toLowerCase();
       return order.id?.toLowerCase().includes(searchLower);

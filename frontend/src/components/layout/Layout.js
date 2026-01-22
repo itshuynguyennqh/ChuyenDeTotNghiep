@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Box } from '@mui/material';
 import Header from './Header';
 import Footer from './Footer';
+import Chatbot from '../common/Chatbot';
 
 function Layout() {
   return (
@@ -15,6 +16,9 @@ function Layout() {
       </Box>
 
       <Footer />
+      
+      {/* Chatbot Component - appears on all user pages */}
+      <Chatbot />
     </Box>
   );
 }

@@ -4,14 +4,14 @@ from sqlalchemy import text
 from typing import List
 import json
 import re
-from google import genai
+import google.generativeai as genai
 
 from .config import *
 # Giả sử bạn có các schema request/response như ChatRequest, ChatResponse trong config
 # from .schemas import ChatRequest, ChatResponse 
 from app.database import get_db
 
-client = genai.Client(api_key=GENAI_API_KEY)
+genai.configure(api_key=GENAI_API_KEY)
 
 chatbot_router = APIRouter(prefix="/chatbot", tags=["Chatbot"])
 
@@ -127,7 +127,8 @@ def summarize_sql_results(query_data: List[dict], user_question: str) -> str:
     """
     try:
         # Dùng model nhẹ hoặc chính model đó để tóm tắt
-        resp = client.models.generate_content(model=MODEL_ID, contents=prompt)
+        model = genai.GenerativeModel(MODEL_ID)
+        resp = model.generate_content(prompt)
         return resp.text.strip()
     except:
         return "Đã tìm thấy dữ liệu nhưng không thể tóm tắt."
@@ -140,9 +141,9 @@ async def chat_with_bot(payload: ChatRequest, db: Session = Depends(get_db)):
     
     # 1. Gửi Prompt phân tích cho AI
     try:
-        analysis_resp = client.models.generate_content(
-            model=MODEL_ID,
-            contents=f"{SYSTEM_INSTRUCTION}\n\nUSER QUESTION: {user_msg}"
+        model = genai.GenerativeModel(MODEL_ID)
+        analysis_resp = model.generate_content(
+            f"{SYSTEM_INSTRUCTION}\n\nUSER QUESTION: {user_msg}"
         )
         ai_decision = clean_json_response(analysis_resp.text)
         

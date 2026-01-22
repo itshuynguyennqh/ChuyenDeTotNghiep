@@ -56,15 +56,18 @@ const AdminStaffList = () => {
 
   useEffect(() => {
     loadStaff();
-  }, [roleFilter, statusFilter]);
+  }, [roleFilter, statusFilter, searchValue]);
 
   const loadStaff = async () => {
     try {
       setLoading(true);
       const response = await getAdminStaff({ role: roleFilter, status: statusFilter, search: searchValue });
-      setStaff(response.data);
+      // API returns PagedResponse with structure: {status, code, data: [...], pagination}
+      // Extract the actual array from response.data.data
+      setStaff(response.data?.data || []);
     } catch (error) {
       console.error('Failed to load staff:', error);
+      setStaff([]); // Set empty array on error to prevent filter errors
     } finally {
       setLoading(false);
     }
@@ -73,12 +76,18 @@ const AdminStaffList = () => {
   const handleOpenModal = (staffMember = null) => {
     if (staffMember) {
       setEditStaff(staffMember);
+      // Map role từ API (order_staff/product_staff) sang format form (Order Staff/Product Staff)
+      const roleMapping = {
+        'order_staff': 'Order Staff',
+        'product_staff': 'Product Staff'
+      };
+      
       setFormData({
-        fullName: staffMember.fullName || '',
-        phone: staffMember.phone || '',
+        fullName: staffMember.full_name || staffMember.fullName || '',
+        phone: staffMember.phone_number || staffMember.phone || '',
         email: staffMember.email || '',
         password: '',
-        role: staffMember.role || 'Order Staff',
+        role: staffMember.role_label || roleMapping[staffMember.role] || 'Order Staff',
         status: staffMember.status || 'active',
       });
     } else {
@@ -114,16 +123,115 @@ const AdminStaffList = () => {
 
   const handleSave = async () => {
     try {
+      // Validation
+      if (!formData.fullName || !formData.fullName.trim()) {
+        alert('Vui lòng nhập tên đầy đủ');
+        return;
+      }
+      if (!formData.email || !formData.email.trim()) {
+        alert('Vui lòng nhập email');
+        return;
+      }
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        alert('Vui lòng nhập email hợp lệ');
+        return;
+      }
+      if (!formData.phone || !formData.phone.trim()) {
+        alert('Vui lòng nhập số điện thoại');
+        return;
+      }
+      if (!editStaff && (!formData.password || !formData.password.trim())) {
+        alert('Vui lòng nhập mật khẩu');
+        return;
+      }
+      
+      // Map role từ "Order Staff"/"Product Staff" sang "order_staff"/"product_staff"
+      const roleMapping = {
+        'Order Staff': 'order_staff',
+        'Product Staff': 'product_staff'
+      };
+      
       if (editStaff) {
-        await updateAdminStaff(editStaff.id, formData);
+        // For update, only send fields that are provided
+        const updateData = {};
+        if (formData.fullName) updateData.full_name = formData.fullName.trim();
+        if (formData.phone) updateData.phone_number = formData.phone.trim();
+        if (formData.email) updateData.email = formData.email.trim();
+        if (formData.password && formData.password.trim()) {
+          updateData.password = formData.password.trim();
+        }
+        if (formData.role) updateData.role = roleMapping[formData.role];
+        if (formData.status) updateData.status = formData.status;
+        
+        const response = await updateAdminStaff(editStaff.id, updateData);
+        alert(response.data?.message || 'Cập nhật nhân viên thành công!');
       } else {
-        await createAdminStaff(formData);
+        // Validate role mapping
+        const mappedRole = roleMapping[formData.role];
+        if (!mappedRole) {
+          alert(`Vui lòng chọn role hợp lệ. Giá trị hiện tại: ${formData.role}`);
+          return;
+        }
+        
+        // Validate status
+        if (formData.status !== 'active' && formData.status !== 'inactive') {
+          alert(`Vui lòng chọn status hợp lệ. Giá trị hiện tại: ${formData.status}`);
+          return;
+        }
+        
+        // Map formData từ camelCase sang snake_case format API
+        const apiData = {
+          full_name: formData.fullName.trim(),
+          phone_number: formData.phone.trim(),
+          email: formData.email.trim(),
+          password: formData.password.trim(),
+          role: mappedRole,
+          status: formData.status
+        };
+        
+        // Final validation: ensure no empty strings
+        if (!apiData.full_name || !apiData.phone_number || !apiData.email || !apiData.password) {
+          alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+          return;
+        }
+        
+        // Debug: Log the data being sent
+        console.log('Sending staff data:', apiData);
+        
+        const response = await createAdminStaff(apiData);
+        alert(response.data?.message || 'Tạo tài khoản nhân viên thành công!');
       }
       loadStaff();
       handleCloseModal();
     } catch (error) {
       console.error('Failed to save staff:', error);
-      alert('Failed to save staff');
+      console.error('Error response:', error.response?.data);
+      
+      // Handle FastAPI validation errors (422)
+      let errorMessage = 'Không thể lưu thông tin nhân viên';
+      
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        
+        // FastAPI validation errors return detail as an array
+        if (Array.isArray(errorData.detail)) {
+          const validationErrors = errorData.detail.map(err => {
+            const field = err.loc?.join('.') || 'field';
+            return `${field}: ${err.msg}`;
+          }).join('\n');
+          errorMessage = `Lỗi validation:\n${validationErrors}`;
+        } else if (typeof errorData.detail === 'string') {
+          errorMessage = errorData.detail;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
     }
   };
 
@@ -220,27 +328,57 @@ const AdminStaffList = () => {
     },
   ];
 
-  const filteredStaff = staff.filter((member) => {
+  const filteredStaff = (Array.isArray(staff) ? staff : []).filter((member) => {
+    // Map role từ API format để so sánh
+    const roleMapping = {
+      'order_staff': 'Order Staff',
+      'product_staff': 'Product Staff'
+    };
+    const memberRole = member.role_label || roleMapping[member.role] || member.role;
+    
+    // Filter by role
+    if (roleFilter !== 'all' && memberRole !== roleFilter) {
+      return false;
+    }
+    
+    // Filter by status
+    if (statusFilter !== 'all' && member.status !== statusFilter) {
+      return false;
+    }
+    
+    // Filter by search
     if (searchValue) {
       const searchLower = searchValue.toLowerCase();
+      const fullName = (member.full_name || member.fullName || '').toLowerCase();
+      const email = (member.email || '').toLowerCase();
+      const phone = (member.phone_number || member.phone || '').toLowerCase();
+      
       return (
-        member.fullName?.toLowerCase().includes(searchLower) ||
-        member.email?.toLowerCase().includes(searchLower) ||
-        member.phone?.toLowerCase().includes(searchLower)
+        fullName.includes(searchLower) ||
+        email.includes(searchLower) ||
+        phone.includes(searchLower)
       );
     }
     return true;
   });
 
-  const rows = filteredStaff.map((member) => ({
-    id: member.id,
-    fullName: member.fullName,
-    phone: member.phone,
-    email: member.email,
-    role: member.role,
-    status: member.status,
-    ...member,
-  }));
+  const rows = filteredStaff.map((member) => {
+    // Map role từ API format (order_staff/product_staff) sang display format (Order Staff/Product Staff)
+    const roleMapping = {
+      'order_staff': 'Order Staff',
+      'product_staff': 'Product Staff'
+    };
+    
+    return {
+      id: member.id,
+      fullName: member.full_name || member.fullName,
+      phone: member.phone_number || member.phone,
+      email: member.email,
+      role: member.role_label || roleMapping[member.role] || member.role,
+      status: member.status,
+      ...member,
+    };
+  });
 
   return (
     <Box>

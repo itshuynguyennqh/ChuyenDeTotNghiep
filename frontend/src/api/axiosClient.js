@@ -10,9 +10,9 @@ const axiosClient = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    // Lưu ý: Khi dùng Ngrok bản free, đôi khi withCredentials gây lỗi CORS hoặc browser chặn cookie,
-    // nhưng với setup hiện tại cứ giữ nguyên.
-    withCredentials: true,
+    // Auth của dự án đang dùng Bearer token (Authorization header), không dùng cookie.
+    // Bật withCredentials thường gây "Network Error" do CORS/credentials mismatch.
+    withCredentials: false,
 });
 
 // Interceptor để tự động gắn token vào mọi request

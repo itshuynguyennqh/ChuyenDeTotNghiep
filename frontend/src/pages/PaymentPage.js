@@ -13,6 +13,7 @@ import {
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import AddressManager from '../components/common/AddressManager';
+import Chatbot from '../components/common/Chatbot';
 import { fetchCartAPI, fetchAddressesAPI, placeOrderAPI } from '../api/productApi';
 import { getAccountDetails } from '../api/authApi';
 
@@ -538,6 +539,9 @@ function PaymentPage() {
                     </Typography>
                 </DialogContent>
             </Dialog>
+            
+            {/* Chatbot Component */}
+            <Chatbot />
         </Box>
     );
 }

@@ -36,9 +36,12 @@ const AdminPromotionList = () => {
     try {
       setLoading(true);
       const response = await getAdminPromotions({ status: statusFilter, type: typeFilter, search: searchValue });
-      setPromotions(response.data);
+      // API returns PagedResponse with structure: {status, code, data: [...], pagination}
+      // Extract the actual array from response.data.data
+      setPromotions(response.data?.data || []);
     } catch (error) {
       console.error('Failed to load promotions:', error);
+      setPromotions([]); // Set empty array on error to prevent filter errors
     } finally {
       setLoading(false);
     }
@@ -163,7 +166,7 @@ const AdminPromotionList = () => {
     },
   ];
 
-  const filteredPromotions = promotions.filter((promotion) => {
+  const filteredPromotions = (Array.isArray(promotions) ? promotions : []).filter((promotion) => {
     if (searchValue) {
       const searchLower = searchValue.toLowerCase();
       return (

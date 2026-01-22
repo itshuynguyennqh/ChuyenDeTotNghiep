@@ -41,9 +41,12 @@ const AdminCategoryList = () => {
     try {
       setLoading(true);
       const response = await getAdminCategories();
-      setCategories(response.data);
+      // API returns PagedResponse with structure: {status, code, data: [...], pagination}
+      // Extract the actual array from response.data.data
+      setCategories(response.data?.data || []);
     } catch (error) {
       console.error('Failed to load categories:', error);
+      setCategories([]); // Set empty array on error to prevent filter errors
     } finally {
       setLoading(false);
     }
@@ -122,7 +125,7 @@ const AdminCategoryList = () => {
     },
   ];
 
-  const filteredCategories = categories.filter((category) => {
+  const filteredCategories = (Array.isArray(categories) ? categories : []).filter((category) => {
     if (searchValue) {
       return category.name?.toLowerCase().includes(searchValue.toLowerCase());
     }

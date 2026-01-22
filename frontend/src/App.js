@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
@@ -33,6 +33,28 @@ import AdminPromotionEdit from './pages/admin/AdminPromotionEdit';
 import AdminRentalConfig from './pages/admin/AdminRentalConfig';
 import AdminChatbotFAQ from './pages/admin/AdminChatbotFAQ';
 
+// Component to redirect based on user role
+const AdminRouteRedirect = () => {
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || user.Role || 'admin';
+    
+    // Backend returns: "product_staff", "order_staff", or "admin"
+    if (userRole === 'product_staff') {
+      navigate('/admin/products', { replace: true });
+    } else if (userRole === 'order_staff') {
+      navigate('/admin/orders', { replace: true });
+    } else {
+      // Admin or default
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [navigate]);
+  
+  return null;
+};
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -53,7 +75,7 @@ function App() {
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route index element={<AdminRouteRedirect />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="products" element={<AdminProductList />} />
             <Route path="products/add" element={<AdminProductAdd />} />

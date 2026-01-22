@@ -9,8 +9,26 @@ from app.database import get_db
 from app.models import *
 from .config import * 
 from ...helper import *
+from app.routes.auth.apis import get_password_hash
+import re
 
 admin_router = APIRouter(prefix="/admin", tags=["Admin"])
+
+def parse_staff_id(staff_id: str | int) -> int:
+    """Parse staff ID from either integer or 'STF-XXX' format"""
+    if isinstance(staff_id, int):
+        return staff_id
+    if isinstance(staff_id, str):
+        # Try to extract number from "STF-XXX" format
+        match = re.search(r'STF-(\d+)', staff_id.upper())
+        if match:
+            return int(match.group(1))
+        # If it's just a number string, convert it
+        try:
+            return int(staff_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid staff ID format: {staff_id}")
+    raise HTTPException(status_code=400, detail=f"Invalid staff ID type: {type(staff_id)}")
 
 # ==========================================
 # 1. DASHBOARD & REPORTS
@@ -1469,7 +1487,7 @@ async def get_staffs(
         stt_lbl = "Active" if is_active else "Inactive"
 
         results.append(StaffResponse(
-            id=emp.BusinessEntityID,
+            id=f"STF-{emp.BusinessEntityID:03d}",
             full_name=emp.FullName,
             email=emp.EmailAddress,
             phone_number=emp.PhoneNumber,
@@ -1494,8 +1512,8 @@ async def create_staff(payload: StaffCreateRequest, db: Session = Depends(get_db
     if db.query(Employee).filter(Employee.EmailAddress == payload.email).first():
         raise HTTPException(status_code=400, detail="Email already exists")
 
-    # 2. Hash Password
-    pwd_hash, salt = generate_hash(payload.password)
+    # 2. Hash Password (using Argon2 to match login verification)
+    pwd_hash = get_password_hash(payload.password)
 
     # 3. Map Input -> DB Fields
     
@@ -1543,9 +1561,10 @@ async def create_staff(payload: StaffCreateRequest, db: Session = Depends(get_db
     )
 
 @admin_router.get("/staffs/{staff_id}", response_model=APIResponse[StaffResponse])
-async def get_staff_detail(staff_id: int, db: Session = Depends(get_db)):
-    # Query trực tiếp bằng ID int
-    emp = db.query(Employee).filter(Employee.BusinessEntityID == staff_id).first()
+async def get_staff_detail(staff_id: str, db: Session = Depends(get_db)):
+    # Parse staff_id from either integer or 'STF-XXX' format
+    parsed_id = parse_staff_id(staff_id)
+    emp = db.query(Employee).filter(Employee.BusinessEntityID == parsed_id).first()
     if not emp:
         raise HTTPException(status_code=404, detail="Staff not found")
 
@@ -1564,7 +1583,7 @@ async def get_staff_detail(staff_id: int, db: Session = Depends(get_db)):
 
     data = StaffResponse(
         # Output vẫn format đẹp để hiển thị, nhưng input URL là số
-        id=emp.BusinessEntityID,
+        id=f"STF-{emp.BusinessEntityID:03d}",
         full_name=emp.FullName,
         email=emp.EmailAddress,
         phone_number=emp.PhoneNumber,
@@ -1582,11 +1601,13 @@ async def get_staff_detail(staff_id: int, db: Session = Depends(get_db)):
 # 4. PATCH - UPDATE STAFF
 @admin_router.patch("/staffs/{staff_id}", response_model=APIResponse)
 async def update_staff(
-    staff_id: int, 
+    staff_id: str, 
     payload: StaffUpdateRequest, 
     db: Session = Depends(get_db)
 ):
-    emp = db.query(Employee).filter(Employee.BusinessEntityID == staff_id).first()
+    # Parse staff_id from either integer or 'STF-XXX' format
+    parsed_id = parse_staff_id(staff_id)
+    emp = db.query(Employee).filter(Employee.BusinessEntityID == parsed_id).first()
     if not emp:
         raise HTTPException(status_code=404, detail="Staff not found")
 
@@ -1611,19 +1632,19 @@ async def update_staff(
         else:
             emp.EndDate = date.today() # Inactive (Nghỉ việc)
 
-    # 4. Update Password (Optional)
+    # 4. Update Password (Optional) - using Argon2 to match login verification
     if payload.password and payload.password.strip():
-        new_hash, new_salt = generate_hash(payload.password)
-        emp.PasswordHash = new_hash
-        emp.PasswordSalt = new_salt
+        emp.PasswordSalt = get_password_hash(payload.password)
 
     db.commit()
     return success_response(message="Staff updated successfully")
 
 # 5. DELETE STAFF
 @admin_router.delete("/staffs/{staff_id}", response_model=APIResponse)
-async def delete_staff(staff_id: int, db: Session = Depends(get_db)):
-    emp = db.query(Employee).filter(Employee.BusinessEntityID == staff_id).first()
+async def delete_staff(staff_id: str, db: Session = Depends(get_db)):
+    # Parse staff_id from either integer or 'STF-XXX' format
+    parsed_id = parse_staff_id(staff_id)
+    emp = db.query(Employee).filter(Employee.BusinessEntityID == parsed_id).first()
     if not emp:
         raise HTTPException(status_code=404, detail="Staff not found")
 

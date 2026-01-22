@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
     Box, Drawer, AppBar, Toolbar, List, Typography,
@@ -12,7 +12,6 @@ import CategoryIcon from '@mui/icons-material/Category';
 import GroupIcon from '@mui/icons-material/Group';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import GroupsIcon from '@mui/icons-material/Groups';
-import SettingsIcon from '@mui/icons-material/Settings';
 import TuneIcon from '@mui/icons-material/Tune';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -38,7 +37,6 @@ const AdminLayout = () => {
         { text: 'Customer', icon: <GroupIcon />, path: '/admin/customers' },
         { text: 'Orders', icon: <ListAltIcon />, path: '/admin/orders' },
         { text: 'Staff', icon: <GroupsIcon />, path: '/admin/staff' },
-        { text: 'Setting', icon: <SettingsIcon />, path: '/admin/settings' },
         { text: 'Rental Config', icon: <TuneIcon />, path: '/admin/rental-config' },
         { text: 'Chatbot & FAQ', icon: <ChatBubbleOutlineIcon />, path: '/admin/chatbot-faq' },
     ];
@@ -52,6 +50,37 @@ const AdminLayout = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userEmail = user.email || user.EmailAddress || 'admin@bikego.com';
     const userRole = user.role || user.Role || 'Admin';
+
+    // Check staff role (backend now returns: "product_staff", "order_staff", or "admin")
+    const isProductStaff = React.useMemo(() => {
+        const roleLower = (userRole || '').toLowerCase();
+        return roleLower === 'product_staff';
+    }, [userRole]);
+
+    const isOrderStaff = React.useMemo(() => {
+        const roleLower = (userRole || '').toLowerCase();
+        return roleLower === 'order_staff';
+    }, [userRole]);
+
+    // Filter menu items based on user role
+    // product_staff only sees Product menu
+    // order_staff only sees Orders menu
+    // Admin sees all menus
+    const filteredMenuItems = React.useMemo(() => {
+        
+        if (isProductStaff) {
+            // Product staff only sees Product menu
+            return menuItems.filter(item => item.path === '/admin/products');
+        }
+        
+        if (isOrderStaff) {
+            // Order staff only sees Orders menu
+            return menuItems.filter(item => item.path === '/admin/orders');
+        }
+        
+        // Admin sees all menus
+        return menuItems;
+    }, [isProductStaff, isOrderStaff]);
 
     const isActive = (path) => {
         if (path === '/admin/dashboard') {
@@ -67,6 +96,35 @@ const AdminLayout = () => {
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
+
+    // Redirect staff to appropriate page if they try to access unauthorized routes
+    useEffect(() => {
+        if (isProductStaff) {
+            // Product staff can only access /admin/products and its sub-routes
+            const allowedPaths = ['/admin/products'];
+            const currentPath = location.pathname;
+            
+            // Check if current path is allowed
+            const isAllowed = allowedPaths.some(path => currentPath === path || currentPath.startsWith(path + '/'));
+            
+            if (!isAllowed) {
+                // Redirect to products page
+                navigate('/admin/products', { replace: true });
+            }
+        } else if (isOrderStaff) {
+            // Order staff can only access /admin/orders and its sub-routes
+            const allowedPaths = ['/admin/orders'];
+            const currentPath = location.pathname;
+            
+            // Check if current path is allowed
+            const isAllowed = allowedPaths.some(path => currentPath === path || currentPath.startsWith(path + '/'));
+            
+            if (!isAllowed) {
+                // Redirect to orders page
+                navigate('/admin/orders', { replace: true });
+            }
+        }
+    }, [location.pathname, isProductStaff, isOrderStaff, navigate]);
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -136,7 +194,7 @@ const AdminLayout = () => {
                     </Toolbar>
                     <Box sx={{ overflow: 'auto', px: 1 }}>
                         <List>
-                            {menuItems.map((item) => {
+                            {filteredMenuItems.map((item) => {
                                 const active = isActive(item.path);
                                 return (
                                     <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>

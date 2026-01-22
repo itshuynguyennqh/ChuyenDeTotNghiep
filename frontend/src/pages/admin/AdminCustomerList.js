@@ -38,10 +38,16 @@ const AdminCustomerList = () => {
     try {
       setLoading(true);
       const response = await getAdminCustomers({ status: statusFilter, search: searchValue });
-      setCustomers(response.data);
-      setTotalCustomers(response.data.length);
+      // API returns PagedResponse with structure: {status, code, data: [...], pagination}
+      // Extract the actual array from response.data.data
+      const customersData = response.data?.data || [];
+      setCustomers(customersData);
+      // Use pagination total_items if available, otherwise use array length
+      setTotalCustomers(response.data?.pagination?.total_items || customersData.length);
     } catch (error) {
       console.error('Failed to load customers:', error);
+      setCustomers([]); // Set empty array on error to prevent filter errors
+      setTotalCustomers(0);
     } finally {
       setLoading(false);
     }
@@ -59,7 +65,9 @@ const AdminCustomerList = () => {
   const handleRowClick = async (customer) => {
     try {
       const response = await getAdminCustomer(customer.id);
-      setSelectedCustomer(response.data);
+      // API returns APIResponse with structure: {status, code, data: {...}}
+      // Extract the actual customer object from response.data.data
+      setSelectedCustomer(response.data?.data || response.data || null);
       setDetailModalOpen(true);
     } catch (error) {
       console.error('Failed to load customer details:', error);
@@ -118,7 +126,7 @@ const AdminCustomerList = () => {
     },
   ];
 
-  const filteredCustomers = customers.filter((customer) => {
+  const filteredCustomers = (Array.isArray(customers) ? customers : []).filter((customer) => {
     if (searchValue) {
       const searchLower = searchValue.toLowerCase();
       return (
