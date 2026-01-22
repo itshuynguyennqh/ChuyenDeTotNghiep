@@ -81,6 +81,7 @@ def search_products(
     colors: Optional[List[str]] = Query(None, alias="color"),
     min_rating: Optional[float] = Query(None, ge=0, le=5),
     search: Optional[str] = Query(None),
+    is_rentable: Optional[bool] = Query(None, description="Filter by rentable products"),
     page: int = Query(1, ge=1),
     limit: int = Query(12, ge=1),
     db: Session = Depends(get_db)
@@ -106,8 +107,25 @@ def search_products(
     if category_id: filters.append(Product.ProductSubcategoryID == category_id)
     if condition: filters.append(Product.Condition == condition)
     if sizes: filters.append(Product.Size.in_(sizes))
-    if colors: filters.append(Product.Color.in_(colors))
+    if colors:
+        # Case-insensitive color filter for SQL Server
+        # Create case variations to handle different case formats in database
+        color_conditions = []
+        for color in colors:
+            # Create case variations: "Blue", "blue", "BLUE", "Blue"
+            color_variations = [color, color.lower(), color.upper(), color.capitalize()]
+            for color_var in color_variations:
+                color_conditions.append(Product.Color == color_var)
+        if color_conditions:
+            filters.append(or_(*color_conditions))
     if search: filters.append(Product.Name.ilike(f"%{search}%"))
+    if is_rentable is not None:
+        if is_rentable:
+            # Rentable Only: IsRentable == True
+            filters.append(Product.IsRentable == True)
+        else:
+            # Buy Only: IsRentable == False OR IsRentable IS NULL (default is False)
+            filters.append(or_(Product.IsRentable == False, Product.IsRentable.is_(None)))
     
     if price_range:
         if price_range == "under 1000": filters.append(Product.ListPrice < 1000)

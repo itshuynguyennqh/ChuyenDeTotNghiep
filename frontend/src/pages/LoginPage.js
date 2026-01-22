@@ -94,13 +94,13 @@ const LoginPage = () => {
                                     Demo Staff Accounts:
                                 </Typography>
                                 <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
-                                    <strong>Admin:</strong> admin@bikego.com / password
+                                    <strong>Admin:</strong> admin / admin123
                                 </Typography>
                                 <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
-                                    <strong>Order Staff:</strong> staff@bikego.com / password
+                                    <strong>Order Staff:</strong> stafforder@bikego.com / staff123
                                 </Typography>
                                 <Typography variant="caption" sx={{ display: 'block' }}>
-                                    <strong>Product Staff:</strong> product@bikego.com / password
+                                    <strong>Product Staff:</strong> staffproduct@bikego.com / staff123
                                 </Typography>
                             </Box>
                         </Box>

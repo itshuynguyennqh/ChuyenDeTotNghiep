@@ -27,7 +27,14 @@ export const getFeaturedProducts = () => {
  * @returns {Promise} Paginated list of products
  */
 export const searchProducts = (params = {}) => {
-    return axiosClient.get('/store/products/search', { params });
+    // FastAPI expects array parameters as ?color=Blue&color=Red (multiple same param names)
+    // Axios by default may serialize as ?color[]=Blue, so we need to configure paramsSerializer
+    return axiosClient.get('/store/products/search', { 
+        params,
+        paramsSerializer: {
+            indexes: null // Don't use brackets, use multiple same param names: ?color=Blue&color=Red
+        }
+    });
 };
 
 /**

@@ -49,6 +49,10 @@ const AdminLayout = () => {
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userEmail = user.email || user.EmailAddress || 'admin@bikego.com';
+    const userName = user.name || user.Name || user.full_name || user.FullName || 
+                     (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : null) ||
+                     (user.FirstName && user.LastName ? `${user.FirstName} ${user.LastName}` : null) ||
+                     userEmail; // Fallback to email if no name found
     const userRole = user.role || user.Role || 'Admin';
 
     // Check staff role (backend now returns: "product_staff", "order_staff", or "admin")
@@ -156,8 +160,8 @@ const AdminLayout = () => {
                             onClose={handleMenuClose}
                         >
                             <MenuItem disabled>
-                                <Typography variant="body2" sx={{ color: '#666' }}>
-                                    {userEmail}
+                                <Typography variant="body2" sx={{ color: '#666', fontWeight: 500 }}>
+                                    {userName}
                                 </Typography>
                             </MenuItem>
                             <MenuItem onClick={handleLogout}>

@@ -35,6 +35,7 @@ function ProductList() {
     const [sizes, setSizes] = useState([]);
     const [colors, setColors] = useState([]);
     const [minRating, setMinRating] = useState(null);
+    const [isRentable, setIsRentable] = useState(null);
     const [search, setSearch] = useState('');
 
     const handlePageChange = (event, value) => {
@@ -60,38 +61,31 @@ function ProductList() {
                 if (sizes.length > 0) params.size = sizes;
                 if (colors.length > 0) params.color = colors;
                 if (minRating) params.min_rating = minRating;
+                if (isRentable !== null) params.is_rentable = isRentable;
                 if (search) params.search = search;
 
                 const response = await searchProducts(params);
                 
-                // Debug: Log response để kiểm tra structure
-                console.log('API Response:', response);
-                console.log('Response data:', response.data);
-                
                 // API returns PagedResponse: {status, code, data: [...], pagination}
-                // Hoặc có thể response.data trực tiếp là array nếu API trả về khác format
                 let productsData = [];
                 let pagination = {};
                 
                 if (response.data) {
-                    // Kiểm tra nếu response.data là array trực tiếp
-                    if (Array.isArray(response.data)) {
-                        productsData = response.data;
-                    } 
-                    // Kiểm tra nếu response.data có .data property (PagedResponse format)
-                    else if (response.data.data && Array.isArray(response.data.data)) {
+                    // Check if response.data has .data property (PagedResponse format)
+                    if (response.data.data && Array.isArray(response.data.data)) {
                         productsData = response.data.data;
                         pagination = response.data.pagination || {};
                     }
-                    // Kiểm tra nếu response.data có structure khác
+                    // Check if response.data is array directly
+                    else if (Array.isArray(response.data)) {
+                        productsData = response.data;
+                    }
+                    // Check if response.data has structure with status
                     else if (response.data.status === 'success' && Array.isArray(response.data.data)) {
                         productsData = response.data.data;
                         pagination = response.data.pagination || {};
                     }
                 }
-                
-                console.log('Products data:', productsData);
-                console.log('Pagination:', pagination);
                 
                 setProducts(productsData);
                 setTotalPages(pagination.total_pages || 1);
@@ -104,7 +98,7 @@ function ProductList() {
             }
         };
         fetchProducts();
-    }, [page, selectedCategoryId, condition, priceRange, sizes, colors, minRating, search]);
+    }, [page, selectedCategoryId, condition, priceRange, sizes, colors, minRating, isRentable, search]);
 
     // Filter handlers
     const handleConditionChange = (value) => {
@@ -137,6 +131,11 @@ function ProductList() {
 
     const handleRatingChange = (rating) => {
         setMinRating(minRating === rating ? null : rating);
+        setPage(1);
+    };
+
+    const handleRentableChange = (value) => {
+        setIsRentable(isRentable === value ? null : value);
         setPage(1);
     };
 
@@ -246,8 +245,23 @@ function ProductList() {
                     ))}
                 </Stack>
             </Box>
+            <Divider sx={{ my: 2 }} />
 
-            {(condition || priceRange || sizes.length > 0 || colors.length > 0 || minRating) && (
+            <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>RENTABLE</Typography>
+                <FormGroup>
+                    <FormControlLabel 
+                        control={<Checkbox size="small" checked={isRentable === true} onChange={() => handleRentableChange(true)} />} 
+                        label={<Typography variant="body2">Rentable Only</Typography>} 
+                    />
+                    <FormControlLabel 
+                        control={<Checkbox size="small" checked={isRentable === false} onChange={() => handleRentableChange(false)} />} 
+                        label={<Typography variant="body2">Buy Only</Typography>} 
+                    />
+                </FormGroup>
+            </Box>
+
+            {(condition || priceRange || sizes.length > 0 || colors.length > 0 || minRating || isRentable !== null) && (
                 <Button 
                     variant="outlined" 
                     fullWidth 
@@ -258,6 +272,7 @@ function ProductList() {
                         setSizes([]);
                         setColors([]);
                         setMinRating(null);
+                        setIsRentable(null);
                         setPage(1);
                     }}
                 >

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Box, InputBase, IconButton, Badge } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu'; // Import Icon 3 gạch
-import { fetchCartAPI } from '../../api/productApi';
+import { getCart } from '../../api/storeApi';
 
 // Import component Drawer danh mục (Đảm bảo đường dẫn đúng với nơi bạn lưu file)
 import CategoryDrawer from '../common/CategoryDrawer';
@@ -25,15 +25,20 @@ function Header() {
     };
 
     const updateCartCount = async () => {
-        if (isLoggedIn) {
-            try {
-                const response = await fetchCartAPI();
-                const count = response.data.items.reduce((total, item) => total + item.quantity, 0);
-                setCartItemCount(count);
-            } catch (error) {
-                console.error("Failed to fetch cart:", error);
-                setCartItemCount(0);
-            }
+        if (!isLoggedIn) {
+            setCartItemCount(0);
+            return;
+        }
+        try {
+            const response = await getCart();
+            const data = response.data?.data || response.data;
+            const count = data?.total_items ?? (Array.isArray(data?.items)
+                ? data.items.reduce((total, item) => total + (item.quantity || 0), 0)
+                : 0);
+            setCartItemCount(count ?? 0);
+        } catch (error) {
+            console.error('Failed to fetch cart:', error);
+            setCartItemCount(0);
         }
     };
 
