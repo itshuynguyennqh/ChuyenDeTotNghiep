@@ -1,6 +1,6 @@
 from sqlalchemy import (
-    Column, Integer, String, DateTime, Date, Boolean, 
-    ForeignKey, Numeric, SmallInteger, LargeBinary, Text, NCHAR, FetchedValue
+    Column, FetchedValue, Integer, String, DateTime, Date, Boolean, 
+    ForeignKey, Numeric, SmallInteger, LargeBinary, Text, NCHAR
 )
 from sqlalchemy.orm import relationship, deferred
 from app.database import Base

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select, func, desc, and_, or_
 from typing import List, Optional
@@ -8,7 +9,10 @@ from app.database import get_db
 from app.models import *
 from .config import * 
 from ...helper import *
+from app.routes.auth.config import SECRET_KEY, ALGORITHM
+from jose import JWTError, jwt
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 store_router = APIRouter(prefix="/store", tags=["Store"])
 
 # ===================================================================
@@ -346,9 +350,23 @@ def get_or_create_cart(db: Session, customer_id: int) -> Cart:
         db.refresh(cart)
     return cart
 
-# Mock user (Thay thế bằng Depends(get_current_user) khi tích hợp Auth)
-def get_current_user_id():
-    return 21788 
+def get_current_user_id(token: str = Depends(oauth2_scheme)) -> int:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        # Giải mã Token
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("id") # Lấy field 'id' trong payload
+        
+        if user_id is None:
+            raise credentials_exception
+        
+        return user_id
+    except JWTError:
+        raise credentials_exception
 
 # ===================================================================
 # 1. GET: Lấy giỏ hàng
