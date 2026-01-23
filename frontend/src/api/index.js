@@ -90,7 +90,7 @@ export {
     
     // Product Reviews APIs (Admin)
     getAdminProductReviews,
-    getProductReviews as getAdminProductReviewsLegacy // Legacy alias from adminApi
+    getProductReviews as getAdminProductReviewsLegacy, // Legacy alias from adminApi
     
     // Order Management APIs
     getAdminOrders,

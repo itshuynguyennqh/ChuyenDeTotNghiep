@@ -41,7 +41,9 @@ def map_row_to_product_card(row):
         total_sold=int(row.total_sold) if getattr(row, 'total_sold', None) else 0,
         condition=getattr(row, 'Condition', None),
         size=getattr(row, 'Size', None),
-        color=getattr(row, 'Color', None)
+        color=getattr(row, 'Color', None),
+        rent_price=getattr(row, 'RentPrice', None),
+        is_rentable=getattr(row, 'IsRentable', False) if getattr(row, 'IsRentable', None) is not None else False
     )
 
 # ===================================================================
@@ -55,6 +57,7 @@ def get_featured_products(db: Session = Depends(get_db)):
     query = (
         select(
             Product.ProductID, Product.Name, Product.ListPrice,
+            Product.RentPrice, Product.IsRentable,
             stmt_image.c.ImageURL.label("thumbnail"),
             func.coalesce(stmt_rating.c.avg_rating, 0).label("average_rating"),
             func.coalesce(stmt_sales.c.total_sold, 0).label("total_sold")
@@ -93,6 +96,7 @@ def search_products(
         select(
             Product.ProductID, Product.Name, Product.ListPrice, 
             Product.Condition, Product.Size, Product.Color,
+            Product.RentPrice, Product.IsRentable,
             stmt_image.c.ImageURL.label("thumbnail"),
             func.coalesce(stmt_rating.c.avg_rating, 0).label("average_rating"),
             func.coalesce(stmt_sales.c.total_sold, 0).label("total_sold")
@@ -302,7 +306,11 @@ def get_similar_products(product_id: int, db: Session = Depends(get_db)):
     stmt_image = select(ProductImage.ProductID, ProductImage.ImageURL).where(ProductImage.IsPrimary == True).subquery()
 
     query = (
-        select(Product.ProductID, Product.Name, Product.ListPrice, stmt_image.c.ImageURL.label("thumbnail"))
+        select(
+            Product.ProductID, Product.Name, Product.ListPrice, 
+            Product.RentPrice, Product.IsRentable,
+            stmt_image.c.ImageURL.label("thumbnail")
+        )
         .outerjoin(stmt_image, Product.ProductID == stmt_image.c.ProductID)
         .where(
             Product.ProductSubcategoryID == current_product.ProductSubcategoryID,
@@ -317,7 +325,9 @@ def get_similar_products(product_id: int, db: Session = Depends(get_db)):
         ProductCard(
             product_id=row.ProductID, name=row.Name, price=row.ListPrice,
             thumbnail=row.thumbnail or "https://via.placeholder.com/150",
-            average_rating=0, total_sold=0 # Similar không cần tính nặng
+            average_rating=0, total_sold=0, # Similar không cần tính nặng
+            rent_price=getattr(row, 'RentPrice', None),
+            is_rentable=getattr(row, 'IsRentable', False) if getattr(row, 'IsRentable', None) is not None else False
         ) for row in results
     ]
     return success_response(data=data)
@@ -345,7 +355,12 @@ def get_current_user_id():
 # ===================================================================
 
 @store_router.get("/cart", response_model=APIResponse[CartSummaryResponse])
-def get_my_cart(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+def get_my_cart(
+    buy_voucher_code: Optional[str] = Query(None, description="Voucher code for buy items"),
+    rent_voucher_code: Optional[str] = Query(None, description="Voucher code for rent items"),
+    db: Session = Depends(get_db), 
+    user_id: int = Depends(get_current_user_id)
+):
     cart = get_or_create_cart(db, user_id)
 
     # Subquery lấy ảnh thumbnail
@@ -398,11 +413,59 @@ def get_my_cart(db: Session = Depends(get_db), user_id: int = Depends(get_curren
             )
         ))
 
+    # Tính discounted amounts dựa trên voucher codes
+    discounted_buy = total_buy
+    discounted_rent = total_rent
+    
+    now = datetime.now()
+    
+    # Xử lý voucher cho buy items
+    if buy_voucher_code and total_buy > 0:
+        buy_voucher = db.query(Voucher).filter(
+            Voucher.Code == buy_voucher_code,
+            Voucher.Status == True,
+            Voucher.StartDate <= now,
+            Voucher.EndDate >= now,
+            Voucher.Quantity > 0,
+            or_(Voucher.Scope == 'buy', Voucher.Scope == 'all')
+        ).first()
+        
+        if buy_voucher and total_buy >= (buy_voucher.MinOrderAmount or 0):
+            # DiscountPercent là số phần trăm (ví dụ: 10 = 10%), cần chia 100 khi tính toán
+            if buy_voucher.DiscountPercent:
+                discount_amt = total_buy * (Decimal(buy_voucher.DiscountPercent) / 100)
+            else:
+                # DiscountAmount là số tiền cố định
+                discount_amt = buy_voucher.DiscountAmount or Decimal(0)
+            discounted_buy = max(total_buy - min(discount_amt, total_buy), Decimal(0))
+    
+    # Xử lý voucher cho rent items
+    if rent_voucher_code and total_rent > 0:
+        rent_voucher = db.query(Voucher).filter(
+            Voucher.Code == rent_voucher_code,
+            Voucher.Status == True,
+            Voucher.StartDate <= now,
+            Voucher.EndDate >= now,
+            Voucher.Quantity > 0,
+            or_(Voucher.Scope == 'rent', Voucher.Scope == 'all')
+        ).first()
+        
+        if rent_voucher and total_rent >= (rent_voucher.MinOrderAmount or 0):
+            # DiscountPercent là số phần trăm (ví dụ: 10 = 10%), cần chia 100 khi tính toán
+            if rent_voucher.DiscountPercent:
+                discount_amt = total_rent * (Decimal(rent_voucher.DiscountPercent) / 100)
+            else:
+                # DiscountAmount là số tiền cố định
+                discount_amt = rent_voucher.DiscountAmount or Decimal(0)
+            discounted_rent = max(total_rent - min(discount_amt, total_rent), Decimal(0))
+
     return success_response(data=CartSummaryResponse(
         cart_id=cart.CartID,
         total_items=sum(i.quantity for i in items_res),
         total_buy_amount=total_buy,
         total_rent_amount=total_rent,
+        discounted_buy_amount=discounted_buy,
+        discounted_rent_amount=discounted_rent,
         grand_total=total_buy + total_rent,
         items=items_res
     ))
@@ -456,11 +519,7 @@ def add_to_cart(
 
     if existing_item:
         existing_item.Quantity += payload.quantity
-        # Tính lại subtotal dựa trên số lượng mới
-        if existing_item.TransactionType == 'rent':
-            existing_item.Subtotal = existing_item.UnitPrice * existing_item.RentalDays * existing_item.Quantity
-        else:
-            existing_item.Subtotal = existing_item.UnitPrice * existing_item.Quantity
+        # Subtotal is computed by the database, no need to set it manually
         existing_item.DateUpdated = datetime.utcnow()
     else:
         new_item = CartItem(
@@ -468,7 +527,7 @@ def add_to_cart(
             ProductID=payload.product_id,
             Quantity=payload.quantity,
             UnitPrice=unit_price,
-            Subtotal=subtotal,
+            # Subtotal is computed by the database, no need to set it manually
             DateAdded=datetime.utcnow(),
             TransactionType=payload.transaction_type,
             RentalDays=payload.rental_days
@@ -508,12 +567,9 @@ def update_cart_item(
             raise HTTPException(status_code=400, detail="Cannot set rental days for buy items")
         new_days = payload.rental_days
 
-    # Tính lại Subtotal
+    # Subtotal is computed by the database, no need to set it manually
     if item.TransactionType == 'rent':
         item.RentalDays = new_days
-        item.Subtotal = item.UnitPrice * new_days * new_qty
-    else:
-        item.Subtotal = item.UnitPrice * new_qty
 
     item.Quantity = new_qty
     item.DateUpdated = datetime.utcnow()
@@ -578,6 +634,7 @@ def get_available_vouchers(
 
     # 4. Map dữ liệu sang Schema
     # Xử lý logic DiscountPercent vs DiscountAmount
+    # Lưu ý: discount_value khi discount_type='percentage' là số phần trăm (ví dụ: 10 = 10%)
     data = []
     for v in vouchers_db:
         # Xác định loại giảm giá
@@ -586,9 +643,11 @@ def get_available_vouchers(
         
         if v.DiscountPercent is not None and v.DiscountPercent > 0:
             d_type = 'percentage'
+            # discount_value là số phần trăm (ví dụ: 10 = 10%, cần chia 100 khi tính toán)
             d_value = v.DiscountPercent
         else:
             d_type = 'amount'
+            # discount_value là số tiền cố định (ví dụ: 50.00 = $50)
             d_value = v.DiscountAmount or 0
 
         data.append(VoucherItem(

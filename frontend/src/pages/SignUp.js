@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Box,
     Grid,
@@ -8,12 +8,15 @@ import {
     Link as MuiLink,
     Container,
     Alert,
-    CircularProgress
+    CircularProgress,
+    Dialog,
+    DialogContent
 } from '@mui/material';
+import LockIcon from '@mui/icons-material/Lock';
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import logo from "../assets/BikeGo-logo-orange.png";
 import bike from "../assets/LogoBike.png";
-import { register } from '../api/authApi';
+import { register, verifyRegistration } from '../api/authApi';
 
 // Component Icon Logo
 const BikeLogoOrange = () => (
@@ -44,15 +47,22 @@ const BikeLogoOrange = () => (
 function SignUp() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        username: '',
         password: '',
         repeatPassword: '',
         email: '',
         firstname: '',
         lastname: '',
+        phone: '',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [openOTPDialog, setOpenOTPDialog] = useState(false);
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [otpError, setOtpError] = useState('');
+    const [otpLoading, setOtpLoading] = useState(false);
+    const [resendTimer, setResendTimer] = useState(0);
+    const [resendLoading, setResendLoading] = useState(false);
+    const otpInputRefs = useRef([]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -60,6 +70,106 @@ function SignUp() {
             ...prevState,
             [name]: value
         }));
+    };
+
+    // Timer for resend OTP
+    useEffect(() => {
+        if (resendTimer > 0) {
+            const timer = setTimeout(() => {
+                setResendTimer(resendTimer - 1);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [resendTimer]);
+
+    // Handle OTP input change
+    const handleOtpChange = (index, value) => {
+        if (value.length > 1) {
+            value = value.slice(-1); // Only take the last character
+        }
+        if (!/^\d*$/.test(value)) {
+            return; // Only allow digits
+        }
+
+        const newOtp = [...otp];
+        newOtp[index] = value;
+        setOtp(newOtp);
+        setOtpError('');
+
+        // Auto-focus next input
+        if (value && index < 5) {
+            otpInputRefs.current[index + 1]?.focus();
+        }
+    };
+
+    // Handle OTP input key down (for backspace)
+    const handleOtpKeyDown = (index, e) => {
+        if (e.key === 'Backspace' && !otp[index] && index > 0) {
+            otpInputRefs.current[index - 1]?.focus();
+        }
+    };
+
+    // Handle OTP paste
+    const handleOtpPaste = (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').slice(0, 6);
+        if (/^\d+$/.test(pastedData)) {
+            const newOtp = pastedData.split('').concat(Array(6 - pastedData.length).fill(''));
+            setOtp(newOtp.slice(0, 6));
+            const nextIndex = Math.min(pastedData.length, 5);
+            otpInputRefs.current[nextIndex]?.focus();
+        }
+    };
+
+    // Handle verify OTP
+    const handleVerifyOTP = async () => {
+        const otpCode = otp.join('');
+        if (otpCode.length !== 6) {
+            setOtpError('Please enter the complete 6-digit code');
+            return;
+        }
+
+        setOtpError('');
+        setOtpLoading(true);
+        try {
+            await verifyRegistration({
+                email: formData.email,
+                otp: otpCode
+            });
+            // Success - navigate to login
+            setOpenOTPDialog(false);
+            alert('Registration successful! You can now log in.');
+            navigate('/login');
+        } catch (err) {
+            setOtpError(err.response?.data?.detail || err.message || 'Invalid OTP. Please try again.');
+        } finally {
+            setOtpLoading(false);
+        }
+    };
+
+    // Handle resend OTP
+    const handleResendOTP = async () => {
+        if (resendTimer > 0) return;
+
+        setResendLoading(true);
+        setOtpError('');
+        try {
+            const apiData = {
+                first_name: formData.firstname,
+                last_name: formData.lastname,
+                email: formData.email,
+                phone: formData.phone,
+                password: formData.password
+            };
+            await register(apiData);
+            setResendTimer(30); // 30 seconds timer
+            setOtp(['', '', '', '', '', '']); // Clear OTP inputs
+            otpInputRefs.current[0]?.focus();
+        } catch (err) {
+            setOtpError(err.response?.data?.detail || err.message || 'Failed to resend OTP. Please try again.');
+        } finally {
+            setResendLoading(false);
+        }
     };
 
     const handleSubmit = async (event) => {
@@ -71,17 +181,35 @@ function SignUp() {
             return;
         }
 
+        // Validate phone number format (Vietnamese format)
+        const phoneRegex = /^(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+        if (!phoneRegex.test(formData.phone)) {
+            setError("Phone number must be in Vietnamese format (e.g., 0123456789 or 84123456789)");
+            return;
+        }
+
         setLoading(true);
         try {
-            // Prepare data for API (exclude repeatPassword)
-            const { repeatPassword, ...userData } = formData;
+            // Transform data to match backend API requirements
+            const apiData = {
+                first_name: formData.firstname,
+                last_name: formData.lastname,
+                email: formData.email,
+                phone: formData.phone,
+                password: formData.password
+            };
             
-            await register(userData);
+            await register(apiData);
             
-            alert('Registration successful! Please log in.');
-            navigate('/login');
+            // Open OTP dialog instead of alert
+            setOpenOTPDialog(true);
+            setResendTimer(30); // Start 30 seconds timer
+            // Focus first OTP input after dialog opens
+            setTimeout(() => {
+                otpInputRefs.current[0]?.focus();
+            }, 100);
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data?.detail || err.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -186,19 +314,6 @@ function SignUp() {
 
                         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-                        {/* Input Username */}
-                        <TextField
-                            fullWidth
-                            variant="filled"
-                            label="Username"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleChange}
-                            sx={{ mb: 2, borderRadius: 1, '& .MuiFilledInput-root': { backgroundColor: '#e9e9e9', borderRadius: 1, '&:hover': { backgroundColor: '#ddd' } }, '& label': { top: -8 } }}
-                            InputProps={{ disableUnderline: true }}
-                            InputLabelProps={{ shrink: true }}
-                            required
-                        />
                         {/* Input First Name and Last Name*/}
                         <Grid container spacing={2}
                               sx={{
@@ -247,6 +362,23 @@ function SignUp() {
                             type="email"
                             value={formData.email}
                             onChange={handleChange}
+                            sx={{ mb: 2, borderRadius: 1, '& .MuiFilledInput-root': { backgroundColor: '#e9e9e9', borderRadius: 1, '&:hover': { backgroundColor: '#ddd' } }, '& label': { top: -8 } }}
+                            InputProps={{ disableUnderline: true }}
+                            InputLabelProps={{ shrink: true }}
+                            required
+                        />
+
+                        {/* Input Phone */}
+                        <TextField
+                            fullWidth
+                            variant="filled"
+                            label="Phone Number"
+                            name="phone"
+                            type="tel"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            placeholder="0123456789"
+                            helperText="Vietnamese format: 0xxxxxxxxx or 84xxxxxxxxx"
                             sx={{ mb: 2, borderRadius: 1, '& .MuiFilledInput-root': { backgroundColor: '#e9e9e9', borderRadius: 1, '&:hover': { backgroundColor: '#ddd' } }, '& label': { top: -8 } }}
                             InputProps={{ disableUnderline: true }}
                             InputLabelProps={{ shrink: true }}
@@ -312,6 +444,167 @@ function SignUp() {
                     </Box>
                 </Grid>
             </Box>
+
+            {/* OTP Verification Dialog */}
+            <Dialog
+                open={openOTPDialog}
+                onClose={() => {}} // Prevent closing by clicking outside
+                PaperProps={{
+                    sx: {
+                        borderRadius: '20px',
+                        padding: '40px',
+                        maxWidth: '500px',
+                        width: '100%',
+                        textAlign: 'center'
+                    }
+                }}
+            >
+                <DialogContent sx={{ p: 0 }}>
+                    {/* Icon */}
+                    <Box
+                        sx={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: '50%',
+                            backgroundColor: '#FF8C00',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 20px',
+                        }}
+                    >
+                        <LockIcon sx={{ fontSize: 40, color: 'white' }} />
+                    </Box>
+
+                    {/* Title */}
+                    <Typography variant="h4" fontWeight="bold" sx={{ mb: 2, color: '#002B5B' }}>
+                        Security Check
+                    </Typography>
+
+                    {/* Instructions */}
+                    <Typography variant="body1" sx={{ mb: 4, color: '#666' }}>
+                        Please enter the 6-digit verification code sent to <strong>{formData.email}</strong> to complete your BikeGo registration.
+                    </Typography>
+
+                    {/* OTP Error */}
+                    {otpError && (
+                        <Alert severity="error" sx={{ mb: 2, textAlign: 'left' }}>
+                            {otpError}
+                        </Alert>
+                    )}
+
+                    {/* OTP Input Fields */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            gap: 2,
+                            justifyContent: 'center',
+                            mb: 3
+                        }}
+                    >
+                        {[0, 1, 2, 3, 4, 5].map((index) => (
+                            <TextField
+                                key={index}
+                                inputRef={(el) => (otpInputRefs.current[index] = el)}
+                                value={otp[index]}
+                                onChange={(e) => handleOtpChange(index, e.target.value)}
+                                onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                onPaste={index === 0 ? handleOtpPaste : undefined}
+                                inputProps={{
+                                    maxLength: 1,
+                                    style: { textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold' }
+                                }}
+                                sx={{
+                                    width: 60,
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '12px',
+                                        '& fieldset': {
+                                            borderColor: otp[index] ? '#FF8C00' : '#ddd',
+                                        },
+                                        '&:hover fieldset': {
+                                            borderColor: '#FF8C00',
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: '#FF8C00',
+                                        },
+                                    },
+                                }}
+                            />
+                        ))}
+                    </Box>
+
+                    {/* Resend Code */}
+                    <Typography variant="body2" sx={{ mb: 3, color: '#666' }}>
+                        Didn't receive the code?{' '}
+                        {resendTimer > 0 ? (
+                            <span style={{ color: '#999' }}>
+                                Resend Code ({String(Math.floor(resendTimer / 60)).padStart(2, '0')}:{String(resendTimer % 60).padStart(2, '0')})
+                            </span>
+                        ) : (
+                            <MuiLink
+                                onClick={handleResendOTP}
+                                sx={{
+                                    color: '#1976d2',
+                                    cursor: resendLoading ? 'not-allowed' : 'pointer',
+                                    fontWeight: 'bold',
+                                    textDecoration: 'none',
+                                    '&:hover': {
+                                        textDecoration: 'underline'
+                                    }
+                                }}
+                            >
+                                {resendLoading ? 'Sending...' : 'Resend Code'}
+                            </MuiLink>
+                        )}
+                    </Typography>
+
+                    {/* Verify Button */}
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        onClick={handleVerifyOTP}
+                        disabled={otpLoading || otp.join('').length !== 6}
+                        sx={{
+                            backgroundColor: '#FF8C00',
+                            color: '#fff',
+                            py: 1.5,
+                            mb: 2,
+                            borderRadius: '12px',
+                            fontSize: '1.1rem',
+                            fontWeight: 'bold',
+                            '&:hover': {
+                                backgroundColor: '#e67300'
+                            },
+                            '&:disabled': {
+                                backgroundColor: '#ccc'
+                            }
+                        }}
+                    >
+                        {otpLoading ? <CircularProgress size={24} color="inherit" /> : 'Verify Account →'}
+                    </Button>
+
+                    {/* Go Back Link */}
+                    <MuiLink
+                        onClick={() => {
+                            setOpenOTPDialog(false);
+                            setOtp(['', '', '', '', '', '']);
+                            setOtpError('');
+                            setResendTimer(0);
+                        }}
+                        sx={{
+                            color: '#666',
+                            cursor: 'pointer',
+                            textDecoration: 'none',
+                            fontSize: '0.9rem',
+                            '&:hover': {
+                                textDecoration: 'underline'
+                            }
+                        }}
+                    >
+                        ← Wrong email? Go back
+                    </MuiLink>
+                </DialogContent>
+            </Dialog>
 
         </Container>
     );

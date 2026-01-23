@@ -43,9 +43,25 @@ const AdminRentalConfig = () => {
     try {
       setLoading(true);
       const response = await getRentalConfig();
-      setFormData(response.data);
+      // API returns: {status, code, data: {duration_limits, deposit, penalty, rent_to_own}}
+      const data = response.data?.data || response.data;
+      
+      if (data) {
+        // Map API response structure to formData structure
+        setFormData({
+          minRentalDays: data.duration_limits?.min_days || '',
+          maxRentalDays: data.duration_limits?.max_days || '',
+          defaultDepositRate: data.deposit?.default_rate || 80,
+          overdueFeeRate: data.penalty?.overdue_fee_rate || 150,
+          cancellationPolicy: data.penalty?.cancellation_policy 
+            ? data.penalty.cancellation_policy.charAt(0).toUpperCase() + data.penalty.cancellation_policy.slice(1) 
+            : 'Flexible',
+          rentDeduction: data.rent_to_own?.rent_deduction || 100,
+        });
+      }
     } catch (error) {
       console.error('Failed to load rental config:', error);
+      // Keep default values on error
     } finally {
       setLoading(false);
     }
@@ -59,11 +75,29 @@ const AdminRentalConfig = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      await updateRentalConfig(formData);
+      // Map formData to API request structure
+      const payload = {
+        duration_limits: {
+          min_days: parseInt(formData.minRentalDays) || 1,
+          max_days: parseInt(formData.maxRentalDays) || null
+        },
+        deposit: {
+          default_rate: parseFloat(formData.defaultDepositRate) || 80.0
+        },
+        penalty: {
+          overdue_fee_rate: parseFloat(formData.overdueFeeRate) || 150.0,
+          cancellation_policy: formData.cancellationPolicy.toLowerCase() || 'flexible'
+        },
+        rent_to_own: {
+          enabled: true, // Always enabled based on UI
+          rent_deduction: parseFloat(formData.rentDeduction) || 100.0
+        }
+      };
+      await updateRentalConfig(payload);
       alert('Configuration saved successfully');
     } catch (error) {
       console.error('Failed to save configuration:', error);
-      alert('Failed to save configuration');
+      alert(error?.response?.data?.detail || error?.message || 'Failed to save configuration');
     } finally {
       setSaving(false);
     }

@@ -29,13 +29,25 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         user_id: int = payload.get("id")
         role: str = payload.get("role")
         if user_id is None or role != "customer":
-             raise credentials_exception
-    except JWTError:
-        raise credentials_exception
+             raise HTTPException(
+                 status_code=status.HTTP_401_UNAUTHORIZED,
+                 detail=f"Invalid token: missing user_id or invalid role (got role: {role})",
+                 headers={"WWW-Authenticate": "Bearer"},
+             )
+    except JWTError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid or expired token: {str(e)}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     user = db.query(Customer).filter(Customer.CustomerID == user_id).first()
     if user is None:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"User not found for ID: {user_id}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
 
 # ==========================================

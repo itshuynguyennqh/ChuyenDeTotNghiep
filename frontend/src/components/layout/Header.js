@@ -32,10 +32,14 @@ function Header() {
         try {
             const response = await getCart();
             const data = response.data?.data || response.data;
-            const count = data?.total_items ?? (Array.isArray(data?.items)
-                ? data.items.reduce((total, item) => total + (item.quantity || 0), 0)
-                : 0);
-            setCartItemCount(count ?? 0);
+            
+            // Count unique items (not total quantity)
+            // If items array exists, count the number of distinct items
+            const count = Array.isArray(data?.items) 
+                ? data.items.length  // Number of unique items
+                : 0;
+            
+            setCartItemCount(count);
         } catch (error) {
             console.error('Failed to fetch cart:', error);
             setCartItemCount(0);

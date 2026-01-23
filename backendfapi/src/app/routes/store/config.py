@@ -27,6 +27,10 @@ class ProductCard(BaseModel):
     condition: Optional[str] = None
     size: Optional[str] = None
     color: Optional[str] = None
+    
+    # Rental info
+    rent_price: Optional[Decimal] = None
+    is_rentable: Optional[bool] = False
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
@@ -130,6 +134,8 @@ class CartSummaryResponse(BaseModel):
     total_items: int
     total_buy_amount: Decimal = 0
     total_rent_amount: Decimal = 0
+    discounted_buy_amount: Decimal = 0  # Tổng tiền mua sau khi giảm giá
+    discounted_rent_amount: Decimal = 0  # Tổng tiền thuê sau khi giảm giá
     grand_total: Decimal = 0
     items: List[CartItemResponse]
 

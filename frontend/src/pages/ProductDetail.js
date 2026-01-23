@@ -13,7 +13,11 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { getProductDetail, getProductReviews, getSimilarProducts, addToCart } from '../api/storeApi';
+import { getRentalConfig } from '../api/adminApi';
 import './ProductDetail.css';
 
 function ProductDetail() {
@@ -27,12 +31,42 @@ function ProductDetail() {
     const [selectedSize, setSelectedSize] = useState(null);
     const [selectedColor, setSelectedColor] = useState(null);
     const [selectedImage, setSelectedImage] = useState(0);
-    const [rentalStartDate, setRentalStartDate] = useState('12/25/2025');
-    const [rentalEndDate, setRentalEndDate] = useState('12/31/2025');
+    // Initialize rental dates with Date objects (default to today and 7 days later)
+    const getDefaultStartDate = () => {
+        const date = new Date();
+        return date;
+    };
+    const getDefaultEndDate = () => {
+        const date = new Date();
+        date.setDate(date.getDate() + 7);
+        return date;
+    };
+    const [rentalStartDate, setRentalStartDate] = useState(getDefaultStartDate());
+    const [rentalEndDate, setRentalEndDate] = useState(getDefaultEndDate());
     const [loading, setLoading] = useState(true);
     const [addToCartLoading, setAddToCartLoading] = useState(false);
+    const [rentalSettings, setRentalSettings] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+
+    // Fetch rental settings
+    useEffect(() => {
+        const fetchRentalSettings = async () => {
+            try {
+                const response = await getRentalConfig();
+                const settings = response.data?.data || response.data;
+                setRentalSettings(settings);
+            } catch (error) {
+                console.error("Error fetching rental settings:", error);
+                // Use default values if API fails
+                setRentalSettings({
+                    deposit: { default_rate: 80.0 },
+                    duration_limits: { min_days: 1, max_days: 30 }
+                });
+            }
+        };
+        fetchRentalSettings();
+    }, []);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -124,6 +158,14 @@ function ProductDetail() {
         }
     };
 
+    // Format currency with comma separators
+    const formatCurrency = (amount) => {
+        return parseFloat(amount).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    };
+
     const handleAddToCart = async () => {
         if (addToCartLoading) return;
         setAddToCartLoading(true);
@@ -135,8 +177,8 @@ function ProductDetail() {
                 transaction_type: transactionType
             };
             if (transactionType === 'rent') {
-                const startDate = new Date(rentalStartDate);
-                const endDate = new Date(rentalEndDate);
+                const startDate = rentalStartDate instanceof Date ? rentalStartDate : new Date(rentalStartDate);
+                const endDate = rentalEndDate instanceof Date ? rentalEndDate : new Date(rentalEndDate);
                 const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
                 data.rental_days = days || 1;
             }
@@ -176,13 +218,38 @@ function ProductDetail() {
 
     const handleRentNow = () => {
         // Calculate days between rental dates
-        const startDate = new Date(rentalStartDate);
-        const endDate = new Date(rentalEndDate);
+        const startDate = rentalStartDate instanceof Date ? rentalStartDate : new Date(rentalStartDate);
+        const endDate = rentalEndDate instanceof Date ? rentalEndDate : new Date(rentalEndDate);
         const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end days
+        
+        // Validate rental period with settings
+        if (rentalSettings?.duration_limits) {
+            const minDays = rentalSettings.duration_limits.min_days || 1;
+            const maxDays = rentalSettings.duration_limits.max_days;
+            if (days < minDays) {
+                alert(`Minimum rental period is ${minDays} day(s)`);
+                return;
+            }
+            if (maxDays && days > maxDays) {
+                alert(`Maximum rental period is ${maxDays} day(s)`);
+                return;
+            }
+        }
         
         const productId = product.product_id || product.id;
         const rentPrice = product.rental_info?.rent_price ? parseFloat(product.rental_info.rent_price) : 20;
-        const securityDeposit = product.rental_info?.security_deposit ? parseFloat(product.rental_info.security_deposit) : 0;
+        
+        // Calculate security deposit: Always use default_rate from admin/settings/rental
+        // Formula: ListPrice * (default_rate / 100)
+        let securityDeposit = 0;
+        if (rentalSettings?.deposit?.default_rate && product.price) {
+            const listPrice = parseFloat(product.price);
+            const depositRate = rentalSettings.deposit.default_rate / 100;
+            securityDeposit = listPrice * depositRate;
+        } else if (product.rental_info?.security_deposit && parseFloat(product.rental_info.security_deposit) > 0) {
+            // Fallback to product's SecurityDeposit if rental settings not available
+            securityDeposit = parseFloat(product.rental_info.security_deposit);
+        }
         
         const orderData = {
             type: 'rent',
@@ -193,8 +260,8 @@ function ProductDetail() {
                 Quantity: quantity,
                 Size: selectedSize,
                 Color: selectedColor,
-                RentalStartDate: rentalStartDate,
-                RentalEndDate: rentalEndDate,
+                RentalStartDate: rentalStartDate instanceof Date ? rentalStartDate.toISOString().split('T')[0] : rentalStartDate,
+                RentalEndDate: rentalEndDate instanceof Date ? rentalEndDate.toISOString().split('T')[0] : rentalEndDate,
                 Days: days || 1,
                 SecurityDeposit: securityDeposit,
                 Image: product.thumbnail || (product.images && product.images[0]?.url) || ''
@@ -224,6 +291,18 @@ function ProductDetail() {
         const rentPrice = product.rental_info?.rent_price ? parseFloat(product.rental_info.rent_price) : 20;
         const rentUnit = product.rental_info?.rent_unit || 'day';
         
+        // Calculate security deposit: Always use default_rate from admin/settings/rental
+        // Formula: ListPrice * (default_rate / 100)
+        let securityDeposit = 0;
+        if (rentalSettings?.deposit?.default_rate && product.price) {
+            const listPrice = parseFloat(product.price);
+            const depositRate = rentalSettings.deposit.default_rate / 100;
+            securityDeposit = listPrice * depositRate;
+        } else if (product.rental_info?.security_deposit && parseFloat(product.rental_info.security_deposit) > 0) {
+            // Fallback to product's SecurityDeposit if rental settings not available
+            securityDeposit = parseFloat(product.rental_info.security_deposit);
+        }
+        
         // Get unique colors and sizes from variants
         const availableColors = [...new Set(product.variants?.filter(v => v.is_rentable).map(v => v.color).filter(Boolean))] || [];
         const availableSizes = [...new Set(product.variants?.filter(v => v.is_rentable).map(v => v.size).filter(Boolean))] || [];
@@ -239,7 +318,7 @@ function ProductDetail() {
                 <Box sx={{ p: 3 }}>
                     {/* Price Per Day */}
                     <Typography variant="h4" fontWeight="bold" sx={{ mb: 2 }}>
-                        ${rentPrice.toFixed(2)} <Typography component="span" variant="h6" color="text.secondary">/ {rentUnit}</Typography>
+                        ${formatCurrency(rentPrice)} <Typography component="span" variant="h6" color="text.secondary">/ {rentUnit}</Typography>
                     </Typography>
 
                     {/* Selection Group: Color & Size */}
@@ -312,23 +391,56 @@ function ProductDetail() {
                     <Box sx={{ mb: 3 }}>
                         <Typography variant="body2" fontWeight="bold" color="#666" sx={{ mb: 1 }}>Rental Period</Typography>
                         <Box sx={{
-                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            display: 'flex', alignItems: 'center', gap: 1,
                             border: '1px solid #ddd', borderRadius: '12px', p: 1.5, bgcolor: '#fff'
                         }}>
-                            <Typography variant="body2">12/25/2025</Typography>
-                            <CalendarTodayIcon sx={{ fontSize: 18, color: '#666' }} />
-                            <Typography variant="body2">→</Typography>
-                            <Typography variant="body2">12/31/2025</Typography>
-                            <CalendarTodayIcon sx={{ fontSize: 18, color: '#666' }} />
+                            <DatePicker
+                                label="Start Date"
+                                value={rentalStartDate}
+                                onChange={(newValue) => {
+                                    if (newValue) {
+                                        setRentalStartDate(newValue);
+                                        // If end date is before new start date, update end date
+                                        if (rentalEndDate && newValue > rentalEndDate) {
+                                            const newEndDate = new Date(newValue);
+                                            newEndDate.setDate(newEndDate.getDate() + 7);
+                                            setRentalEndDate(newEndDate);
+                                        }
+                                    }
+                                }}
+                                slotProps={{
+                                    textField: {
+                                        size: 'small',
+                                        sx: { flex: 1 }
+                                    }
+                                }}
+                            />
+                            <Typography variant="body2" sx={{ color: '#666' }}>→</Typography>
+                            <DatePicker
+                                label="End Date"
+                                value={rentalEndDate}
+                                onChange={(newValue) => {
+                                    if (newValue) {
+                                        setRentalEndDate(newValue);
+                                    }
+                                }}
+                                minDate={rentalStartDate || undefined}
+                                slotProps={{
+                                    textField: {
+                                        size: 'small',
+                                        sx: { flex: 1 }
+                                    }
+                                }}
+                            />
                         </Box>
                     </Box>
 
                     {/* Refundable Deposit Section */}
-                    {product.rental_info?.security_deposit && parseFloat(product.rental_info.security_deposit) > 0 && (
+                    {securityDeposit > 0 && (
                         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                             <Typography fontWeight="bold" color="#FF8C00">REFUNDABLE DEPOSIT</Typography>
                             <Typography variant="h4" fontWeight="bold">
-                                ${parseFloat(product.rental_info.security_deposit).toFixed(2)}
+                                ${formatCurrency(securityDeposit)}
                             </Typography>
                         </Box>
                     )}
@@ -402,7 +514,7 @@ function ProductDetail() {
                     {/* Price Section */}
                     <Box sx={{ mb: 2 }}>
                         <Typography variant="h4" fontWeight="bold" color="#000">
-                            ${productPrice.toFixed(2)}
+                            ${formatCurrency(productPrice)}
                         </Typography>
                     </Box>
 
@@ -562,8 +674,9 @@ function ProductDetail() {
         : [];
 
     return (
-        <Box className="product-detail-page">
-            <Container maxWidth="xl">
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <Box className="product-detail-page">
+                <Container maxWidth="xl">
                 {/* Breadcrumb */}
                 <Breadcrumbs
                     separator={<NavigateNextIcon fontSize="small" />}
@@ -770,7 +883,7 @@ function ProductDetail() {
                                                 </Typography>
                                                 <Box className="related-product-footer">
                                                     <Typography className="related-product-price">
-                                                        ${parseFloat(relatedProduct.price || 0).toFixed(2)}
+                                                        ${formatCurrency(relatedProduct.price || 0)}
                                                     </Typography>
                                                     <Typography className="related-product-sold">
                                                         {relatedProduct.total_sold || 0} sold
@@ -784,8 +897,9 @@ function ProductDetail() {
                         </Grid>
                     </Box>
                 )}
-            </Container>
-        </Box>
+                </Container>
+            </Box>
+        </LocalizationProvider>
     );
 }
 

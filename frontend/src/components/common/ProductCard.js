@@ -18,6 +18,8 @@ function ProductCard({ product }) {
     const productPrice = parseFloat(product.price || product.ListPrice || 0);
     const rating = product.rating || product.average_rating || 0;
     const soldCount = product.sold_count || product.total_sold || 0;
+    const rentPrice = product.rent_price || product.rental_info?.rent_price;
+    const isRentable = product.is_rentable || product.rental_info?.is_rentable || false;
     
     // Logic lấy ảnh: Ưu tiên URL động với ProductID như API cũ, fallback về thumbnail từ API nếu không có ProductID
     const getProductImage = () => {
@@ -127,9 +129,16 @@ function ProductCard({ product }) {
 
                     {/* Giá và Sold Count (Layout giống ảnh: Giá trái, Sold phải) */}
                     <Stack direction="row" justifyContent="space-between" alignItems="flex-end" sx={{ mt: 'auto' }}>
-                        <Typography variant="h6" fontWeight="bold" color="text.primary" sx={{ fontSize: '1.1rem' }}>
-                            ${productPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </Typography>
+                        <Box>
+                            <Typography variant="h6" fontWeight="bold" color="text.primary" sx={{ fontSize: '1.1rem' }}>
+                                ${productPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </Typography>
+                            {isRentable && rentPrice && (
+                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.85rem', display: 'block' }}>
+                                    or ${parseFloat(rentPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/day
+                                </Typography>
+                            )}
+                        </Box>
 
                         {soldCount > 0 && (
                             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.85rem' }}>

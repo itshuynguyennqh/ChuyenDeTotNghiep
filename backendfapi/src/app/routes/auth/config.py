@@ -50,10 +50,10 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30 # 30 ngày
 
 conf = ConnectionConfig(
-    MAIL_USERNAME = "nhieutien124@gmail.com",    # <--- Điền Email của bạn
-    MAIL_PASSWORD = "ygou ukit zafz vtjt",       # <--- Điền App Password (Ko phải pass đăng nhập)
-    MAIL_FROM = "nhieutien124@gmail.com",
-    MAIL_FROM_NAME = "Bike Go",
+    MAIL_USERNAME = "nhieutien124@gmail.com",    # <--- Email SMTP để đăng nhập (có thể đổi sang email khác)
+    MAIL_PASSWORD = "ygou ukit zafz vtjt",       # <--- App Password của email SMTP (Ko phải pass đăng nhập)
+    MAIL_FROM = "noreply@bikego.com",            # <--- Email hiển thị là người gửi (chuyên nghiệp)
+    MAIL_FROM_NAME = "BikeGo",                   # <--- Tên hiển thị khi nhận email
     MAIL_PORT = 587,
     MAIL_SERVER = "smtp.gmail.com",
     MAIL_STARTTLS = True,

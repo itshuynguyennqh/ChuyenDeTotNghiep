@@ -41,6 +41,21 @@ axiosClient.interceptors.response.use(
     (error) => {
         // Xử lý error responses từ backend
         if (error.response) {
+            // Xử lý 401 Unauthorized - Token hết hạn hoặc không hợp lệ
+            if (error.response.status === 401) {
+                // Xóa token và user info khỏi localStorage
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                
+                // Chỉ redirect nếu không phải đang ở trang login/signup
+                const currentPath = window.location.pathname;
+                if (!currentPath.includes('/login') && !currentPath.includes('/signup')) {
+                    // Redirect đến trang login
+                    window.location.href = '/login';
+                    return Promise.reject(new Error('Session expired. Please login again.'));
+                }
+            }
+            
             // Backend trả về errors dạng: {detail: "Error message"}
             const errorMessage = error.response.data?.detail || 
                                 error.response.data?.message || 

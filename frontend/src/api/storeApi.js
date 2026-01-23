@@ -74,10 +74,13 @@ export const getSimilarProducts = (productId) => {
 
 /**
  * Get cart summary
- * @returns {Promise} Cart summary with items, totals for buy and rent
+ * @param {Object} params - Optional parameters
+ * @param {string} params.buy_voucher_code - Voucher code for buy items
+ * @param {string} params.rent_voucher_code - Voucher code for rent items
+ * @returns {Promise} Cart summary with items, totals for buy and rent, and discounted amounts
  */
-export const getCart = () => {
-    return axiosClient.get('/store/cart');
+export const getCart = (params = {}) => {
+    return axiosClient.get('/store/cart', { params });
 };
 
 /**

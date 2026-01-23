@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Grid, Paper, Typography, TextField, Button, Link, Alert, CircularProgress, Dialog, DialogContent } from '@mui/material';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import { useNavigate } from 'react-router-dom';
 import logo from "../assets/BikeGo-logo-white.png";
 import logo2 from "../assets/BikeGo-logo-orange.png";
 import { Link as RouterLink } from "react-router-dom";
-import { login } from '../api/authApi';
+import { login, forgotPassword, resetPassword } from '../api/authApi';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -16,6 +16,16 @@ const LoginPage = () => {
     const [openModal, setOpenModal] = useState(false);
     const [forgotStep, setForgotStep] = useState(1);
     const [forgotEmail, setForgotEmail] = useState('');
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [otpError, setOtpError] = useState('');
+    const [otpLoading, setOtpLoading] = useState(false);
+    const [resendTimer, setResendTimer] = useState(0);
+    const [resendLoading, setResendLoading] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [resetLoading, setResetLoading] = useState(false);
+    const otpInputRefs = useRef([]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -56,6 +66,155 @@ const LoginPage = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Timer for resend OTP
+    useEffect(() => {
+        if (resendTimer > 0) {
+            const timer = setTimeout(() => {
+                setResendTimer(resendTimer - 1);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [resendTimer]);
+
+    // Handle OTP input change
+    const handleOtpChange = (index, value) => {
+        if (value.length > 1) {
+            value = value.slice(-1);
+        }
+        if (!/^\d*$/.test(value)) {
+            return;
+        }
+
+        const newOtp = [...otp];
+        newOtp[index] = value;
+        setOtp(newOtp);
+        setOtpError('');
+
+        if (value && index < 5) {
+            otpInputRefs.current[index + 1]?.focus();
+        }
+    };
+
+    // Handle OTP input key down (for backspace)
+    const handleOtpKeyDown = (index, e) => {
+        if (e.key === 'Backspace' && !otp[index] && index > 0) {
+            otpInputRefs.current[index - 1]?.focus();
+        }
+    };
+
+    // Handle OTP paste
+    const handleOtpPaste = (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').slice(0, 6);
+        if (/^\d+$/.test(pastedData)) {
+            const newOtp = pastedData.split('').concat(Array(6 - pastedData.length).fill(''));
+            setOtp(newOtp.slice(0, 6));
+            const nextIndex = Math.min(pastedData.length, 5);
+            otpInputRefs.current[nextIndex]?.focus();
+        }
+    };
+
+    // Handle Send OTP (Step 1)
+    const handleSendOTP = async () => {
+        if (!forgotEmail || !forgotEmail.includes('@')) {
+            setOtpError('Please enter a valid email address');
+            return;
+        }
+
+        setOtpError('');
+        setResendLoading(true);
+        try {
+            await forgotPassword({ email: forgotEmail });
+            setForgotStep(2);
+            setResendTimer(30);
+            setTimeout(() => {
+                otpInputRefs.current[0]?.focus();
+            }, 100);
+        } catch (err) {
+            setOtpError(err.response?.data?.detail || err.message || 'Failed to send OTP. Please try again.');
+        } finally {
+            setResendLoading(false);
+        }
+    };
+
+    // Handle Verify OTP (Step 2)
+    const handleVerifyOTP = () => {
+        const otpCode = otp.join('');
+        if (otpCode.length !== 6) {
+            setOtpError('Please enter the complete 6-digit code');
+            return;
+        }
+
+        setOtpError('');
+        // Move to step 3 - OTP will be verified when resetting password
+        setForgotStep(3);
+    };
+
+    // Handle Resend OTP
+    const handleResendOTP = async () => {
+        if (resendTimer > 0) return;
+
+        setResendLoading(true);
+        setOtpError('');
+        try {
+            await forgotPassword({ email: forgotEmail });
+            setResendTimer(30);
+            setOtp(['', '', '', '', '', '']);
+            otpInputRefs.current[0]?.focus();
+        } catch (err) {
+            setOtpError(err.response?.data?.detail || err.message || 'Failed to resend OTP. Please try again.');
+        } finally {
+            setResendLoading(false);
+        }
+    };
+
+    // Handle Reset Password (Step 3)
+    const handleResetPassword = async () => {
+        if (!newPassword || newPassword.length < 6) {
+            setPasswordError('Password must be at least 6 characters');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setPasswordError('Passwords do not match');
+            return;
+        }
+
+        const otpCode = otp.join('');
+        if (otpCode.length !== 6) {
+            setPasswordError('OTP is required');
+            return;
+        }
+
+        setPasswordError('');
+        setResetLoading(true);
+        try {
+            await resetPassword({
+                email: forgotEmail,
+                otp: otpCode,
+                new_password: newPassword
+            });
+            setForgotStep(4);
+        } catch (err) {
+            setPasswordError(err.response?.data?.detail || err.message || 'Failed to reset password. Please try again.');
+        } finally {
+            setResetLoading(false);
+        }
+    };
+
+    // Reset modal state when closing
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setForgotStep(1);
+        setForgotEmail('');
+        setOtp(['', '', '', '', '', '']);
+        setOtpError('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setPasswordError('');
+        setResendTimer(0);
     };
 
     return (
@@ -101,6 +260,9 @@ const LoginPage = () => {
                                 </Typography>
                                 <Typography variant="caption" sx={{ display: 'block' }}>
                                     <strong>Product Staff:</strong> staffproduct@bikego.com / staff123
+                                </Typography>
+                                <Typography variant="caption" sx={{ display: 'block' }}>
+                                    <strong>Customer:</strong> customer1@bikego.com / cus123
                                 </Typography>
                             </Box>
                         </Box>
@@ -185,118 +347,197 @@ const LoginPage = () => {
             {/* --- POPUP QUÊN MẬT KHẨU --- */}
             <Dialog 
                 open={openModal} 
-                onClose={() => setOpenModal(false)}
-                PaperProps={{ sx: { borderRadius: '20px', padding: '20px', maxWidth: '450px' } }}
+                onClose={handleCloseModal}
+                PaperProps={{ sx: { borderRadius: '20px', padding: '40px', maxWidth: '500px', width: '100%' } }}
             >
-                <DialogContent>
+                <DialogContent sx={{ p: 0 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                         
-                        {/* Bước 1: Nhập Email (Frame 1611) */}
+                        {/* Bước 1: Nhập Email */}
                         {forgotStep === 1 && (
                             <>
-                                <Box sx={{ bgcolor: '#FFF0E5', p: 2, borderRadius: '50%', mb: 2 }}>
+                                <Box sx={{ bgcolor: '#FFF0E5', p: 2, borderRadius: '50%', mb: 2, width: 80, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <LockResetIcon sx={{ fontSize: 50, color: '#FF8C00' }} />
                                 </Box>
                                 <Typography variant="h5" fontWeight="bold" gutterBottom>Forgot Password?</Typography>
                                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                                     Don't worry, it happens. Enter your email and we'll send you a verification code.
                                 </Typography>
+                                {otpError && <Alert severity="error" sx={{ mb: 2, width: '100%', textAlign: 'left' }}>{otpError}</Alert>}
                                 <TextField
                                     fullWidth
                                     placeholder="Email"
                                     variant="outlined"
+                                    value={forgotEmail}
+                                    onChange={(e) => {
+                                        setForgotEmail(e.target.value);
+                                        setOtpError('');
+                                    }}
                                     sx={{ mb: 2 }}
-                                    onChange={(e) => setForgotEmail(e.target.value)}
                                 />
                                 <Button 
                                     fullWidth 
                                     variant="contained" 
-                                    onClick={() => setForgotStep(2)}
+                                    onClick={handleSendOTP}
+                                    disabled={resendLoading}
                                     sx={{ bgcolor: '#FF8C00', color: '#fff', borderRadius: '12px', py: 1.5, mb: 2, '&:hover': { bgcolor: '#e67e00' } }}
                                 >
-                                    Send OTP
+                                    {resendLoading ? <CircularProgress size={24} color="inherit" /> : 'Send OTP'}
                                 </Button>
+                                <Link 
+                                    onClick={handleCloseModal}
+                                    sx={{ color: '#666', cursor: 'pointer', textDecoration: 'none', fontSize: '0.9rem' }}
+                                >
+                                    ← Back to Login
+                                </Link>
                             </>
                         )}
 
-                        {/* Bước 2: Xác thực OTP (Frame 1610/1612) */}
+                        {/* Bước 2: Xác thực OTP */}
                         {forgotStep === 2 && (
                             <>
-                                <Box sx={{ bgcolor: '#FFF0E5', p: 2, borderRadius: '50%', mb: 2 }}>
+                                <Box sx={{ bgcolor: '#FFF0E5', p: 2, borderRadius: '50%', mb: 2, width: 80, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <LockResetIcon sx={{ fontSize: 50, color: '#FF8C00' }} />
                                 </Box>
                                 <Typography variant="h5" fontWeight="bold">Verify Identity</Typography>
                                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                    We send you a 4 digit code to <strong>{forgotEmail || 'user@email.com'}</strong>. Please enter it below
+                                    We send you a 6-digit code to <strong>{forgotEmail}</strong>. Please enter it below
                                 </Typography>
-                                <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-                                    {[1, 2, 3, 4].map((i) => (
-                                        <TextField 
-                                            key={i}
-                                            sx={{ width: '60px', '& input': { textAlign: 'center', fontSize: '1.5rem' } }} 
+                                {otpError && <Alert severity="error" sx={{ mb: 2, width: '100%', textAlign: 'left' }}>{otpError}</Alert>}
+                                <Box sx={{ display: 'flex', gap: 2, mb: 3, justifyContent: 'center' }}>
+                                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <TextField
+                                            key={index}
+                                            inputRef={(el) => (otpInputRefs.current[index] = el)}
+                                            value={otp[index]}
+                                            onChange={(e) => handleOtpChange(index, e.target.value)}
+                                            onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                            onPaste={index === 0 ? handleOtpPaste : undefined}
+                                            inputProps={{
+                                                maxLength: 1,
+                                                style: { textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold' }
+                                            }}
+                                            sx={{
+                                                width: 60,
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: '12px',
+                                                    '& fieldset': {
+                                                        borderColor: otp[index] ? '#FF8C00' : '#ddd',
+                                                    },
+                                                    '&:hover fieldset': {
+                                                        borderColor: '#FF8C00',
+                                                    },
+                                                    '&.Mui-focused fieldset': {
+                                                        borderColor: '#FF8C00',
+                                                    },
+                                                },
+                                            }}
                                         />
                                     ))}
                                 </Box>
-                                <Typography variant="body2" sx={{ mb: 2 }}>
-                                    Didn't receive the code? <Link sx={{ color: '#1976d2', cursor: 'pointer', fontWeight: 'bold' }}>Resend Code</Link> (00:24)
+                                <Typography variant="body2" sx={{ mb: 2, color: '#666' }}>
+                                    Didn't receive the code?{' '}
+                                    {resendTimer > 0 ? (
+                                        <span style={{ color: '#999' }}>
+                                            Resend Code ({String(Math.floor(resendTimer / 60)).padStart(2, '0')}:{String(resendTimer % 60).padStart(2, '0')})
+                                        </span>
+                                    ) : (
+                                        <Link
+                                            onClick={handleResendOTP}
+                                            sx={{
+                                                color: '#1976d2',
+                                                cursor: resendLoading ? 'not-allowed' : 'pointer',
+                                                fontWeight: 'bold',
+                                                textDecoration: 'none',
+                                                '&:hover': { textDecoration: 'underline' }
+                                            }}
+                                        >
+                                            {resendLoading ? 'Sending...' : 'Resend Code'}
+                                        </Link>
+                                    )}
                                 </Typography>
                                 <Button 
                                     fullWidth 
                                     variant="contained" 
-                                    onClick={() => setForgotStep(3)}
-                                    sx={{ bgcolor: '#FF8C00', color: '#fff', borderRadius: '12px', py: 1.5, mb: 2 }}
+                                    onClick={handleVerifyOTP}
+                                    disabled={otpLoading || otp.join('').length !== 6}
+                                    sx={{ bgcolor: '#FF8C00', color: '#fff', borderRadius: '12px', py: 1.5, mb: 2, '&:hover': { bgcolor: '#e67e00' }, '&:disabled': { bgcolor: '#ccc' } }}
                                 >
-                                    Verify →
+                                    {otpLoading ? <CircularProgress size={24} color="inherit" /> : 'Verify →'}
                                 </Button>
+                                <Link 
+                                    onClick={() => setForgotStep(1)}
+                                    sx={{ color: '#666', cursor: 'pointer', textDecoration: 'none', fontSize: '0.9rem' }}
+                                >
+                                    ← Wrong email? Go back
+                                </Link>
                             </>
                         )}
 
-                        {/* Bước 3: Đặt lại mật khẩu (Frame 1613) */}
+                        {/* Bước 3: Đặt lại mật khẩu */}
                         {forgotStep === 3 && (
                             <>
-                                <Box sx={{ bgcolor: '#FFF0E5', p: 2, borderRadius: '50%', mb: 2 }}>
+                                <Box sx={{ bgcolor: '#FFF0E5', p: 2, borderRadius: '50%', mb: 2, width: 80, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <LockResetIcon sx={{ fontSize: 50, color: '#FF8C00' }} />
                                 </Box>
                                 <Typography variant="h5" fontWeight="bold">Reset your password</Typography>
                                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                                     Please enter a new password for your BikeGo account.
                                 </Typography>
-                                <TextField fullWidth placeholder="Enter new password" type="password" sx={{ mb: 2 }} />
-                                <TextField fullWidth placeholder="Re-enter new password" type="password" sx={{ mb: 3 }} />
+                                {passwordError && <Alert severity="error" sx={{ mb: 2, width: '100%', textAlign: 'left' }}>{passwordError}</Alert>}
+                                <TextField 
+                                    fullWidth 
+                                    placeholder="Enter new password" 
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => {
+                                        setNewPassword(e.target.value);
+                                        setPasswordError('');
+                                    }}
+                                    sx={{ mb: 2 }} 
+                                />
+                                <TextField 
+                                    fullWidth 
+                                    placeholder="Re-enter new password" 
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => {
+                                        setConfirmPassword(e.target.value);
+                                        setPasswordError('');
+                                    }}
+                                    sx={{ mb: 3 }} 
+                                />
                                 <Button 
                                     fullWidth 
                                     variant="contained" 
-                                    onClick={() => setForgotStep(4)}
-                                    sx={{ bgcolor: '#FF8C00', color: '#fff', borderRadius: '12px', py: 1.5, mb: 2 }}
+                                    onClick={handleResetPassword}
+                                    disabled={resetLoading || !newPassword || !confirmPassword}
+                                    sx={{ bgcolor: '#FF8C00', color: '#fff', borderRadius: '12px', py: 1.5, mb: 2, '&:hover': { bgcolor: '#e67e00' }, '&:disabled': { bgcolor: '#ccc' } }}
                                 >
-                                    Reset Password
+                                    {resetLoading ? <CircularProgress size={24} color="inherit" /> : 'Reset Password'}
                                 </Button>
+                                <Link 
+                                    onClick={() => setForgotStep(2)}
+                                    sx={{ color: '#666', cursor: 'pointer', textDecoration: 'none', fontSize: '0.9rem' }}
+                                >
+                                    ← Back
+                                </Link>
                             </>
                         )}
 
-                        {/* Bước 4: Thành công (Frame 1614) */}
+                        {/* Bước 4: Thành công */}
                         {forgotStep === 4 && (
                             <>
                                 <Typography variant="h5" fontWeight="bold" sx={{ mt: 4, mb: 2 }}>
                                     Password changed successfully!
                                 </Typography>
                                 <Button 
-                                    onClick={() => { setOpenModal(false); setForgotStep(1); }}
-                                    sx={{ color: '#FF8C00', fontWeight: 'bold' }}
+                                    onClick={handleCloseModal}
+                                    sx={{ color: '#FF8C00', fontWeight: 'bold', textTransform: 'none' }}
                                 >
                                     ← Back to Login
                                 </Button>
                             </>
-                        )}
-
-                        {/* Link quay lại chung cho các bước */}
-                        {forgotStep !== 4 && (
-                            <Link 
-                                onClick={() => forgotStep === 1 ? setOpenModal(false) : setForgotStep(forgotStep - 1)}
-                                sx={{ color: '#666', cursor: 'pointer', textDecoration: 'none', fontSize: '0.9rem' }}
-                            >
-                                {forgotStep === 1 ? '← Back to Login' : '← Wrong email? Go back'}
-                            </Link>
                         )}
                     </Box>
                 </DialogContent>
