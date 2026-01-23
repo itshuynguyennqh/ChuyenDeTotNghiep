@@ -44,6 +44,9 @@ const AdminLayout = () => {
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        // Dispatch events to update cart count and login status in header
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
+        window.dispatchEvent(new CustomEvent('userLoggedOut'));
         navigate('/login');
     };
 

@@ -8,8 +8,12 @@ const baseURL = process.env.REACT_APP_API_URL || `http://${window.location.hostn
 const axiosClient = axios.create({
     baseURL: baseURL,
     headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/json; charset=utf-8',
     },
+    // Đảm bảo response được decode đúng UTF-8
+    responseType: 'json',
+    responseEncoding: 'utf8',
     // Auth của dự án đang dùng Bearer token (Authorization header), không dùng cookie.
     // Bật withCredentials thường gây "Network Error" do CORS/credentials mismatch.
     withCredentials: false,

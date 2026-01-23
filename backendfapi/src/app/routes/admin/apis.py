@@ -30,6 +30,22 @@ def parse_staff_id(staff_id: str | int) -> int:
             raise HTTPException(status_code=400, detail=f"Invalid staff ID format: {staff_id}")
     raise HTTPException(status_code=400, detail=f"Invalid staff ID type: {type(staff_id)}")
 
+def parse_faq_id(faq_id: str | int) -> int:
+    """Parse FAQ ID from either integer or 'FAQ-XXX' format"""
+    if isinstance(faq_id, int):
+        return faq_id
+    if isinstance(faq_id, str):
+        # Try to extract number from "FAQ-XXX" format
+        match = re.search(r'FAQ-(\d+)', faq_id.upper())
+        if match:
+            return int(match.group(1))
+        # If it's just a number string, convert it
+        try:
+            return int(faq_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid FAQ ID format: {faq_id}")
+    raise HTTPException(status_code=400, detail=f"Invalid FAQ ID type: {type(faq_id)}")
+
 # ==========================================
 # 1. DASHBOARD & REPORTS
 # ==========================================
@@ -704,8 +720,10 @@ async def create_promotion(payload: PromotionCreate, db: Session = Depends(get_d
         Status=payload.status
     )
     if payload.discount_config.type == 'percentage':
-        v.DiscountPercent = payload.discount_config.value
+        # DiscountPercent is Integer, convert Decimal to int
+        v.DiscountPercent = int(float(payload.discount_config.value))
     else:
+        # DiscountAmount is Numeric(10, 2), keep as Decimal
         v.DiscountAmount = payload.discount_config.value
         
     db.add(v)
@@ -764,6 +782,7 @@ async def update_promotion(
     if payload.end_date is not None: v.EndDate = payload.end_date
     if payload.quantity is not None: v.Quantity = payload.quantity
     if payload.status is not None: v.Status = payload.status
+    if payload.min_order_amount is not None: v.MinOrderAmount = payload.min_order_amount
 
     # Update Target Ranks (List -> String)
     if payload.target_ranks is not None:
@@ -772,9 +791,11 @@ async def update_promotion(
     # Update Discount Config (Switch logic)
     if payload.discount_config is not None:
         if payload.discount_config.type == 'percentage':
-            v.DiscountPercent = payload.discount_config.value
+            # DiscountPercent is Integer, convert Decimal to int
+            v.DiscountPercent = int(float(payload.discount_config.value))
             v.DiscountAmount = None # Reset amount
         else:
+            # DiscountAmount is Numeric(10, 2), keep as Decimal
             v.DiscountAmount = payload.discount_config.value
             v.DiscountPercent = None # Reset percent
 
@@ -1777,7 +1798,7 @@ async def get_faqs(
         preview = f.Answer[:50] + "..." if len(f.Answer) > 50 else f.Answer
 
         results.append(FAQResponse(
-            id=f.FAQID,
+            id=f"FAQ-{f.FAQID:03d}",
             question=f.Question,
             answer=f.Answer,
             answer_preview=preview,
@@ -1791,13 +1812,19 @@ async def get_faqs(
 # 2. CREATE FAQ
 @admin_router.post("/faqs", response_model=APIResponse)
 async def create_faq(payload: FAQCreate, db: Session = Depends(get_db)):
+    # FastAPI đã decode JSON đúng UTF-8, chỉ cần đảm bảo là string
+    question = payload.question if isinstance(payload.question, str) else str(payload.question)
+    answer = payload.answer if isinstance(payload.answer, str) else str(payload.answer)
+    
     # Convert List -> String (key1,key2)
-    kw_str = ",".join(payload.keywords) if payload.keywords else ""
+    keywords_list = [k if isinstance(k, str) else str(k) for k in payload.keywords] if payload.keywords else []
+    kw_str = ",".join(keywords_list)
+    
     is_active = True if payload.status == "active" else False
 
     new_faq = FAQ(
-        Question=payload.question,
-        Answer=payload.answer,
+        Question=question,
+        Answer=answer,
         Keywords=kw_str,
         IsActive=is_active,
         ModifiedDate=datetime.now()
@@ -1810,8 +1837,10 @@ async def create_faq(payload: FAQCreate, db: Session = Depends(get_db)):
 
 # 3. GET FAQ DETAIL
 @admin_router.get("/faqs/{faq_id}", response_model=APIResponse[FAQResponse])
-async def get_faq_detail(faq_id: int, db: Session = Depends(get_db)):
-    f = db.query(FAQ).filter(FAQ.FAQID == faq_id).first()
+async def get_faq_detail(faq_id: str, db: Session = Depends(get_db)):
+    # Parse faq_id from either integer or 'FAQ-XXX' format
+    parsed_id = parse_faq_id(faq_id)
+    f = db.query(FAQ).filter(FAQ.FAQID == parsed_id).first()
     if not f: raise HTTPException(404, "FAQ not found")
 
     kw_list = [k.strip() for k in f.Keywords.split(",")] if f.Keywords else []
@@ -1819,7 +1848,7 @@ async def get_faq_detail(faq_id: int, db: Session = Depends(get_db)):
     stt_lbl = "Active" if f.IsActive else "Inactive"
 
     data = FAQResponse(
-        id=f.FAQID,
+        id=f"FAQ-{f.FAQID:03d}",
         question=f.Question,
         answer=f.Answer,
         answer_preview=f.Answer, # Detail lấy full
@@ -1832,19 +1861,28 @@ async def get_faq_detail(faq_id: int, db: Session = Depends(get_db)):
 # 4. UPDATE FAQ
 @admin_router.patch("/faqs/{faq_id}", response_model=APIResponse)
 async def update_faq(
-    faq_id: int, 
+    faq_id: str, 
     payload: FAQUpdate, 
     db: Session = Depends(get_db)
 ):
-    f = db.query(FAQ).filter(FAQ.FAQID == faq_id).first()
+    # Đảm bảo tất cả string được encode đúng UTF-8
+    from ...helper import ensure_utf8_string
+    
+    # Parse faq_id from either integer or 'FAQ-XXX' format
+    parsed_id = parse_faq_id(faq_id)
+    f = db.query(FAQ).filter(FAQ.FAQID == parsed_id).first()
     if not f: raise HTTPException(404, "FAQ not found")
 
-    if payload.question is not None: f.Question = payload.question
-    if payload.answer is not None: f.Answer = payload.answer
+    # Normalize strings trước khi lưu
+    if payload.question is not None: 
+        f.Question = ensure_utf8_string(payload.question)
+    if payload.answer is not None: 
+        f.Answer = ensure_utf8_string(payload.answer)
     
     # Update Keywords
     if payload.keywords is not None:
-        f.Keywords = ",".join(payload.keywords)
+        keywords_list = [ensure_utf8_string(k) for k in payload.keywords]
+        f.Keywords = ",".join(keywords_list)
         
     # Update Status
     if payload.status is not None:
@@ -1857,8 +1895,10 @@ async def update_faq(
 
 # 5. DELETE FAQ
 @admin_router.delete("/faqs/{faq_id}", response_model=APIResponse)
-async def delete_faq(faq_id: int, db: Session = Depends(get_db)):
-    f = db.query(FAQ).filter(FAQ.FAQID == faq_id).first()
+async def delete_faq(faq_id: str, db: Session = Depends(get_db)):
+    # Parse faq_id from either integer or 'FAQ-XXX' format
+    parsed_id = parse_faq_id(faq_id)
+    f = db.query(FAQ).filter(FAQ.FAQID == parsed_id).first()
     if not f: raise HTTPException(404, "FAQ not found")
 
     db.delete(f)

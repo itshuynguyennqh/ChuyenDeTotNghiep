@@ -91,10 +91,9 @@ function Sync-ToBackend {
     try {
         Write-Host "`nĐang kiểm tra thay đổi trong backend repo..." -ForegroundColor Green
         git add -A
-        $statusOutput = git status --porcelain
+        $statusOutput = git status --porcelain | Out-String
         
-        $hasChanges = $statusOutput -ne $null -and $statusOutput.Count -gt 0
-        if ($hasChanges) {
+        if ($statusOutput.Trim().Length -gt 0) {
             Write-Host "`nCác file đã thay đổi:" -ForegroundColor Yellow
             git status --short
             

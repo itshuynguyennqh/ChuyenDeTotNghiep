@@ -8,25 +8,26 @@ import {
   Button,
   Avatar,
   CircularProgress,
+  Card,
+  CardContent,
+  Chip,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import chatbotIcon from '../../assets/icon-chatbot.png';
-import { chatWithBot } from '../../api/chatbotApi';
+import { chatWithBot, getActiveFAQs } from '../../api/chatbotApi';
+import { useNavigate } from 'react-router-dom';
 
 const Chatbot = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [suggestedQuestions, setSuggestedQuestions] = useState([]);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-
-  const suggestedQuestions = [
-    "What if I return the bike late?",
-    "Rental Terms?",
-    "How is the rental deposit?"
-  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,6 +42,29 @@ const Chatbot = () => {
       }, 100);
     }
   }, [isOpen, messages]);
+
+  // Load FAQs when component mounts or when chatbot opens
+  useEffect(() => {
+    const loadFAQs = async () => {
+      try {
+        const response = await getActiveFAQs(10);
+        if (response.data?.success && response.data?.data) {
+          const questions = response.data.data.map(faq => faq.question);
+          setSuggestedQuestions(questions);
+        }
+      } catch (error) {
+        console.error('Failed to load FAQs:', error);
+        // Fallback to default questions if API fails
+        setSuggestedQuestions([
+          "What if I return the bike late?",
+          "Rental Terms?",
+          "How is the rental deposit?"
+        ]);
+      }
+    };
+    
+    loadFAQs();
+  }, []);
 
   const handleSendMessage = async (messageText = null) => {
     const textToSend = messageText || inputMessage.trim();
@@ -63,13 +87,35 @@ const Chatbot = () => {
       const response = await chatWithBot(textToSend, history);
       const botMessage = {
         type: 'bot',
-        text: response.data.response || 'Sorry, I could not process your request.'
+        text: response.data.response || 'Sorry, I could not process your request.',
+        actionType: response.data.action_type || 'irrelevant',
+        data: response.data.data || null
       };
       setMessages(prev => [...prev, botMessage]);
+      
+      // If order was successful, trigger cart update event
+      if (response.data.action_type === 'order_result') {
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
+      }
     } catch (error) {
+      let errorText = 'Sorry, there was an error processing your message. Please try again.';
+      
+      // Handle authentication error
+      if (error?.response?.status === 401) {
+        errorText = 'Vui lòng đăng nhập để sử dụng chatbot.';
+        // Optionally redirect to login after showing message
+        setTimeout(() => {
+          navigate('/login', { state: { from: window.location.pathname } });
+          setIsOpen(false);
+        }, 2000);
+      } else if (error?.response?.data?.detail) {
+        errorText = error.response.data.detail;
+      }
+      
       const errorMessage = {
         type: 'bot',
-        text: 'Sorry, there was an error processing your message. Please try again.'
+        text: errorText,
+        actionType: 'error'
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -172,7 +218,7 @@ const Chatbot = () => {
                   sx={{
                     fontWeight: 'bold',
                     color: '#333',
-                    fontSize: '16px',
+                    fontSize: '18px',
                     lineHeight: 1.2,
                   }}
                 >
@@ -182,7 +228,7 @@ const Chatbot = () => {
                   variant="caption"
                   sx={{
                     color: '#666',
-                    fontSize: '12px',
+                    fontSize: '13px',
                   }}
                 >
                   Typically replies instantly
@@ -228,6 +274,7 @@ const Chatbot = () => {
                     sx={{
                       color: '#999',
                       textAlign: 'center',
+                      fontSize: '15px',
                     }}
                   >
                     Start a conversation with BikeGo Assistant
@@ -239,7 +286,9 @@ const Chatbot = () => {
                     key={index}
                     sx={{
                       display: 'flex',
-                      justifyContent: message.type === 'user' ? 'flex-end' : 'flex-start',
+                      flexDirection: 'column',
+                      alignItems: message.type === 'user' ? 'flex-end' : 'flex-start',
+                      gap: '8px',
                     }}
                   >
                     <Box
@@ -255,14 +304,87 @@ const Chatbot = () => {
                       <Typography
                         variant="body2"
                         sx={{
-                          fontSize: '14px',
-                          lineHeight: 1.5,
+                          fontSize: '16px',
+                          lineHeight: 1.6,
                           wordWrap: 'break-word',
+                          whiteSpace: 'pre-wrap',
                         }}
                       >
                         {message.text}
                       </Typography>
                     </Box>
+                    
+                    {/* Product List - Show when actionType is product_list */}
+                    {message.type === 'bot' && message.actionType === 'product_list' && message.data && Array.isArray(message.data) && message.data.length > 0 && (
+                      <Box sx={{ maxWidth: '85%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {message.data.map((product, idx) => (
+                          <Card
+                            key={idx}
+                            sx={{
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+                              },
+                            }}
+                            onClick={() => {
+                              const productId = product.ProductID || product.productid || product.product_id;
+                              if (productId) {
+                                navigate(`/products/${productId}`);
+                                setIsOpen(false);
+                              }
+                            }}
+                          >
+                            <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                                <Box sx={{ flex: 1 }}>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                                    {product.Name || product.name}
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 0.5 }}>
+                                    {product.Color && (
+                                      <Chip label={product.Color} size="small" sx={{ height: '20px', fontSize: '11px' }} />
+                                    )}
+                                    {product.Size && (
+                                      <Chip label={`Size: ${product.Size}`} size="small" sx={{ height: '20px', fontSize: '11px' }} />
+                                    )}
+                                  </Box>
+                                  <Typography variant="body2" sx={{ mt: 0.5, color: '#ff8c00', fontWeight: 'bold' }}>
+                                    ${product.ListPrice ? parseFloat(product.ListPrice).toFixed(2) : 'N/A'}
+                                    {product.RentPrice && ` / Rent: $${parseFloat(product.RentPrice).toFixed(2)}`}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </Box>
+                    )}
+                    
+                    {/* Order Result - Show button to go to cart */}
+                    {message.type === 'bot' && message.actionType === 'order_result' && (
+                      <Button
+                        variant="contained"
+                        startIcon={<ShoppingCartIcon />}
+                        onClick={() => {
+                          navigate('/cart');
+                          setIsOpen(false);
+                        }}
+                        sx={{
+                          backgroundColor: '#ff8c00',
+                          color: '#fff',
+                          textTransform: 'none',
+                          fontSize: '14px',
+                          padding: '8px 16px',
+                          '&:hover': {
+                            backgroundColor: '#e67e00',
+                          },
+                        }}
+                      >
+                        Xem giỏ hàng
+                      </Button>
+                    )}
                   </Box>
                 ))
               )}
@@ -288,15 +410,32 @@ const Chatbot = () => {
               <div ref={messagesEndRef} />
             </Box>
 
-            {/* Suggested Questions */}
-            {messages.length === 0 && (
+            {/* Suggested Questions - Luôn hiển thị để người dùng có thể hỏi tiếp */}
+            {suggestedQuestions.length > 0 && (
               <Box
                 sx={{
                   padding: '12px 20px',
                   backgroundColor: '#f5f5f5',
                   display: 'flex',
-                  flexDirection: 'column',
+                  flexDirection: 'row',
                   gap: '8px',
+                  overflowX: 'auto',
+                  overflowY: 'hidden',
+                  borderTop: messages.length > 0 ? '1px solid #e0e0e0' : 'none',
+                  '&::-webkit-scrollbar': {
+                    height: '6px',
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    backgroundColor: '#f0f0f0',
+                    borderRadius: '3px',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: '#ccc',
+                    borderRadius: '3px',
+                    '&:hover': {
+                      backgroundColor: '#999',
+                    },
+                  },
                 }}
               >
                 {suggestedQuestions.map((question, index) => (
@@ -308,9 +447,12 @@ const Chatbot = () => {
                       textTransform: 'none',
                       borderColor: '#1976d2',
                       color: '#1976d2',
-                      fontSize: '13px',
-                      padding: '8px 12px',
+                      fontSize: '15px',
+                      padding: '10px 14px',
                       borderRadius: '8px',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                      fontWeight: 500,
                       '&:hover': {
                         borderColor: '#1565c0',
                         backgroundColor: 'rgba(25, 118, 210, 0.04)',
@@ -348,6 +490,7 @@ const Chatbot = () => {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '24px',
                     backgroundColor: '#f5f5f5',
+                    fontSize: '16px',
                     '& fieldset': {
                       borderColor: '#e0e0e0',
                     },
@@ -357,6 +500,10 @@ const Chatbot = () => {
                     '&.Mui-focused fieldset': {
                       borderColor: '#ff8c00',
                     },
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: '16px',
+                    padding: '10px 14px',
                   },
                 }}
               />

@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select, func, desc, and_, or_
 from typing import List, Optional
 from datetime import datetime
+import uuid
+from decimal import Decimal
 
 from app.database import get_db
 from app.models import *
@@ -76,6 +78,18 @@ def get_featured_products(db: Session = Depends(get_db)):
     results = db.execute(query).all()
     data = [map_row_to_product_card(row) for row in results]
     
+    return success_response(data=data)
+
+
+@store_router.get("/categories", response_model=APIResponse[List[StoreCategoryItem]])
+def get_store_categories(db: Session = Depends(get_db)):
+    """Public API: list all product subcategories (id, name) for filter drawer."""
+    items = (
+        db.query(ProductSubcategory)
+        .order_by(ProductSubcategory.Name)
+        .all()
+    )
+    data = [StoreCategoryItem(id=c.ProductSubcategoryID, name=c.Name) for c in items]
     return success_response(data=data)
 
 
@@ -695,7 +709,7 @@ def create_order(
     user_id: int = Depends(get_current_user_id)
 ):
     # 1. Lấy Giỏ hàng
-    cart = db.query(Cart).filter(Cart.CustomerID == user_id, Cart.Status == "Active").first()
+    cart = db.query(Cart).options(joinedload(Cart.items)).filter(Cart.CustomerID == user_id, Cart.Status == "Active").first()
     if not cart or not cart.items:
         raise HTTPException(status_code=400, detail="Cart is empty")
 
@@ -803,9 +817,6 @@ def create_order(
                 Freight=0, # Phí ship (có thể tính thêm logic)
                 OrderStatus="Pending", # 1: InProcess
                 ModifiedDate=datetime.now(),
-                # Các cột mới thêm
-                PaymentMethod=payload.payment_method,
-                ShipAddressID=payload.address_id,
                 CancellationReason=payload.note # Lưu tạm note vào đây
             )
             db.add(buy_header)
@@ -835,10 +846,7 @@ def create_order(
                 RentalNumber=generate_order_number("RN"),
                 TotalDue=final_rent_total,
                 Status=1, # 1: Pending/Active
-                ModifiedDate=datetime.now(),
-                # Các cột mới thêm
-                PaymentMethod=payload.payment_method,
-                DeliveryAddressID=payload.address_id
+                ModifiedDate=datetime.now()
             )
             db.add(rent_header)
             db.flush()
@@ -869,13 +877,19 @@ def create_order(
         # --- C. Cập nhật Voucher & Cart ---
         if voucher:
             voucher.Quantity -= 1
+            # Lưu ID đơn hàng nào? Nếu tách 2 đơn thì lưu cả 2?
+            # DB VoucherUsage chỉ có 1 cột OrderID. 
+            # Ta ưu tiên lưu ID đơn Buy, nếu ko có thì lưu ID đơn Rent.
+            order_id = None
+            if created_buy_header:
+                order_id = created_buy_header.SalesOrderID
+            elif created_rent_header:
+                order_id = created_rent_header.RentalID
+            
             usage = VoucherUsage(
                 VoucherID=voucher.VoucherID,
                 CustomerID=user_id,
-                # Lưu ID đơn hàng nào? Nếu tách 2 đơn thì lưu cả 2?
-                # DB VoucherUsage chỉ có 1 cột OrderID. 
-                # Ta ưu tiên lưu ID đơn Buy, nếu ko có thì lưu ID đơn Rent.
-                OrderID=created_buy_header.SalesOrderID if created_buy_header else created_rent_header.RentalID,
+                OrderID=order_id,
                 UsedDate=datetime.now()
             )
             db.add(usage)

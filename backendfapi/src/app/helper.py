@@ -9,6 +9,46 @@ from decimal import Decimal
 T = TypeVar('T')
 
 # ==========================================
+# UTF-8 Encoding Helper
+# ==========================================
+
+def ensure_utf8_string(text: Optional[str]) -> Optional[str]:
+    """
+    Đảm bảo string được encode đúng UTF-8 trước khi lưu vào database.
+    Nếu string đã là unicode string, giữ nguyên.
+    Nếu string là bytes, decode về UTF-8.
+    """
+    if text is None:
+        return None
+    
+    # Nếu đã là string, đảm bảo nó là unicode string
+    if isinstance(text, str):
+        # Đảm bảo string là unicode (không phải bytes đã được decode sai)
+        try:
+            # Nếu string có thể encode/decode lại UTF-8, nó đã đúng
+            text.encode('utf-8').decode('utf-8')
+            return text
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            # Nếu có lỗi, thử decode lại từ latin-1 (thường là encoding mặc định khi lỗi)
+            try:
+                return text.encode('latin-1').decode('utf-8')
+            except:
+                return text
+    
+    # Nếu là bytes, decode về UTF-8
+    if isinstance(text, bytes):
+        try:
+            return text.decode('utf-8')
+        except UnicodeDecodeError:
+            # Thử decode từ latin-1 rồi encode lại UTF-8
+            try:
+                return text.decode('latin-1').encode('utf-8').decode('utf-8')
+            except:
+                return text.decode('utf-8', errors='replace')
+    
+    return str(text)
+
+# ==========================================
 # 1. CORE & SHARED (Response Wrappers)
 # ==========================================
 

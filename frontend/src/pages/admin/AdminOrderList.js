@@ -29,11 +29,16 @@ const AdminOrderList = () => {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const type = tabValue === 0 ? 'purchase' : 'rental';
-      const response = await getAdminOrders(type, { status: statusFilter, search: searchValue });
+      const type = tabValue === 0 ? 'sale' : 'rental';
+      const response = await getAdminOrders({ 
+        type, 
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        search: searchValue || undefined 
+      });
       // API returns PagedResponse with structure: {status, code, data: [...], pagination}
       // Extract the actual array from response.data.data
-      setOrders(response.data?.data || []);
+      const ordersData = response.data?.data || [];
+      setOrders(ordersData);
     } catch (error) {
       console.error('Failed to load orders:', error);
       setOrders([]); // Set empty array on error to prevent filter errors
@@ -67,6 +72,19 @@ const AdminOrderList = () => {
 
   const purchaseColumns = [
     { id: 'id', label: 'ORDER ID' },
+    { 
+      id: 'customer_name', 
+      label: 'CUSTOMER NAME',
+      render: (value, row) => {
+        // Try multiple possible field names
+        const name = value || row.customer_name || row.full_name || 'N/A';
+        return (
+          <Typography variant="body2">
+            {name}
+          </Typography>
+        );
+      }
+    },
     { id: 'total', label: 'TOTAL', align: 'right' },
     {
       id: 'status',
@@ -86,6 +104,19 @@ const AdminOrderList = () => {
 
   const rentalColumns = [
     { id: 'id', label: 'ORDER ID' },
+    { 
+      id: 'customer_name', 
+      label: 'CUSTOMER NAME',
+      render: (value, row) => {
+        // Try multiple possible field names
+        const name = value || row.customer_name || row.full_name || 'N/A';
+        return (
+          <Typography variant="body2">
+            {name}
+          </Typography>
+        );
+      }
+    },
     {
       id: 'rentalPeriod',
       label: 'RENTAL PERIOD',
@@ -124,13 +155,18 @@ const AdminOrderList = () => {
     return true;
   });
 
-  const rows = filteredOrders.map((order) => ({
-    id: order.id,
-    total: `$${parseFloat(order.total || 0).toFixed(2)}`,
-    status: order.status,
-    rentalPeriod: order.rentalPeriod,
-    ...order,
-  }));
+  const rows = filteredOrders.map((order) => {
+    // Backend returns customer_name in OrderListItem, but check for both just in case
+    const customerName = order.customer_name || order.full_name || 'N/A';
+    return {
+      ...order,
+      id: order.id,
+      customer_name: customerName,
+      total: `$${parseFloat(order.total_amount || order.total || 0).toFixed(2)}`,
+      status: order.status || order.status_label,
+      rentalPeriod: order.rentalPeriod,
+    };
+  });
 
   return (
     <Box>

@@ -21,8 +21,9 @@ const AccountPage = () => {
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        // Dispatch event to update cart count in header
+        // Dispatch events to update cart count and login status in header
         window.dispatchEvent(new CustomEvent('cartUpdated'));
+        window.dispatchEvent(new CustomEvent('userLoggedOut'));
         navigate('/');
     };
     

@@ -31,3 +31,12 @@ export const sendChatbotMessage = (data) => {
 export const chatWithBot = (message, history = []) => {
     return sendChatbotMessage({ message, history });
 };
+
+/**
+ * Get active FAQs for suggested questions
+ * @param {number} limit - Maximum number of FAQs to return (default: 10)
+ * @returns {Promise} Response with {success, data: [{id, question}]}
+ */
+export const getActiveFAQs = (limit = 10) => {
+    return axiosClient.get('/chatbot/faqs', { params: { limit } });
+};

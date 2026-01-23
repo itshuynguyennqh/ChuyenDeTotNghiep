@@ -13,6 +13,14 @@ export const getFeaturedProducts = () => {
 };
 
 /**
+ * Get store categories (subcategories) for filter drawer
+ * @returns {Promise} { data: { data: [{ id, name }, ...] } }
+ */
+export const getStoreCategories = () => {
+    return axiosClient.get('/store/categories');
+};
+
+/**
  * Search products with filters
  * @param {Object} params - Search parameters
  * @param {number} params.category_id - Category ID filter

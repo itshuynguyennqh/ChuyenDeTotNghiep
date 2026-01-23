@@ -61,5 +61,26 @@ export const deleteAddressAPI = (addressId) => {
   return axiosClient.delete(`/user/addresses/${addressId}`);
 };
 
+// ===================================================================
+// USER API - Order Endpoints
+// ===================================================================
+
+/**
+ * Get user's orders
+ * @param {Object} params - Query parameters (page, limit, type: 'all'|'sale'|'rental')
+ * @returns {Promise} List of user orders
+ */
+export const getUserOrders = (params = {}) => {
+  // Get customer ID from localStorage
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const customerId = user.id;
+  
+  if (!customerId) {
+    return Promise.reject(new Error('User not logged in'));
+  }
+  
+  return axiosClient.get(`/admin/customers/${customerId}/orders`, { params });
+};
+
 // Backward compatibility aliases
 export const updateAccountAPI = updateUserProfile;

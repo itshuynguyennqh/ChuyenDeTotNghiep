@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Box, InputBase, IconButton, Badge } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu'; // Import Icon 3 gạch
 import { getCart } from '../../api/storeApi';
 
@@ -14,10 +14,10 @@ import userIcon from '../../assets/User-icon.png';
 import logo from '../../assets/BikeGo-logo-orange.png';
 
 function Header() {
+    const navigate = useNavigate();
     const [cartItemCount, setCartItemCount] = useState(0);
     const [openDrawer, setOpenDrawer] = useState(false); // State quản lý đóng mở Drawer
-
-    const isLoggedIn = !!localStorage.getItem('token');
+    const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
 
     // Hàm toggle Drawer
     const toggleDrawer = (newOpen) => () => {
@@ -25,7 +25,9 @@ function Header() {
     };
 
     const updateCartCount = async () => {
-        if (!isLoggedIn) {
+        // Check login status directly from localStorage
+        const loggedIn = !!localStorage.getItem('token');
+        if (!loggedIn) {
             setCartItemCount(0);
             return;
         }
@@ -48,11 +50,26 @@ function Header() {
 
     useEffect(() => {
         updateCartCount();
-        window.addEventListener('cartUpdated', updateCartCount);
-        return () => {
-            window.removeEventListener('cartUpdated', updateCartCount);
+        
+        const handleCartUpdate = () => {
+            updateCartCount();
         };
-    }, [isLoggedIn]);
+        
+        const handleLoginStatusChange = () => {
+            setIsLoggedIn(!!localStorage.getItem('token'));
+            updateCartCount(); // Also update cart when login status changes
+        };
+        
+        window.addEventListener('cartUpdated', handleCartUpdate);
+        window.addEventListener('userLoggedOut', handleLoginStatusChange);
+        window.addEventListener('userLoggedIn', handleLoginStatusChange);
+        
+        return () => {
+            window.removeEventListener('cartUpdated', handleCartUpdate);
+            window.removeEventListener('userLoggedOut', handleLoginStatusChange);
+            window.removeEventListener('userLoggedIn', handleLoginStatusChange);
+        };
+    }, []);
 
     return (
         <>
@@ -134,7 +151,18 @@ function Header() {
 
                     {/* --- RIGHT SECTION: ICONS --- */}
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                        <IconButton color="inherit" component={RouterLink} to={isLoggedIn ? "/account" : "/login"}>
+                        <IconButton 
+                            color="inherit" 
+                            onClick={(e) => {
+                                // Check login status dynamically at click time
+                                const loggedIn = !!localStorage.getItem('token');
+                                if (loggedIn) {
+                                    navigate('/account');
+                                } else {
+                                    navigate('/login');
+                                }
+                            }}
+                        >
                             <Box
                                 component="img"
                                 src={userIcon}
@@ -161,6 +189,14 @@ function Header() {
             <CategoryDrawer
                 open={openDrawer}
                 onClose={toggleDrawer(false)}
+                onCategorySelect={(category) => {
+                    if (category) {
+                        navigate(`/?category_id=${category.id}`);
+                    } else {
+                        navigate('/');
+                    }
+                    setOpenDrawer(false);
+                }}
             />
         </>
     );

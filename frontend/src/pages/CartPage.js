@@ -318,104 +318,48 @@ const CartPage = () => {
 
     // Handle checkout for buy items
     const handleBuyCheckout = async () => {
+        // Check if any items are selected
+        if (selectedBuyItems.size === 0) {
+            alert('Please select items to order');
+            return;
+        }
+
         if (buyItems.length === 0) {
             alert('No items to order');
             return;
         }
 
-        try {
-            // Get user addresses
-            const addressesResponse = await fetchAddressesAPI();
-            const addresses = addressesResponse.data?.data || addressesResponse.data || [];
-            
-            if (addresses.length === 0) {
-                alert('Please add a delivery address first');
-                navigate('/account?tab=addresses');
-                return;
-            }
-
-            // Use default address or first address
-            const selectedAddress = addresses.find(addr => addr.is_default) || addresses[0];
-            
-            // Call checkout API
-            const checkoutData = {
-                address_id: selectedAddress.address_id,
-                payment_method: 'cod', // Default to COD, can be changed in payment page
-                voucher_code: selectedBuyVoucher?.code || null,
-                note: null
-            };
-
-            const checkoutResponse = await checkout(checkoutData);
-            const orderData = checkoutResponse.data?.data || checkoutResponse.data;
-            
-            // Navigate to payment page with order data
-            navigate('/payment', { 
-                state: { 
-                    orderData: orderData,
-                    type: 'buy',
-                    fromCart: true
-                } 
-            });
-        } catch (error) {
-            console.error('Checkout error:', error);
-            if (error?.response?.status === 401) {
-                alert('Please log in to place an order');
-                navigate('/login');
-            } else {
-                alert(error?.response?.data?.detail || error?.message || 'Failed to create order. Please try again.');
-            }
-        }
+        // Navigate to payment page with cart data and voucher info
+        navigate('/payment', { 
+            state: { 
+                type: 'buy',
+                fromCart: true,
+                voucherCode: selectedBuyVoucher?.code || null
+            } 
+        });
     };
 
     // Handle checkout for rent items
     const handleRentCheckout = async () => {
+        // Check if any items are selected
+        if (selectedRentItems.size === 0) {
+            alert('Please select items to rent');
+            return;
+        }
+
         if (rentItems.length === 0) {
             alert('No items to rent');
             return;
         }
 
-        try {
-            // Get user addresses
-            const addressesResponse = await fetchAddressesAPI();
-            const addresses = addressesResponse.data?.data || addressesResponse.data || [];
-            
-            if (addresses.length === 0) {
-                alert('Please add a delivery address first');
-                navigate('/account?tab=addresses');
-                return;
-            }
-
-            // Use default address or first address
-            const selectedAddress = addresses.find(addr => addr.is_default) || addresses[0];
-            
-            // Call checkout API
-            const checkoutData = {
-                address_id: selectedAddress.address_id,
-                payment_method: 'cod', // Default to COD, can be changed in payment page
-                voucher_code: selectedRentVoucher?.code || null,
-                note: null
-            };
-
-            const checkoutResponse = await checkout(checkoutData);
-            const orderData = checkoutResponse.data?.data || checkoutResponse.data;
-            
-            // Navigate to payment page with order data
-            navigate('/payment', { 
-                state: { 
-                    orderData: orderData,
-                    type: 'rent',
-                    fromCart: true
-                } 
-            });
-        } catch (error) {
-            console.error('Checkout error:', error);
-            if (error?.response?.status === 401) {
-                alert('Please log in to place an order');
-                navigate('/login');
-            } else {
-                alert(error?.response?.data?.detail || error?.message || 'Failed to create order. Please try again.');
-            }
-        }
+        // Navigate to payment page with cart data and voucher info
+        navigate('/payment', { 
+            state: { 
+                type: 'rent',
+                fromCart: true,
+                voucherCode: selectedRentVoucher?.code || null
+            } 
+        });
     };
 
     // Handle rental date change
@@ -838,31 +782,48 @@ const CartPage = () => {
                                     const selectedBuyTotal = selectedBuyItemsList.reduce((sum, item) => sum + parseFloat(item.subtotal || 0), 0);
                                     const selectedBuyCount = selectedBuyItemsList.length;
                                     
-                                    // Use discount from backend API to ensure consistency
-                                    // Calculate discount proportionally for selected items
-                                    const totalBuyAmount = cartSummary.total_buy_amount || 0;
-                                    const discountedBuyAmount = cartSummary.discounted_buy_amount || totalBuyAmount;
-                                    
-                                    let discount = 0;
-                                    let selectedDiscountedBuy = selectedBuyTotal;
-                                    
-                                    // If voucher is applied and we have discount from backend
-                                    if (selectedBuyVoucher && selectedBuyTotal > 0 && totalBuyAmount > 0) {
+                                    // Calculate discount amount from voucher
+                                    let discountAmount = 0;
+                                    if (selectedBuyVoucher && selectedBuyTotal > 0) {
                                         const minOrder = parseFloat(selectedBuyVoucher.min_order_amount || 0);
+                                        console.log('Voucher discount calculation:', {
+                                            voucher: selectedBuyVoucher,
+                                            selectedBuyTotal,
+                                            minOrder,
+                                            discount_type: selectedBuyVoucher.discount_type,
+                                            discount_value: selectedBuyVoucher.discount_value,
+                                            meetsMinOrder: selectedBuyTotal >= minOrder
+                                        });
+                                        
                                         if (selectedBuyTotal >= minOrder) {
-                                            // Calculate discount rate from backend
-                                            const discountRate = totalBuyAmount > 0 ? (totalBuyAmount - discountedBuyAmount) / totalBuyAmount : 0;
+                                            // Calculate discount based on discount_type and discount_value
+                                            // Handle both flat structure (discount_type/discount_value) and nested (discount_config)
+                                            let discountType = selectedBuyVoucher.discount_type;
+                                            let discountValue = selectedBuyVoucher.discount_value;
                                             
-                                            // Apply same discount rate to selected items
-                                            discount = selectedBuyTotal * discountRate;
+                                            // If voucher has discount_config instead (from admin API), extract it
+                                            if (!discountType && selectedBuyVoucher.discount_config) {
+                                                discountType = selectedBuyVoucher.discount_config.type;
+                                                discountValue = selectedBuyVoucher.discount_config.value;
+                                            }
+                                            
+                                            if (discountType === 'percentage') {
+                                                // discount_value is percentage (e.g., 10 = 10%)
+                                                discountAmount = selectedBuyTotal * (parseFloat(discountValue || 0) / 100);
+                                            } else if (discountType === 'amount' || discountType === 'fixed') {
+                                                // discount_value is fixed amount
+                                                discountAmount = parseFloat(discountValue || 0);
+                                            }
+                                            
                                             // Ensure discount doesn't exceed total
-                                            discount = Math.min(discount, selectedBuyTotal);
-                                            selectedDiscountedBuy = selectedBuyTotal - discount;
+                                            discountAmount = Math.min(discountAmount, selectedBuyTotal);
+                                        } else {
+                                            console.log('Min order not met:', { selectedBuyTotal, minOrder });
                                         }
                                     }
                                     
                                     const shipping = selectedBuyCount > 0 ? 20 : 0;
-                                    const total = selectedDiscountedBuy + shipping;
+                                    const total = selectedBuyTotal - discountAmount + shipping;
                                     
                                     return (
                                         <>
@@ -872,22 +833,12 @@ const CartPage = () => {
                                                     ${formatCurrency(selectedBuyTotal)}
                                                 </Typography>
                                             </Box>
-                                            {discount > 0 && (
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                                    <Typography variant="body2" color="success.main">Discount</Typography>
-                                                    <Typography variant="body2" fontWeight="bold" color="success.main">
-                                                        -${formatCurrency(discount)}
-                                                    </Typography>
-                                                </Box>
-                                            )}
-                                            {selectedBuyTotal > 0 && (
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                                    <Typography variant="body2" fontWeight="bold" color={discount > 0 ? "success.main" : "text.primary"}>Discounted</Typography>
-                                                    <Typography variant="body2" fontWeight="bold" color={discount > 0 ? "success.main" : "text.primary"}>
-                                                        ${formatCurrency(selectedDiscountedBuy)}
-                                                    </Typography>
-                                                </Box>
-                                            )}
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                                <Typography variant="body2" fontWeight="bold">(discount amount)</Typography>
+                                                <Typography variant="body2" fontWeight="bold" color={discountAmount > 0 ? "success.main" : "text.primary"}>
+                                                    ${formatCurrency(discountAmount)}
+                                                </Typography>
+                                            </Box>
                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
                                                 <Typography variant="body2">Shipping</Typography>
                                                 <Typography variant="body2" fontWeight="bold">${formatCurrency(shipping)}</Typography>
@@ -966,31 +917,48 @@ const CartPage = () => {
                                     // Security deposit: sum of unit_price for selected items (assuming unit_price is deposit)
                                     const securityDeposit = selectedRentItemsList.reduce((sum, item) => sum + parseFloat(item.unit_price || 0), 0);
                                     
-                                    // Use discount from backend API to ensure consistency
-                                    // Calculate discount proportionally for selected items
-                                    const totalRentAmount = cartSummary.total_rent_amount || 0;
-                                    const discountedRentAmount = cartSummary.discounted_rent_amount || totalRentAmount;
-                                    
-                                    let discount = 0;
-                                    let selectedDiscountedRent = totalRentFee;
-                                    
-                                    // If voucher is applied and we have discount from backend
-                                    if (selectedRentVoucher && totalRentFee > 0 && totalRentAmount > 0) {
+                                    // Calculate discount amount from voucher
+                                    let discountAmount = 0;
+                                    if (selectedRentVoucher && totalRentFee > 0) {
                                         const minOrder = parseFloat(selectedRentVoucher.min_order_amount || 0);
+                                        console.log('Rent voucher discount calculation:', {
+                                            voucher: selectedRentVoucher,
+                                            totalRentFee,
+                                            minOrder,
+                                            discount_type: selectedRentVoucher.discount_type,
+                                            discount_value: selectedRentVoucher.discount_value,
+                                            meetsMinOrder: totalRentFee >= minOrder
+                                        });
+                                        
                                         if (totalRentFee >= minOrder) {
-                                            // Calculate discount rate from backend
-                                            const discountRate = totalRentAmount > 0 ? (totalRentAmount - discountedRentAmount) / totalRentAmount : 0;
+                                            // Calculate discount based on discount_type and discount_value
+                                            // Handle both flat structure (discount_type/discount_value) and nested (discount_config)
+                                            let discountType = selectedRentVoucher.discount_type;
+                                            let discountValue = selectedRentVoucher.discount_value;
                                             
-                                            // Apply same discount rate to selected items
-                                            discount = totalRentFee * discountRate;
+                                            // If voucher has discount_config instead (from admin API), extract it
+                                            if (!discountType && selectedRentVoucher.discount_config) {
+                                                discountType = selectedRentVoucher.discount_config.type;
+                                                discountValue = selectedRentVoucher.discount_config.value;
+                                            }
+                                            
+                                            if (discountType === 'percentage') {
+                                                // discount_value is percentage (e.g., 10 = 10%)
+                                                discountAmount = totalRentFee * (parseFloat(discountValue || 0) / 100);
+                                            } else if (discountType === 'amount' || discountType === 'fixed') {
+                                                // discount_value is fixed amount
+                                                discountAmount = parseFloat(discountValue || 0);
+                                            }
+                                            
                                             // Ensure discount doesn't exceed totalRentFee
-                                            discount = Math.min(discount, totalRentFee);
-                                            selectedDiscountedRent = totalRentFee - discount;
+                                            discountAmount = Math.min(discountAmount, totalRentFee);
+                                        } else {
+                                            console.log('Min order not met for rent:', { totalRentFee, minOrder });
                                         }
                                     }
                                     
                                     const shipping = selectedRentCount > 0 ? 20 : 0;
-                                    const total = selectedDiscountedRent + securityDeposit + shipping;
+                                    const total = totalRentFee - discountAmount + securityDeposit + shipping;
                                     
                                     return (
                                         <>
@@ -1000,22 +968,12 @@ const CartPage = () => {
                                                     ${formatCurrency(totalRentFee)}
                                                 </Typography>
                                             </Box>
-                                            {discount > 0 && (
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                                    <Typography variant="body2" color="success.main">Discount</Typography>
-                                                    <Typography variant="body2" fontWeight="bold" color="success.main">
-                                                        -${formatCurrency(discount)}
-                                                    </Typography>
-                                                </Box>
-                                            )}
-                                            {totalRentFee > 0 && (
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                                    <Typography variant="body2" fontWeight="bold" color={discount > 0 ? "success.main" : "text.primary"}>Discounted</Typography>
-                                                    <Typography variant="body2" fontWeight="bold" color={discount > 0 ? "success.main" : "text.primary"}>
-                                                        ${formatCurrency(selectedDiscountedRent)}
-                                                    </Typography>
-                                                </Box>
-                                            )}
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                                <Typography variant="body2" fontWeight="bold">(discount amount)</Typography>
+                                                <Typography variant="body2" fontWeight="bold" color={discountAmount > 0 ? "success.main" : "text.primary"}>
+                                                    ${formatCurrency(discountAmount)}
+                                                </Typography>
+                                            </Box>
                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                                 <Typography variant="body2">Shipping</Typography>
                                                 <Typography variant="body2" fontWeight="bold">${formatCurrency(shipping)}</Typography>

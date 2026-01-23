@@ -345,6 +345,7 @@ class PromotionUpdate(BaseModel):
     target_ranks: Optional[List[str]] = None
     status: Optional[bool] = None
     discount_config: Optional[DiscountConfig] = None
+    min_order_amount: Optional[Decimal] = None
 
 class PromotionResponse(PromotionBase):
     id: int

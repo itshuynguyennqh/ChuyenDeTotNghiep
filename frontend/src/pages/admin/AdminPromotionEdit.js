@@ -37,16 +37,32 @@ const AdminPromotionEdit = () => {
     try {
       setLoading(true);
       const response = await getAdminPromotion(id);
-      const promotion = response.data?.data || response.data;
+      const p = response.data?.data || response.data;
+      const dc = p.discount_config || {};
+      const valueType = dc.type === 'amount' ? 'fixed' : (dc.type || 'percentage');
+      // Handle value: if it's 0, still show "0", don't convert to empty string
+      const value = dc.value != null && dc.value !== '' ? String(dc.value) : '';
+      const quantityLimit = p.quantity != null ? String(p.quantity) : '';
+      let duration = '';
+      if (p.start_date && p.end_date) {
+        const start = new Date(p.start_date);
+        const end = new Date(p.end_date);
+        const days = Math.round((end - start) / (1000 * 60 * 60 * 24));
+        duration = days > 0 ? String(days) : '';
+      }
+      const condition = p.min_order_amount != null && Number(p.min_order_amount) > 0
+        ? String(p.min_order_amount)
+        : '';
+      const status = p.status === true ? 'active' : 'draft';
       setFormData({
-        name: promotion.name || '',
-        code: promotion.code || '',
-        valueType: promotion.valueType || 'percentage',
-        value: promotion.value || '',
-        quantityLimit: promotion.quantityLimit || '',
-        duration: promotion.duration || '',
-        condition: promotion.condition || '',
-        status: promotion.status || 'draft',
+        name: p.name || '',
+        code: p.code || '',
+        valueType,
+        value,
+        quantityLimit,
+        duration,
+        condition,
+        status,
       });
     } catch (error) {
       console.error('Failed to load promotion:', error);
@@ -63,11 +79,43 @@ const AdminPromotionEdit = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateAdminPromotion(id, formData);
+      // Validate value is provided and not empty
+      const discountValue = parseFloat(formData.value);
+      if (isNaN(discountValue) || discountValue < 0) {
+        alert('Please enter a valid discount value (must be a positive number)');
+        return;
+      }
+      
+      const payload = {
+        name: formData.name.trim(),
+        code: formData.code.trim(),
+        discount_config: {
+          type: formData.valueType === 'fixed' ? 'amount' : 'percentage',
+          value: discountValue,
+        },
+        status: formData.status === 'active' || formData.status === 'scheduled',
+      };
+      if (formData.quantityLimit !== '' && formData.quantityLimit != null) {
+        const q = parseInt(formData.quantityLimit, 10);
+        if (!Number.isNaN(q) && q >= 0) payload.quantity = q;
+      }
+      // Add min_order_amount if condition field has a value
+      if (formData.condition !== '' && formData.condition != null) {
+        const minOrder = parseFloat(formData.condition);
+        if (!Number.isNaN(minOrder) && minOrder >= 0) {
+          payload.min_order_amount = minOrder;
+        }
+      } else {
+        // If condition is empty, set min_order_amount to 0 (no minimum)
+        payload.min_order_amount = 0;
+      }
+      await updateAdminPromotion(id, payload);
       navigate('/admin/promotions');
     } catch (error) {
       console.error('Failed to update promotion:', error);
-      alert(error?.response?.data?.detail || 'Failed to update promotion');
+      const detail = error?.response?.data?.detail;
+      const msg = Array.isArray(detail) ? detail.map((x) => x?.msg ?? JSON.stringify(x)).join(', ') : (detail || 'Failed to update promotion');
+      alert(msg);
     }
   };
 

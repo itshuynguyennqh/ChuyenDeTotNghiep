@@ -4,6 +4,11 @@ from decimal import Decimal
 from datetime import datetime
 from app.helper import *
 
+# --- STORE CATEGORIES (for drawer filter) ---
+class StoreCategoryItem(BaseModel):
+    id: int
+    name: str
+
 # --- SHARED ---
 class ProductImageItem(BaseModel):
     id: int = Field(..., alias="image_id")

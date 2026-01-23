@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
     Container,
     Grid,
@@ -18,18 +19,20 @@ import {
 } from '@mui/material';
 import './ProductList.css';
 import ProductCard from '../components/common/ProductCard';
-import { searchProducts } from '../api/storeApi';
+import { searchProducts, getStoreCategories } from '../api/storeApi';
 
 function ProductList() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const itemsPerPage = 8; // 8 sản phẩm mỗi trang
+    const itemsPerPage = 8;
 
     // Filter states
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+    const [categories, setCategories] = useState([]);
     const [condition, setCondition] = useState(null);
     const [priceRange, setPriceRange] = useState(null);
     const [sizes, setSizes] = useState([]);
@@ -42,6 +45,28 @@ function ProductList() {
         setPage(value);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    // Sync URL ?category_id -> selectedCategoryId
+    useEffect(() => {
+        const cid = searchParams.get('category_id');
+        const id = cid ? parseInt(cid, 10) : null;
+        setSelectedCategoryId(isNaN(id) ? null : id);
+        setPage(1);
+    }, [searchParams]);
+
+    // Fetch categories for title
+    useEffect(() => {
+        getStoreCategories()
+            .then((res) => {
+                const raw = res?.data?.data ?? res?.data;
+                setCategories(Array.isArray(raw) ? raw : []);
+            })
+            .catch(() => setCategories([]));
+    }, []);
+
+    const selectedCategoryName = selectedCategoryId && categories.length
+        ? (categories.find((c) => c.id === selectedCategoryId)?.name) || null
+        : null;
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -261,12 +286,13 @@ function ProductList() {
                 </FormGroup>
             </Box>
 
-            {(condition || priceRange || sizes.length > 0 || colors.length > 0 || minRating || isRentable !== null) && (
+            {(selectedCategoryId || condition || priceRange || sizes.length > 0 || colors.length > 0 || minRating || isRentable !== null) && (
                 <Button 
                     variant="outlined" 
                     fullWidth 
                     sx={{ mt: 3, bgcolor: '#fff' }}
                     onClick={() => {
+                        setSelectedCategoryId(null);
                         setCondition(null);
                         setPriceRange(null);
                         setSizes([]);
@@ -274,6 +300,9 @@ function ProductList() {
                         setMinRating(null);
                         setIsRentable(null);
                         setPage(1);
+                        const next = new URLSearchParams(searchParams);
+                        next.delete('category_id');
+                        setSearchParams(next);
                     }}
                 >
                     Clear Filters
@@ -299,7 +328,7 @@ function ProductList() {
                 <Grid item xs={9} md={9.5} width={"80%"}>
 
                     <Typography variant="h4" component="h1" sx={{ color: '#1976d2', fontWeight: 'bold', mb: 3 }}>
-                        Mountain Bikes
+                        {selectedCategoryName || 'Tất cả sản phẩm'}
                     </Typography>
 
                     {error && (

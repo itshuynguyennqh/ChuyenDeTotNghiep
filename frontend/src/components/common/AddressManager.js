@@ -28,9 +28,27 @@ function AddressManager({ open, onClose, onSelectAddress, selectedAddressId }) {
     const fetchAddresses = async () => {
         try {
             const response = await fetchAddressesAPI();
-            setAddresses(response.data);
+            // API returns { status, code, data: [...] }
+            const addressesData = response.data?.data || response.data || [];
+            const addressesArray = Array.isArray(addressesData) ? addressesData : [];
+            
+            // Normalize API response (snake_case) to component expected format (PascalCase)
+            const normalizedAddresses = addressesArray.map(addr => ({
+                AddressID: addr.id || addr.address_id,
+                ContactName: addr.contact_name || addr.receiver_name || '',
+                PhoneNumber: addr.phone_number || addr.phone || '',
+                AddressLine1: addr.address_line1 || addr.address || '',
+                City: addr.city || '',
+                PostalCode: addr.postal_code || '',
+                IsDefault: addr.is_default || false,
+                // Keep original fields for compatibility
+                ...addr
+            }));
+            
+            setAddresses(normalizedAddresses);
         } catch (error) {
             console.error("Failed to fetch addresses:", error);
+            setAddresses([]);
         }
     };
 

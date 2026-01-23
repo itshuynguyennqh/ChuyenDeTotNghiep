@@ -32,7 +32,7 @@ const AdminCustomerList = () => {
 
   useEffect(() => {
     loadCustomers();
-  }, [statusFilter]);
+  }, [statusFilter, searchValue]);
 
   const loadCustomers = async () => {
     try {
@@ -130,20 +130,25 @@ const AdminCustomerList = () => {
     if (searchValue) {
       const searchLower = searchValue.toLowerCase();
       return (
-        customer.name?.toLowerCase().includes(searchLower) ||
+        customer.full_name?.toLowerCase().includes(searchLower) ||
         customer.phone?.toLowerCase().includes(searchLower)
       );
     }
     return true;
   });
 
-  const rows = filteredCustomers.map((customer) => ({
-    id: customer.id,
-    name: customer.name,
-    phone: customer.phone,
-    status: customer.status,
-    ...customer,
-  }));
+  const rows = filteredCustomers.map((customer) => {
+    // Backend returns status as int: 1 = active, 0 = banned
+    // Convert to string for StatusToggle component
+    const statusStr = customer.status === 1 ? 'active' : 'banned';
+    return {
+      id: customer.id,
+      name: customer.full_name || customer.name || 'N/A',
+      phone: customer.phone || 'N/A',
+      status: statusStr,
+      ...customer,
+    };
+  });
 
   return (
     <Box>

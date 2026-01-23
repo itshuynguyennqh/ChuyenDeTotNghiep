@@ -262,7 +262,7 @@ const LoginPage = () => {
                                     <strong>Product Staff:</strong> staffproduct@bikego.com / staff123
                                 </Typography>
                                 <Typography variant="caption" sx={{ display: 'block' }}>
-                                    <strong>Customer:</strong> customer1@bikego.com / cus123
+                                    <strong>Customer:</strong> itshuynguyen.nqh@gmail.com / cus1
                                 </Typography>
                             </Box>
                         </Box>

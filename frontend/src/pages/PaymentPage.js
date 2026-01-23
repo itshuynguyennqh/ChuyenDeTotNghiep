@@ -14,8 +14,9 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import AddressManager from '../components/common/AddressManager';
 import Chatbot from '../components/common/Chatbot';
-import { fetchCartAPI, fetchAddressesAPI, placeOrderAPI } from '../api/productApi';
+import { fetchAddressesAPI, placeOrderAPI } from '../api/productApi';
 import { getAccountDetails } from '../api/authApi';
+import { checkout, getCart } from '../api/storeApi';
 
 function PaymentPage() {
     const navigate = useNavigate();
@@ -29,6 +30,9 @@ function PaymentPage() {
     const [userInfo, setUserInfo] = useState(null);
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
+    const [isRedirecting, setIsRedirecting] = useState(false);
+    const [voucherCode, setVoucherCode] = useState(null); // Voucher code from cart
+    const [paymentMethod, setPaymentMethod] = useState('cod'); // Selected payment method
     
     // State cho khách vãng lai
     const isLoggedIn = !!localStorage.getItem('token');
@@ -45,13 +49,22 @@ function PaymentPage() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                // Check if this is a direct order (buy/rent now)
-                if (location.state && location.state.type) {
+                // Check if this is a direct order (buy/rent now from product detail)
+                // Direct orders have 'product' property
+                if (location.state && location.state.product) {
+                    // Direct order from ProductDetail page
                     setDirectOrder(location.state);
                 } else {
-                    // Load cart for regular checkout
-                    const cartResponse = await fetchCartAPI();
-                    setCart(cartResponse.data);
+                    // Load cart for checkout (either from cart page or direct access)
+                    const cartResponse = await getCart();
+                    // API returns { status, code, data: { cart_id, total_items, items, ... } }
+                    const cartData = cartResponse.data?.data || cartResponse.data;
+                    setCart(cartData);
+                    
+                    // If coming from cart, get voucher code from location.state
+                    if (location.state && location.state.fromCart) {
+                        setVoucherCode(location.state.voucherCode || null);
+                    }
                 }
 
                 if (isLoggedIn) {
@@ -62,8 +75,23 @@ function PaymentPage() {
                     }
 
                     const addressesResponse = await fetchAddressesAPI();
-                    if (addressesResponse.data && addressesResponse.data.length > 0) {
-                        setSelectedAddress(addressesResponse.data[0]);
+                    // API returns { status, code, data: [...] }
+                    const addresses = addressesResponse.data?.data || addressesResponse.data || [];
+                    if (Array.isArray(addresses) && addresses.length > 0) {
+                        // Normalize API response (snake_case) to component expected format (PascalCase)
+                        const firstAddress = addresses[0];
+                        const normalizedAddress = {
+                            AddressID: firstAddress.id || firstAddress.address_id,
+                            ContactName: firstAddress.contact_name || firstAddress.receiver_name || '',
+                            PhoneNumber: firstAddress.phone_number || firstAddress.phone || '',
+                            AddressLine1: firstAddress.address_line1 || firstAddress.address || '',
+                            City: firstAddress.city || '',
+                            PostalCode: firstAddress.postal_code || '',
+                            IsDefault: firstAddress.is_default || false,
+                            // Keep original fields for compatibility
+                            ...firstAddress
+                        };
+                        setSelectedAddress(normalizedAddress);
                     }
                 }
             } catch (error) {
@@ -88,7 +116,12 @@ function PaymentPage() {
                 alert("Vui lòng chọn địa chỉ giao hàng!");
                 return;
             }
-            orderData = { address_id: selectedAddress.AddressID };
+            orderData = { 
+                address_id: selectedAddress.AddressID,
+                payment_method: paymentMethod,
+                voucher_code: voucherCode || null,
+                note: null
+            };
         } else {
             // Validate guest info
             if (!guestInfo.firstname || !guestInfo.email || !guestInfo.phone || !guestInfo.addressline1 || !guestInfo.city) {
@@ -98,21 +131,29 @@ function PaymentPage() {
             orderData = { guest_info: guestInfo };
         }
 
-        // Add order type and product info for direct orders
-        if (isDirectOrder) {
-            orderData.order_type = orderType;
-            orderData.product = directOrder.product;
-        }
-
         setProcessing(true);
         try {
             if (isDirectOrder) {
                 // For direct orders, you might want to add to cart first or create order directly
                 // For now, we'll add to cart and then place order
                 // TODO: Implement direct order API if available
+                orderData.order_type = orderType;
+                orderData.product = directOrder.product;
                 await placeOrderAPI(orderData);
             } else {
-                await placeOrderAPI(orderData);
+                // Cart checkout - use checkout API
+                const checkoutResponse = await checkout(orderData);
+                const responseData = checkoutResponse.data?.data || checkoutResponse.data;
+                
+                // Navigate to order success page with order data
+                setTimeout(() => {
+                    setShowSuccessPopup(false);
+                    navigate('/order-success', { 
+                        state: { 
+                            orderData: responseData 
+                        } 
+                    });
+                }, 2000);
             }
             
             // Bắn sự kiện để Header cập nhật lại số lượng giỏ hàng (về 0)
@@ -128,14 +169,17 @@ function PaymentPage() {
                 setShowConfetti(false);
             }, 3000);
             
-            // Navigate to order success page after 2 seconds
-            setTimeout(() => {
-                setShowSuccessPopup(false);
-                navigate('/order-success');
-            }, 2000);
+            // For direct orders, navigate after showing success
+            if (isDirectOrder) {
+                setTimeout(() => {
+                    setShowSuccessPopup(false);
+                    navigate('/order-success');
+                }, 2000);
+            }
         } catch (error) {
             console.error("Đặt hàng thất bại:", error);
-            alert("Đặt hàng thất bại. Vui lòng thử lại.");
+            const errorMessage = error?.response?.data?.detail || error?.message || "Đặt hàng thất bại. Vui lòng thử lại.";
+            alert(errorMessage);
             setProcessing(false);
         }
     };
@@ -149,10 +193,15 @@ function PaymentPage() {
     }
 
     // Check if we have a direct order or cart
-    const isDirectOrder = directOrder !== null;
+    const isDirectOrder = directOrder !== null && directOrder?.product;
     const orderType = directOrder?.type || 'buy'; // 'buy' or 'rent'
 
-    if (!isDirectOrder && (!cart || !cart.Items || cart.Items.length === 0)) {
+    // If we have directOrder state but no product, it's invalid
+    if (directOrder !== null && !directOrder?.product) {
+        return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>Invalid order data. Please try again.</Box>;
+    }
+
+    if (!isDirectOrder && (!cart || !cart.items || cart.items.length === 0)) {
         return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>Giỏ hàng trống</Box>;
     }
 
@@ -165,17 +214,25 @@ function PaymentPage() {
 
     if (isDirectOrder) {
         const product = directOrder.product;
+        if (!product) {
+            return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>Invalid order data</Box>;
+        }
         if (orderType === 'rent') {
-            const rentalFee = product.PricePerDay * product.Days * product.Quantity;
+            const rentalFee = (product.PricePerDay || 0) * (product.Days || 1) * (product.Quantity || 1);
             subtotal = rentalFee;
-            securityDeposit = product.SecurityDeposit * product.Quantity;
+            securityDeposit = (product.SecurityDeposit || 0) * (product.Quantity || 1);
             totalPayment = subtotal - voucherDiscount + shippingFee + securityDeposit;
         } else {
-            subtotal = product.Price * product.Quantity;
+            subtotal = (product.Price || 0) * (product.Quantity || 1);
             totalPayment = subtotal - voucherDiscount + shippingFee;
         }
     } else {
-        subtotal = cart.Total || cart.Items.reduce((total, item) => total + (item.Quantity * item.UnitPrice), 0);
+        // Calculate subtotal from cart items
+        if (cart.items && cart.items.length > 0) {
+            subtotal = cart.items.reduce((total, item) => total + parseFloat(item.subtotal || 0), 0);
+        } else {
+            subtotal = cart.total_buy_amount + cart.total_rent_amount || 0;
+        }
         totalPayment = subtotal - voucherDiscount + shippingFee;
     }
 
@@ -269,65 +326,71 @@ function PaymentPage() {
                         <Stack spacing={2}>
                             {isDirectOrder ? (
                                 // Direct order (Buy Now / Rent Now)
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                    <Box sx={{ width: 100, height: 100, backgroundColor: '#fff', borderRadius: 2, p: 1, border: '1px solid #eee', flexShrink: 0 }}>
-                                        <CardMedia 
-                                            component="img" 
-                                            image={directOrder.product.Image}
-                                            sx={{ objectFit: 'contain', height: '100%', width: '100%' }} 
-                                            onError={(e) => { e.target.onerror = null; e.target.src = `https://via.placeholder.com/100?text=No+Image`; }}
-                                        />
-                                    </Box>
-                                    <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
-                                            {directOrder.product.Name}
-                                        </Typography>
-                                        {orderType === 'rent' && directOrder.product.Color && directOrder.product.Size && (
-                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                                                {directOrder.product.Color}, Size {directOrder.product.Size}
-                                            </Typography>
-                                        )}
-                                        {orderType === 'rent' && (
-                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                                                From {directOrder.product.RentalStartDate} to {directOrder.product.RentalEndDate}
-                                            </Typography>
-                                        )}
-                                        {orderType === 'rent' ? (
-                                            <Typography variant="body1" color="error" fontWeight="bold">
-                                                ${directOrder.product.PricePerDay}/day
-                                            </Typography>
-                                        ) : (
-                                            <Typography variant="body1" color="error" fontWeight="bold">
-                                                ${directOrder.product.Price.toFixed(2)}
-                                            </Typography>
-                                        )}
-                                    </Box>
-                                    <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'flex-start', pt: 1 }}>
-                                        {orderType === 'rent' ? `x${directOrder.product.Days} days` : `x${directOrder.product.Quantity}`}
-                                    </Typography>
-                                </Box>
-                            ) : (
-                                // Cart items
-                                cart.Items.map((item) => (
-                                    <Box key={item.CartItemID} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                directOrder?.product ? (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                         <Box sx={{ width: 100, height: 100, backgroundColor: '#fff', borderRadius: 2, p: 1, border: '1px solid #eee', flexShrink: 0 }}>
                                             <CardMedia 
                                                 component="img" 
-                                                image={`https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${item.ProductID}&size=large`}
+                                                image={directOrder.product.Image || 'https://via.placeholder.com/100?text=No+Image'}
                                                 sx={{ objectFit: 'contain', height: '100%', width: '100%' }} 
                                                 onError={(e) => { e.target.onerror = null; e.target.src = `https://via.placeholder.com/100?text=No+Image`; }}
                                             />
                                         </Box>
                                         <Box sx={{ flexGrow: 1 }}>
                                             <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
-                                                {item.Name}
+                                                {directOrder.product.Name || 'Product'}
+                                            </Typography>
+                                            {orderType === 'rent' && directOrder.product.Color && directOrder.product.Size && (
+                                                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                                    {directOrder.product.Color}, Size {directOrder.product.Size}
+                                                </Typography>
+                                            )}
+                                            {orderType === 'rent' && (
+                                                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                                    From {directOrder.product.RentalStartDate} to {directOrder.product.RentalEndDate}
+                                                </Typography>
+                                            )}
+                                            {orderType === 'rent' ? (
+                                                <Typography variant="body1" color="error" fontWeight="bold">
+                                                    ${(directOrder.product.PricePerDay || 0).toFixed(2)}/day
+                                                </Typography>
+                                            ) : (
+                                                <Typography variant="body1" color="error" fontWeight="bold">
+                                                    ${(directOrder.product.Price || 0).toFixed(2)}
+                                                </Typography>
+                                            )}
+                                        </Box>
+                                        <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'flex-start', pt: 1 }}>
+                                            {orderType === 'rent' ? `x${directOrder.product.Days || 1} days` : `x${directOrder.product.Quantity || 1}`}
+                                        </Typography>
+                                    </Box>
+                                ) : (
+                                    <Box sx={{ p: 2, textAlign: 'center', color: 'text.secondary' }}>
+                                        <Typography>Invalid product data</Typography>
+                                    </Box>
+                                )
+                            ) : (
+                                // Cart items
+                                cart.items && cart.items.map((item) => (
+                                    <Box key={item.id || item.cart_item_id} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                        <Box sx={{ width: 100, height: 100, backgroundColor: '#fff', borderRadius: 2, p: 1, border: '1px solid #eee', flexShrink: 0 }}>
+                                            <CardMedia 
+                                                component="img" 
+                                                image={item.thumbnail || `https://demo.componentone.com/ASPNET/AdventureWorks/ProductImage.ashx?ProductID=${item.product_id}&size=large`}
+                                                sx={{ objectFit: 'contain', height: '100%', width: '100%' }} 
+                                                onError={(e) => { e.target.onerror = null; e.target.src = `https://via.placeholder.com/100?text=No+Image`; }}
+                                            />
+                                        </Box>
+                                        <Box sx={{ flexGrow: 1 }}>
+                                            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
+                                                {item.product_name}
                                             </Typography>
                                             <Typography variant="body1" color="error" fontWeight="bold">
-                                                ${parseFloat(item.UnitPrice).toFixed(2)}
+                                                ${parseFloat(item.unit_price || 0).toFixed(2)}
                                             </Typography>
                                         </Box>
                                         <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'flex-start', pt: 1 }}>
-                                            x{item.Quantity}
+                                            x{item.quantity}
                                         </Typography>
                                     </Box>
                                 ))
@@ -386,10 +449,10 @@ function PaymentPage() {
 
                             {/* Payment Method */}
                             <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Payment Method</Typography>
-                            <RadioGroup defaultValue="online" sx={{ mb: 4 }}>
+                            <RadioGroup value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} sx={{ mb: 4 }}>
                                 <Box sx={{ mb: 2 }}>
                                     <FormControlLabel
-                                        value="online"
+                                        value="banking"
                                         control={<Radio size="small" color="default" />}
                                         label={<Typography fontWeight="bold">Online Payment</Typography>}
                                     />
