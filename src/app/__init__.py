@@ -7,5 +7,6 @@ def create_app() -> FastAPI:
     app.include_router(admin_router)
     app.include_router(store_router)
     app.include_router(users_router)
+    app.include_router(chatbot_router)
     
     return app

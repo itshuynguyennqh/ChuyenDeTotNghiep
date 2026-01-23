@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Column, Integer, String, DateTime, Date, Boolean, 
+    Column, FetchedValue, Integer, String, DateTime, Date, Boolean, 
     ForeignKey, Numeric, SmallInteger, LargeBinary, Text, NCHAR
 )
 from sqlalchemy.orm import relationship, deferred
@@ -255,7 +255,7 @@ class CartItem(Base):
     
     Quantity = Column(Integer, nullable=False)
     UnitPrice = Column(Numeric(10, 2), nullable=False) 
-    Subtotal = Column(Numeric(21, 2))
+    Subtotal = Column(Numeric(21, 2), server_default=FetchedValue())
     DateAdded = Column(DateTime)
     DateUpdated = Column(DateTime)
 
